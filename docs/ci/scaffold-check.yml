@@ -1,0 +1,40 @@
+name: scaffold-check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Required scaffolding files present
+        run: |
+          set -e
+          for f in \
+            .clinerules AGENTS.md .editorconfig global.json LICENSE \
+            Directory.Build.props Directory.Packages.props \
+            .agents/architect.md .agents/csharp-dev.md .agents/reviewer.md \
+            .github/copilot-instructions.md \
+            openspec/constitution.md openspec/config.yaml openspec/project.md \
+            openspec/schemas/csharp-api.yaml \
+            openspec/proposals/000-template.md \
+            openspec/proposals/000-performance.md \
+            openspec/proposals/000-acceptance.md \
+            docs/architecture/service-boundaries.md \
+            docs/operations/slo.md ; do
+            test -f "$f" || { echo "MISSING: $f"; exit 1; }
+          done
+          echo "All required scaffolding files present."
+
+      - name: Standards 01..11 present
+        run: |
+          set -e
+          for n in 01-code-style 02-architecture 03-handoffs 04-documentation \
+                   05-definition-of-done 06-api 07-persistence 08-messaging \
+                   09-security 10-observability 11-performance ; do
+            test -f "openspec/standards/$n.md" || { echo "MISSING standard: $n"; exit 1; }
+          done
+          echo "All standards 01..11 present."

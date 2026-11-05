@@ -1,0 +1,68 @@
+# OpenSpec configuration — agentic-openspec
+# Defines the project profile and which validation schemas are active.
+
+version: 1
+
+project:
+  name: agentic-openspec
+  description: Agentic Spec-Driven Development workspace for a C#/.NET project, orchestrated by Cline.
+  profile: csharp-api          # see openspec/schemas/csharp-api.yaml
+  standards: openspec/standards        # обязательные инженерные стандарты
+  constitution: openspec/constitution.md  # высший приоритет
+  docs: docs                           # архитектура и эксплуатация
+  language: csharp
+
+stack:
+  runtime: dotnet
+  target_framework: net8.0      # minimum; raise per project as needed
+  language_version: "12"        # C# 12+
+  nullable: enable
+  implicit_usings: enable
+  treat_warnings_as_errors: true
+  test_framework: xunit
+  assertion_library: FluentAssertions
+  mocking_library: NSubstitute
+  web_framework: aspnetcore     # minimal APIs preferred
+  orm: efcore                   # when persistence is required
+
+# Validation schemas applied to proposals and specs.
+schemas:
+  active:
+    - csharp-api
+    - spec-first
+  proposal_template: proposals/000-template.md
+
+# SDD workflow gates. "spec_first" must be true: no code before an approved spec.
+workflow:
+  spec_first: true
+  require_approval_before_apply: true
+  require_independent_review: true
+  require_performance_evidence: true
+  require_acceptance_matrix: true
+  archive_dir: proposals/archive
+  specs_dir: specs
+  proposals_dir: proposals
+
+# Commands the agents use for the verification gate.
+commands:
+  restore: dotnet restore
+  build: dotnet build --configuration Release --no-restore
+  test: dotnet test --configuration Release --no-build
+  format_check: dotnet format --verify-no-changes
+
+# Subagent delegation (Cline).
+agents:
+  orchestrator: cline
+  roles:
+    architect: .agents/architect.md
+    developer: .agents/csharp-dev.md
+    reviewer: .agents/reviewer.md
+  skills_dir: .agents/skills
+  delegation_tool: spawn_agent   # Cline CLI subagent tool
+
+# Guardrails enforced during review.
+guardrails:
+  forbid_extra_dependencies: true
+  require_tests_for_new_code: true
+  forbid_secrets_in_repo: true
+  max_open_proposals_per_slug: 1

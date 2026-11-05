@@ -1,0 +1,169 @@
+# Правила Cline — agentic-openspec
+
+> Рабочее пространство Spec-Driven Development (SDD) для проекта на **C# / .NET**.
+> Оркестратор — Cline; специализированные субагенты — в `.agents/`; машиночитаемые спецификации — в `openspec/`.
+
+## 0. Золотое правило — Spec First (сначала спецификация)
+
+**Продакшн-код не пишется и не изменяется, пока в `openspec/proposals/` не существует (или не обновлена)
+спецификация.** Если запрос пришёл без спецификации — не пиши код: сначала проведи его через роль
+Архитектора (`.agents/architect.md`), получи утверждение спецификации и только потом реализуй.
+
+Перед любой задачей прочитай **конституцию** [`openspec/constitution.md`](openspec/constitution.md) — она выше
+по приоритету, чем этот файл и стандарты.
+
+## 1. Стандарты C# / .NET
+
+- **Версия языка**: целевая **C# 12+** на **.NET 8+**. Фиксируй SDK через `global.json` (на этой машине
+  установлены SDK 9 и 10).
+- **Настройки проектов по умолчанию**: `<Nullable>enable</Nullable>`, `<ImplicitUsings>enable</ImplicitUsings>`,
+  `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<LangVersion>latest</LangVersion>`, включай анализаторы.
+- **Стиль**: file-scoped namespaces, primary constructors, `record` для неизменяемых данных, pattern matching,
+  свойства `required`/`init`, collection expressions, `var` — только когда тип очевиден.
+- **Работа с null**: предпочитай `ArgumentNullException.ThrowIfNull`, `?.`/`??`/`??=`. Никогда не используй
+  null-forgiving `!`, если это не доказуемо безопасно — добавь короткий комментарий с обоснованием.
+- **Асинхронность**: `async`/`await` на всём пути, пробрасывай `CancellationToken`, никогда — `.Result`/`.Wait()`.
+- **Именование**: `PascalCase` — типы/члены, `camelCase` — параметры/локали, `_camelCase` — приватные поля,
+  `I` — интерфейсы, `T` — дженерики, суффикс `Async` — асинхронные методы.
+- **Модификаторы доступа** указываем всегда явно; неизменяемые поля — `readonly`.
+- **Горячие пути** (обработка запроса/сериализация): без лишних аллокаций и без LINQ; `Span`/`ArrayPool`/`ValueTask`.
+- **Анализаторы**: NetAnalyzers + SonarAnalyzer.CSharp + Meziantou.Analyzer; макс. длина строки — 120.
+- **Оформление**: Allman-скобки, 4 пробела, file-scoped namespace, `System.*`-usings сверху; правила закреплены
+  в корневом [`.editorconfig`](.editorconfig) и проверяются `dotnet format`.
+- **Null-проверки**: только `is null` / `is not null` (никогда `== null` / `!= null`).
+
+### ASP.NET Core (где применимо)
+- Для новых эндпоинтов предпочитай **Minimal APIs**; контроллеры оставляй там, где их уже использует текущая конвенция.
+- Используй встроенный **DI** с корректными временами жизни (`Singleton`/`Scoped`/`Transient`).
+- Используй **паттерн Options** (`IOptions<T>` / `IOptionsSnapshot<T>`); никогда не читай `IConfiguration` внутри бизнес-логики.
+- Возвращай `TypedResults` / `Results<...>` или `IActionResult` с правильными кодами состояния; ошибки — через `ProblemDetails`.
+- Валидируй входные данные на границе (FluentValidation или `DataAnnotations`); доменную логику держи независимой от фреймворка.
+
+### Тестирование
+- Фреймворк: **xUnit** (+ **FluentAssertions** для ассертов, **NSubstitute**/**Moq** для моков).
+- Именование тестов: `Method_Scenario_ExpectedResult` **или** `Should_...`.
+- Одно поведение на тест; для табличных случаев — `[Theory]`/`[InlineData]`; интеграционные тесты — `WebApplicationFactory<T>`.
+- Раскладка: `tests/<Project>.UnitTests`, `tests/<Project>.IntegrationTests`.
+
+### Инструменты — только dotnet CLI
+Любой шаг сборки/теста/форматирования выполняется через **dotnet CLI** (никогда `msbuild`, никогда IDE-only шаги):
+
+```powershell
+dotnet restore
+dotnet build --configuration Release --no-restore
+dotnet test  --configuration Release --no-build
+dotnet format --verify-no-changes
+dotnet new sln / dotnet sln add <proj>
+```
+
+## 2. Процесс SDD
+
+Каждое изменение проходит четыре фазы — Explore → Propose → Apply → Archive.
+
+1. **Explore (разведка)** — прочитай `openspec/specs/` и существующий код. На этой фазе правок нет.
+2. **Propose (предложение)** — скопируй `openspec/proposals/000-template.md` в новую папку
+   `openspec/proposals/<NNN-slug>/` и заполни `proposal.md`, `tasks.md`, при необходимости `design.md`
+   и дельты спецификаций в `specs/<capability>/spec.md`.
+3. **Apply (реализация)** — реализуй только задачи из `tasks.md`; отмечай чекбоксы по мере выполнения.
+4. **Archive (архив)** — перенеси завершённое предложение в `openspec/proposals/archive/<YYYY-MM-DD>-<slug>/`
+   и влей его дельты в `openspec/specs/`.
+
+Фрагменты спецификаций следуют конвенции OpenSpec. Ключевые слова (`ADDED`, `Requirement`, `Scenario`,
+`WHEN`, `THEN`) — на английском, их **нельзя переводить** (их проверяет схема валидации):
+
+```markdown
+## ADDED Requirements
+### Requirement: <название>
+The system SHALL <поведение>.
+#### Scenario: <название>
+- **WHEN** <триггер>
+- **THEN** <наблюдаемый результат>
+```
+
+Никогда не выдумывай требования. Если что-то неоднозначно — спроси пользователя и зафиксируй ответ в предложении.
+
+## 3. Делегирование субагентам
+
+Cline выступает **Оркестратором**. Для любой нетривиальной задачи:
+
+1. Составь короткий план и определи, какие роли нужны.
+2. Делегируй сфокусированные задачи ролям в `.agents/` через инструмент субагентов Cline CLI
+   (`spawn_agent`) — по одной чёткой цели на субагента:
+   - `.agents/architect.md` — требования, диаграммы C4/Mermaid, запись `openspec/proposals/`.
+   - `.agents/csharp-dev.md` — реализация утверждённой спецификации; обязаны пройти `dotnet build` и `dotnet test`.
+   - `.agents/reviewer.md` — сверка кода со спецификацией; вердикт `Pass` или список конкретных нарушений.
+3. Держи основной контекст чистым: проси у субагентов краткие отчёты, не вставляй целые файлы обратно.
+4. Объедини результаты, разреши конфликты и доложи результат пользователю.
+
+Правила делегирования:
+- Ни один субагент не может пропустить гейт спецификации.
+- Ревьюер — всегда независимый проход, никогда не тот же агент, что писал код.
+- При `Fail` верни нарушения Разработчику, затем проведи повторное ревью, прежде чем сообщать об успехе.
+
+## 4. Структура репозитория
+
+```text
+agentic-openspec/
+├── .clinerules            # эти правила (workspace)
+├── AGENTS.md              # кросс-инструментальное зеркало правил
+├── .editorconfig          # стиль C# (Allman, отступы, именование)
+├── global.json            # пин SDK
+├── Directory.Build.props  # общие настройки сборки
+├── Directory.Packages.props # централизованные версии зависимостей
+├── .github/
+│   ├── copilot-instructions.md
+│   └── instructions/*.instructions.md
+├── .agents/               # роли и скиллы субагентов
+│   ├── architect.md
+│   ├── csharp-dev.md
+│   ├── reviewer.md
+│   └── skills/<name>/SKILL.md
+├── docs/                  # архитектура и эксплуатация
+│   ├── architecture/{service-boundaries.md, adr/}
+│   └── operations/{slo.md, capacity.md, runbooks/}
+└── openspec/              # артефакты SDD
+    ├── constitution.md    # ВЫСШИЙ приоритет
+    ├── config.yaml
+    ├── project.md
+    ├── proposals/         # черновики + утверждённые спецификации (+ 000-template.md)
+    ├── schemas/           # схемы валидации по профилям
+    ├── standards/         # инженерные стандарты 01..11 (ОБЯЗАТЕЛЬНО к прочтению)
+    └── specs/             # живые (актуализированные) спецификации
+```
+
+## 5. Ограничения (guardrails)
+
+- Не коммить секреты, строки подключения и файлы `.env`.
+- Не трогай `openspec/proposals/archive/**`, кроме как для добавления.
+- Не добавляй новые NuGet-зависимости, не перечислив их в разделе «C# Implementation Plan» предложения.
+- Держи диффы маленькими и обозримыми; одно предложение ≈ одно цельное изменение.
+
+## 6. Инженерные стандарты (обязательно к прочтению)
+
+Полный свод — в `openspec/standards/`. Читай перед написанием спецификации или кода:
+
+- [`01-code-style.md`](openspec/standards/01-code-style.md) — соглашения C#, горячие пути, линтинг.
+- [`02-architecture.md`](openspec/standards/02-architecture.md) — Clean Architecture + DDD, SOLID, SDD, high-load практики.
+- [`03-handoffs.md`](openspec/standards/03-handoffs.md) — handoffs между этапами и сервисами.
+- [`04-documentation.md`](openspec/standards/04-documentation.md) — XML-док, ADR, Runbook.
+- [`05-definition-of-done.md`](openspec/standards/05-definition-of-done.md) — DoD (Ревьюер использует как чек-лист).
+- [`06-api.md`](openspec/standards/06-api.md) · [`07-persistence.md`](openspec/standards/07-persistence.md) ·
+  [`08-messaging.md`](openspec/standards/08-messaging.md) · [`09-security.md`](openspec/standards/09-security.md) ·
+  [`10-observability.md`](openspec/standards/10-observability.md) · [`11-performance.md`](openspec/standards/11-performance.md).
+
+Ключевое из стандартов (кратко):
+- Внешние вызовы — с таймаутом, retry/jitter, circuit breaker (Polly), `CancellationToken`.
+- Наблюдаемость — OpenTelemetry (traces/metrics/logs); health-checks `/health/live`, `/health/ready`.
+- Секреты — только из окружения/vault, не в репозитории.
+- Покрытие: >80% общий, >90% Domain; ADR — для архитектурных решений; Runbook — для сервиса.
+
+## 7. Рабочий протокол агента
+
+1. Перед изменением кода прочитай `openspec/constitution.md`, спецификацию, план и относящиеся к задаче стандарты.
+2. Если требование неоднозначно — зафиксируй вопрос и дефолт. Не придумывай бизнес-правило самостоятельно.
+3. Не меняй границы сервисов, публичные контракты, версии SDK/зависимостей и схему данных вне согласованного плана.
+4. Для сетевых вызовов явно опиши таймауты, отмену, условия повторных попыток и последствия повторного выполнения.
+5. Для обработчиков сообщений опиши повторную доставку, идемпотентность и поведение при частичном отказе.
+6. Не объявляй выполнение SLO без нагрузочного теста в описанном окружении (`performance.md`).
+7. В отчёте перечисли выполненные проверки и их результаты; не запущенные проверки укажи отдельно (`acceptance.md`).
+8. Если реализация требует изменения спецификации — сначала предложи это изменение, не переписывай требования молча.

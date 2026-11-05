@@ -1,0 +1,36 @@
+<Project>
+
+  <!--
+    Общие настройки сборки для всех проектов (подход dotnet/eShop).
+    Версии пакетов — централизованно в Directory.Packages.props.
+    Правила стиля — в .editorconfig; пояснения — в openspec/standards/01-code-style.md.
+  -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <Deterministic>true</Deterministic>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <!-- Временно: предупреждения безопасности транзитивных пакетов -->
+    <NoWarn>$(NoWarn);NU1901;NU1902;NU1903;NU1904</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Анализаторы подключаем ко всем проектам.
+      Microsoft.CodeAnalysis.NetAnalyzers не добавляем — он уже входит в SDK.
+      Версии заданы в Directory.Packages.props (central package management).
+    -->
+    <PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Meziantou.Analyzer" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

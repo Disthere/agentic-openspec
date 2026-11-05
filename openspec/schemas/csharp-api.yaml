@@ -1,0 +1,140 @@
+# Validation schema: csharp-api
+# Applied to proposals built from openspec/proposals/000-template.md.
+# Agents use this to self-validate before hand-off; CI can parse it too.
+
+schema: csharp-api
+version: 1
+profile: csharp-api
+description: >-
+  Validation rules for C# / ASP.NET Core feature proposals in this repository.
+  A proposal passes when all required sections are present, requirements are testable,
+  and the mandatory verification commands are declared.
+
+applies_to: openspec/proposals/*/proposal.md
+
+# Sections that MUST be present in proposal.md (matched as "^## <Title>").
+required_sections:
+  - Context
+  - Requirements
+  - C# Implementation Plan
+  - API / Contract Changes
+  - Test Strategy
+  - Capabilities
+  - Impact
+
+optional_sections:
+  - Open Questions
+
+# Companion files expected next to proposal.md.
+required_files:
+  - proposal.md
+  - tasks.md
+  - acceptance.md
+optional_files:
+  - design.md
+  - performance.md          # required when the change is perf-sensitive
+  - contracts/              # required when contracts change
+
+# Requirement/scenario grammar (OpenSpec style).
+requirement:
+  heading_pattern: "^### Requirement: .+"
+  scenario:
+    heading_pattern: "^#### Scenario: .+"
+    require_when: true      # each scenario must contain "**WHEN**"
+    require_then: true      # each scenario must contain "**THEN**"
+  min_scenarios_per_requirement: 1
+
+# Task list grammar.
+tasks:
+  section_pattern: "^## \\d+\\. .+"
+  item_pattern: "^\\s*- \\[ \\] \\d+\\.\\d+ .+"   # "- [ ] 1.1 ..."
+
+# Enforced across C# code + tests.
+code_standards:
+  language_version: "12"
+  target_framework: "net8.0"       # minimum
+  nullable: enable
+  treat_warnings_as_errors: true
+  async: "no .Result / .Wait()"
+  di: "constructor injection; correct lifetimes"
+  forbidden:
+    - ".Result"
+    - ".Wait()"
+    - "catch (Exception) { }"       # swallow-all
+  required_for_api:
+    - "ProblemDetails for error responses"
+    - "correct HTTP status codes"
+  naming:
+    private_fields: "_camelCase"
+    interfaces: "I"
+    generic_params: "T"
+    async_suffix: "Async"
+  analyzers:
+    - Microsoft.CodeAnalysis.NetAnalyzers
+    - SonarAnalyzer.CSharp
+    - Meziantou.Analyzer
+  max_line_length: 120
+  hot_path_rules:
+    - "no LINQ in hot paths"
+    - "no per-request allocations; use Span/ArrayPool/ValueTask"
+    - "no exceptions for control flow"
+  resilience:
+    - "external calls: timeout + retry(jitter) + circuit breaker"
+
+# Tests.
+tests:
+  framework: xunit
+  naming: "Method_Scenario_ExpectedResult | Should_..."
+  require_tests_for_new_code: true
+  integration_uses: "WebApplicationFactory<T>"
+  coverage_min_percent: 80
+  coverage_min_percent_domain: 90
+
+# Engineering standards (authoritative docs under openspec/standards).
+standards:
+  docs_dir: openspec/standards
+  references:
+    - 01-code-style.md
+    - 02-architecture.md
+    - 03-handoffs.md
+    - 04-documentation.md
+    - 05-definition-of-done.md
+  definition_of_done: openspec/standards/05-definition-of-done.md
+
+# Highest-priority document — read before anything else.
+constitution: openspec/constitution.md
+
+# Performance/SLO evidence (required for perf-sensitive changes).
+performance:
+  artifact: performance.md
+  required_when: "change affects throughput, latency or resources"
+  must_include: [profile, targets, environment, baseline_vs_candidate]
+  no_slo_claim_without_load_test: true
+
+# Acceptance evidence.
+acceptance:
+  artifact: acceptance.md
+  mark_untested_explicitly: true
+
+# API/event contracts of the change.
+contracts:
+  dir: contracts
+  versioning_required: true
+  breaking_change_requires_constitution_exception: true
+
+# Verification gate — must be declared and run before review.
+verification:
+  commands:
+    - dotnet restore
+    - dotnet build --configuration Release --no-restore
+    - dotnet test --configuration Release --no-build
+    - dotnet format --verify-no-changes
+  all_must_pass: true
+
+# Extra guardrails.
+guardrails:
+  forbid_extra_dependencies: true   # any new NuGet package must be listed in the plan
+  forbid_secrets: true
+  require_adr_for_architecture_change: true
+  require_runbook_for_new_service: true
+  require_xml_docs_for_public_api: true
