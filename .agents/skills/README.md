@@ -32,6 +32,16 @@ argument-hint: <что передаёт вызывающий>
 | - | - |
 | [`spec-first`](./spec-first/SKILL.md) | Превратить запрос в черновик спецификации (без кода). |
 | [`implement-feature`](./implement-feature/SKILL.md) | Реализовать утверждённое предложение с `dotnet build`/`dotnet test`. |
+| [`code-review`](./code-review/SKILL.md) | Двухосевое независимое ревью диффа: ось Standards и ось Spec, раздельные отчёты. |
+| [`ai-writing-tells`](./ai-writing-tells/SKILL.md) | Аудит и правка текстов, подозреваемых в AI-генерации. |
+
+## Соглашения по содержимому
+
+- `SKILL.md` — короткая навигация: предусловия, нумерованные шаги, ограничения, критерии готовности.
+- `references/*.md` — тяжёлые каталоги и чек-листы, на которые ссылается `SKILL.md` (например,
+  [`code-review/references/smell-baseline.md`](./code-review/references/smell-baseline.md)).
+- `agents/<платформа>.yaml` — опциональный адаптер под конкретный рантайм; создаётся только при наличии
+  потребителя.
 
 ## Как добавить скилл
 
