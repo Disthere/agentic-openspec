@@ -25,6 +25,23 @@
   состав пакета для внешнего исполнителя, принципы, чек-лист вычистки (что НЕ уходит наружу). (`docs-handoff-external`)
 - **`docs/SESSION-START.md`** — хендофф сессии: правило «старт без действий», текущее состояние, открытые
   пункты и меню готовых команд. Вшито в [`.clinerules`](.clinerules) и [`AGENTS.md`](AGENTS.md). (`docs-session-start`)
+- **`.agents/skills/code-review/`** — двухосевое независимое ревью: `SKILL.md` (границы, источники стандартов,
+  промпты осей, агрегация), `references/smell-baseline.md` (базлайн запахов, always judgement call),
+  `references/findings.md` (жизненный цикл находки, диспозиции `fixed`/`rejected`/`deferred`, применимость улик).
+  Спецификация — [`openspec/proposals/001-two-axis-review/`](openspec/proposals/001-two-axis-review/proposal.md). (`001-two-axis-review`)
+- **Три роли полного цикла** — [`.agents/analyst.md`](.agents/analyst.md) (Discovery: `inputs/`, `IN-NNN`,
+  измеримый критерий успеха), [`.agents/qa-engineer.md`](.agents/qa-engineer.md) (Verify: `acceptance.md`,
+  `performance.md`, воспроизводимые улики), [`.agents/ops-release.md`](.agents/ops-release.md)
+  (Release/Operate/Feedback: changelog и версия, откат, SLO/capacity/runbook, обратная связь из поддержки).
+  (`002-lifecycle-and-roles`)
+- **Фазы жизненного цикла** — [`openspec/constitution.md`](openspec/constitution.md) §7: карта
+  «фаза → артефакт → гейт → владелец» и правила фаз (гейт без артефакта не вводится; допуск роли = артефакт + гейт). (`002-lifecycle-and-roles`)
+- **DoD дискавери и эксплуатации** — [`05-definition-of-done.md`](openspec/standards/05-definition-of-done.md)
+  §5.6 (Discovery) и §5.7 (Operate & Support). (`002-lifecycle-and-roles`)
+- **Пять новых передач** — [`03-handoffs.md`](openspec/standards/03-handoffs.md) §3.1: Brief → Spec,
+  Build → Verify, Verify → Release, Release → Ops, Ops → Spec. (`002-lifecycle-and-roles`)
+- **Пресеты DSH** — [`dsh/profile/cordis.patch.yml`](dsh/profile/cordis.patch.yml): `analyst`, `qa-engineer`,
+  `ops-release` добавлены к `architect`, `csharp-dev`, `reviewer` (шесть ролей). (`002-lifecycle-and-roles`)
 
 ### Изменено
 
@@ -36,6 +53,46 @@
 - **`.agents/architect.md`** — план записи в CHANGELOG добавлен в результаты Архитектора и в его DoD. (`docs-changelog-process`)
 - **`.agents/reviewer.md`** — в процедуру ревью добавлена проверка записи в CHANGELOG (шаг 9). (`docs-changelog-process`)
 - **`docs/DECISIONS-TEMPLATE.md`, `DECISIONS.md`, `standards/04-documentation.md` §4.8** — формат журнала решений приведён к табличному виду (`# | Дата | Решение | Статус | Источник` + разделы «подробности»). (`docs-decisions-format`)
+- **`.agents/reviewer.md`** — переписан под двухосевое ревью: две независимые сессии (Standards и Spec),
+  режим «только чтение», находки с устойчивыми ID и диспозициями, агрегированный вердикт. Контракт
+  `VERDICT: Pass|Fail` и формат `Where/Breaks/Fix` сохранены; проверка записи в CHANGELOG (прежний шаг 9)
+  перенесена в ось Standards. (`001-two-axis-review`)
+- **`.agents/README.md`, `.agents/skills/README.md`** — таблицы скиллов дополнены `code-review` и
+  `ai-writing-tells`; описаны соглашения по содержимому (`references/`, опциональный `agents/`). (`001-two-axis-review`)
+- **`openspec/standards/05-definition-of-done.md` §5.5** — Ревьюер выполняет двухосевой проход, Оркестратор агрегирует вердикт; запахи кода не блокируют. (`001-two-axis-review`)
+- **`OPEN_QUESTIONS.md`** — добавлен `OQ-7`: обязателен ли двухосевой режим для всех предложений. (`001-two-axis-review`)
+- **Среда исполнения — DeepSeek Harness, а не Cline:** [`AGENTS.md`](AGENTS.md) закреплён как **канон правил**
+  (DSH читает его), [`.clinerules`](.clinerules) — совместимое зеркало; делегирование — субагенты DSH с
+  `agentPreset`; Cline CLI и `spawn_agent` убраны из авторитетных документов
+  ([`README.md`](README.md), [`AGENTS.md`](AGENTS.md), [`.clinerules`](.clinerules),
+  [`.github/copilot-instructions.md`](.github/copilot-instructions.md),
+  [`openspec/`](openspec) — `project.md`, `README.md`, `proposals/README.md`, `standards/README.md`). (`002-lifecycle-and-roles`)
+- **`openspec/config.yaml`** — блок `lifecycle` (фазы и гейты), `agents.orchestrator: dsh`, шесть ролей,
+  правило допуска роли. (`002-lifecycle-and-roles`)
+- **`openspec/standards/05-definition-of-done.md`** §5.2 — улики верификации добывает не автор кода
+  (Инженер верификации); §5.5 — применение новых ролей. (`002-lifecycle-and-roles`)
+- **`.agents/README.md`** — таблица шести ролей, схема делегирования на субагентах DSH, правило допуска
+  (артефакт + гейт). (`002-lifecycle-and-roles`)
+- **`dsh/README.md`** — состав профиля (шесть пресетов), цикл по фазам жизненного цикла. (`002-lifecycle-and-roles`)
+
+### Не изменилось
+
+- Контракт вердикта `VERDICT: Pass|Fail`, формат находок `Where/Breaks/Fix` и нумерация предложений —
+  ранее архивированные предложения и их `acceptance.md` читаются без изменений.
+- Нумерация DoD 5.1–5.5 сохранена: новые разделы добавлены как 5.6 и 5.7.
+- Скиллы `spec-first`, `implement-feature`, `code-review`, `ai-writing-tells` — без изменений.
+- Имя файла `.clinerules` сохранено (совместимость с другими инструментами), изменилось только содержимое.
+
+### Тесты
+
+- Документарные проверки: обязательные разделы `proposal.md` по схеме [`csharp-api.yaml`](openspec/schemas/csharp-api.yaml),
+  ≥1 сценарий с `WHEN`/`THEN` на каждое требование, паритет требований умбрелла-спеки и дельт capability,
+  резолвинг относительных ссылок в артефактах предложения, формат `tasks.md`.
+- `dotnet build` / `dotnet test` / `dotnet format` не запускались: предложения 001 и 002 не добавляют C#-кода.
+- Живой прогон двух осей на реальном диффе **не выполнялся** — предмета ревью не было; условие и план
+  проверки зафиксированы в [`openspec/proposals/001-two-axis-review/acceptance.md`](openspec/proposals/001-two-axis-review/acceptance.md).
+- `npx @deepseek-ai/dsh --profile agentic-openspec --dump-config` **не запускался** — профиль ещё не
+  установлен; условие зафиксировано в [`openspec/proposals/002-lifecycle-and-roles/acceptance.md`](openspec/proposals/002-lifecycle-and-roles/acceptance.md).
 
 ## [0.2.0] — 2026-11-09 · Обвязка DeepSeek Harness + скилл работы с текстами (dsh-profile, ai-writing-tells)
 
