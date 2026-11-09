@@ -17,9 +17,8 @@ argument-hint: путь к папке утверждённого предлож�
 ## Входные данные
 
 - Папка **утверждённого** предложения: `proposal.md`, `tasks.md`, при наличии `design.md`.
-- Существующий код (`src/`, `tests/`), правила проекта в [`.clinerules`](../.clinerules), инженерные
-  стандарты в [`openspec/standards/`](../openspec/standards/README.md) и конституция
-  [`openspec/constitution.md`](../openspec/constitution.md).
+- Материалы заказчика, на которые ссылается спецификация: [`inputs/`](../inputs/README.md)
+  (см. раздел `## Sources` в `proposal.md`).
 
 ## Предусловия (откажись, если не выполнены)
 

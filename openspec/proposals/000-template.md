@@ -15,6 +15,16 @@
 Why this change exists. Current behaviour, the problem, and the outcome we want. Reference the
 capability(s) in `openspec/specs/` this touches.
 
+## Sources
+
+Input materials from the customer ([`inputs/`](../../inputs/README.md)), with `IN-NNN` ids from
+[`inputs/INDEX.md`](../../inputs/INDEX.md). List only what this change actually uses; anything unresolved
+becomes an Open Question.
+
+- `IN-001` — <what it defines> — `inputs/briefs/IN-001-<slug>.pdf`.
+
+Write "None" when the change follows from the spec alone (no external input material).
+
 ## Requirements
 
 Numbered, testable requirements. Each one carries at least one scenario.

@@ -30,6 +30,7 @@
 | `openspec/project.md` | Контекст проекта для агентов |
 | `CHANGELOG.md` | История изменений (Keep a Changelog + SemVer, привязка к задачам) |
 | `OPEN_QUESTIONS.md` / `DECISIONS.md` | Открытые вопросы (`OQ-N`) и журнал решений (`D-NNN`) |
+| `inputs/` | Входные материалы заказчика (ТЗ, концепции, макеты) + реестр `INDEX.md` |
 | `docs/` | Архитектура (границы, ADR) и эксплуатация (SLO, capacity, runbooks) |
 | `Directory.Build.props` / `Directory.Packages.props` | Общие настройки сборки и централизованные версии |
 | `.github/copilot-instructions.md` | Короткая точка входа для GitHub Copilot |

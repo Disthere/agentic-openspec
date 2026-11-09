@@ -18,6 +18,7 @@ jobs:
             Directory.Build.props Directory.Packages.props \
             .agents/architect.md .agents/csharp-dev.md .agents/reviewer.md \
             .github/copilot-instructions.md \
+            inputs/README.md inputs/INDEX.md \
             openspec/constitution.md openspec/config.yaml openspec/project.md \
             openspec/schemas/csharp-api.yaml \
             openspec/proposals/000-template.md \

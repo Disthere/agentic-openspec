@@ -48,6 +48,7 @@ C4Context
 | Constitution (highest priority) | `openspec/constitution.md` |
 | Engineering standards | `openspec/standards/` |
 | Architecture & operations docs | `docs/` |
+| Customer input materials | `inputs/` (registry: `inputs/INDEX.md`) |
 | Config / profile | `openspec/config.yaml` |
 
 ## Open decisions

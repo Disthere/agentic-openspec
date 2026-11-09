@@ -24,6 +24,7 @@ required_sections:
   - Changelog               # every proposal plans its changelog entry
 
 optional_sections:
+  - Sources                 # input materials from inputs/
   - Open Questions
   - Performance & SLO       # filled when the change is perf-sensitive
   - Contracts               # filled when HTTP/gRPC/event contracts change

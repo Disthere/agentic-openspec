@@ -18,6 +18,9 @@
   [`docs/OPEN_QUESTIONS-TEMPLATE.md`](docs/OPEN_QUESTIONS-TEMPLATE.md),
   [`docs/DECISIONS-TEMPLATE.md`](docs/DECISIONS-TEMPLATE.md). Правила —
   [`04-documentation.md` §4.7–4.8](openspec/standards/04-documentation.md#47-open-questions). (`docs-open-questions`)
+- **`inputs/` + [`docs/INPUTS-TEMPLATE.md`](docs/INPUTS-TEMPLATE.md)** — каталог входных материалов заказчика
+  (`briefs/`, `concepts/`, `graphics/`, `samples/`), `README.md` (правила) и `INDEX.md` (реестр `IN-NNN`).
+  Вшит в роли (Архитектор/Разработчик/Ревьюер), раздел `## Sources` предложения, схему и стандарт §4.9. (`docs-inputs`)
 
 ### Изменено
 
