@@ -1,0 +1,5 @@
+# dsh profile root — пустой список записей.
+# Дерево собирается патчами: бандлы из dsh.profile.bundles (package.json),
+# затем cordis.patch.yml, затем $DSH_HOME/cordis.patch.yml и --patch оверлеи.
+# Редактируйте cordis.patch.yml, а не этот файл.
+[]

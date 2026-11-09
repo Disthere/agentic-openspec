@@ -1,0 +1,110 @@
+# Патч-слой профиля «agentic-openspec».
+# Собирается ПОВЕРХ бандлов (@deepseek-ai/dsh-base + @deepseek-ai/dsh-web-app).
+#
+# Роли = agent presets (declarative child plugins).
+# Модель на роль = дочерний плагин @deepseek-ai/dsh-agent-default-model.
+# Персона роли   = @deepseek-ai/dsh-persona (prefix).
+#
+# ⚠️ Провайдер/модели ниже — замените на свои. Если хотите настроить модель
+#    через Web UI (Settings → Models), удалите блок agent-default-model.
+
+# ---------------------------------------------------------------------------
+# 1) Модель агента по умолчанию (fallback, когда preset не задаёт свою)
+# ---------------------------------------------------------------------------
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: deepseek
+    model: deepseek/deepseek-v4-pro
+
+# ---------------------------------------------------------------------------
+# 2) Реестр presets и default-роль
+# ---------------------------------------------------------------------------
+- id: agent-preset-registry
+  name: '@deepseek-ai/dsh-agent-preset-registry'
+  config:
+    default: csharp-dev
+
+# ---------------------------------------------------------------------------
+# 3) Роли SDD: Архитектор / Разработчик / Ревьюер
+# ---------------------------------------------------------------------------
+
+# Архитектор — сильная модель, читает роль и конституцию, кода не пишет.
+- id: preset-architect
+  name: '@deepseek-ai/dsh-agent-preset'
+  config:
+    id: architect
+    name: Архитектор
+    description: Требования, C4/Mermaid, спецификации OpenSpec. Код не пишет.
+    order: 10
+    plugins:
+      - id: architect-model
+        name: '@deepseek-ai/dsh-agent-default-model'
+        config:
+          provider: deepseek
+          model: deepseek/deepseek-v4-pro
+      - id: architect-persona
+        name: '@deepseek-ai/dsh-persona'
+        config:
+          prefix: |
+            Ты — Архитектор в процессе Spec-Driven Development (SDD).
+            Перед работой прочитай и строго соблюдай:
+              - .agents/architect.md      (твоя роль и результат работы)
+              - openspec/constitution.md  (высший приоритет)
+              - openspec/standards/       (инженерные стандарты)
+            Задача: превращать запрос в спецификацию в openspec/proposals/<NNN-slug>/
+            со всеми артефактами (proposal.md, tasks.md, contracts/, performance.md,
+            acceptance.md). Реализационный код НЕ пиши. Неоднозначности — в Open Questions.
+
+# Разработчик — модель под код; реализует утверждённую спеку и гоняет гейт.
+- id: preset-csharp-dev
+  name: '@deepseek-ai/dsh-agent-preset'
+  config:
+    id: csharp-dev
+    name: Разработчик C#
+    description: Реализация утверждённой спецификации + dotnet build/test.
+    order: 20
+    plugins:
+      - id: dev-model
+        name: '@deepseek-ai/dsh-agent-default-model'
+        config:
+          provider: deepseek
+          model: deepseek/deepseek-v4.1-flash
+      - id: dev-persona
+        name: '@deepseek-ai/dsh-persona'
+        config:
+          prefix: |
+            Ты — Разработчик C# в процессе SDD.
+            Прочитай и соблюдай: .agents/csharp-dev.md, .clinerules, openspec/standards/.
+            Реализуй ТОЛЬКО задачи из openspec/proposals/<id>/tasks.md.
+            Перед сдачей обязательно выполни:
+              dotnet restore
+              dotnet build --configuration Release --no-restore
+              dotnet test  --configuration Release --no-build
+              dotnet format --verify-no-changes
+            Заполни acceptance.md; для perf-изменений — performance.md.
+
+# Ревьюер — независимая модель (важно: НЕ та же, что у разработчика).
+- id: preset-reviewer
+  name: '@deepseek-ai/dsh-agent-preset'
+  config:
+    id: reviewer
+    name: Ревьюер
+    description: Независимая проверка кода против спецификации и DoD.
+    order: 30
+    plugins:
+      - id: reviewer-model
+        name: '@deepseek-ai/dsh-agent-default-model'
+        config:
+          provider: deepseek
+          model: deepseek/deepseek-v4.1-flash
+      - id: reviewer-persona
+        name: '@deepseek-ai/dsh-persona'
+        config:
+          prefix: |
+            Ты — Ревьюер (контроль качества) в процессе SDD. Ты независим: код писал не ты.
+            Прочитай и соблюдай: .agents/reviewer.md, .clinerules, openspec/constitution.md,
+            openspec/standards/ (особенно 05-definition-of-done.md — это твой чек-лист).
+            Верни ОДИН вердикт: "VERDICT: Pass" или "VERDICT: Fail" со списком конкретных
+            нарушений (файл, строка, нарушенное требование/правило, исправление).
+            Код, тесты и спеки НЕ правь.
