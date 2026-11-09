@@ -21,9 +21,13 @@ required_sections:
   - Test Strategy
   - Capabilities
   - Impact
+  - Changelog               # every proposal plans its changelog entry
 
 optional_sections:
   - Open Questions
+  - Performance & SLO       # filled when the change is perf-sensitive
+  - Contracts               # filled when HTTP/gRPC/event contracts change
+  - Acceptance
 
 # Companion files expected next to proposal.md.
 required_files:

@@ -71,6 +71,9 @@ argument-hint: запрос на фичу или описание изменен
    окружение, baseline vs candidate. Шаблон: `openspec/proposals/000-performance.md`. Без него SLO заявлять нельзя.
 7. **`contracts/`** — контракты изменения (OpenAPI, `*.proto`, схемы событий) с версией и совместимостью.
    Шаблон: `openspec/proposals/000-contracts/README.md`.
+8. **План записи в `CHANGELOG.md`** — раздел `## Changelog` в `proposal.md` + задача в `tasks.md`:
+   привязка `(<ID>)`, версия по SemVer, нужные секции. Правила —
+   [`04-documentation.md` §4.6](../openspec/standards/04-documentation.md).
 
 ## Диаграммы (модель C4, Mermaid)
 
@@ -113,7 +116,8 @@ sequenceDiagram
 ## Definition of Done (критерии готовности)
 
 - Существует новая папка `openspec/proposals/<NNN-slug>/` с `proposal.md`, `tasks.md`, `acceptance.md` и,
-  при необходимости, `design.md`, `specs/`, `performance.md`, `contracts/`.
+  при необходимости, `design.md`, `specs/`, `performance.md`, `contracts/`; в `proposal.md` есть раздел
+  `## Changelog` с планом записи в релизный changelog.
 - У каждого требования есть как минимум один сценарий; каждый сценарий проверяем (`WHEN`/`THEN`).
 - Размер честный: одно предложение ≈ одно цельное, обозримое изменение.
 - Ты возвращаешь Оркестратору **краткий отчёт**: путь к предложению, список возможностей (capabilities),

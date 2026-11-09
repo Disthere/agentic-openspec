@@ -25,6 +25,9 @@
 - **`README.md`, `AGENTS.md`** — CHANGELOG добавлен в карту и дерево. (`docs-changelog`)
 - **`05-definition-of-done.md`** — DoD спеки: открытые вопросы вынесены в `OPEN_QUESTIONS.md`; DoD релиза: решения зафиксированы в `DECISIONS.md`. (`docs-open-questions`)
 - **`openspec/proposals/000-template.md`, `openspec/project.md`** — ссылки на OPEN_QUESTIONS/DECISIONS. (`docs-open-questions`)
+- **`openspec/proposals/000-template.md`** — новый раздел `## Changelog`: Архитектор обязан планировать запись в changelog. (`docs-changelog-process`)
+- **`.agents/architect.md`** — план записи в CHANGELOG добавлен в результаты Архитектора и в его DoD. (`docs-changelog-process`)
+- **`.agents/reviewer.md`** — в процедуру ревью добавлена проверка записи в CHANGELOG (шаг 9). (`docs-changelog-process`)
 
 ## [0.2.0] — 2026-11-09 · Обвязка DeepSeek Harness + скилл работы с текстами (dsh-profile, ai-writing-tells)
 

@@ -90,6 +90,19 @@ See [`../standards/06-api.md`](../standards/06-api.md) and [`../standards/08-mes
 
 Fill `acceptance.md`: a requirement → test → result matrix with explicitly marked untested conditions.
 
+## Changelog
+
+This change requires an entry in [`CHANGELOG.md`](../../CHANGELOG.md) under `[Unreleased]`:
+
+- header `## [X.Y.Z] — YYYY-MM-DD · <summary> (<ID>)`, where `(<ID>)` is this proposal's id;
+- version bump per SemVer: **MINOR** — new behaviour, **PATCH** — fix, **MAJOR** — breaking change;
+- sections per [`../standards/04-documentation.md`](../standards/04-documentation.md) §4.6, including
+  `Не изменилось` when the default behaviour is preserved and `Миграция` for breaking changes;
+- add a task for the changelog entry to [`tasks.md`](./tasks.md).
+
+Every proposal plans its changelog entry; the release DoD requires it
+([`../standards/05-definition-of-done.md`](../standards/05-definition-of-done.md) §5.4).
+
 ## Tasks
 
 See [`tasks.md`](./tasks.md). Every task must trace back to a requirement above.
