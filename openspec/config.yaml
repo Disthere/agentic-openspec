@@ -5,7 +5,7 @@ version: 1
 
 project:
   name: agentic-openspec
-  description: Agentic Spec-Driven Development workspace for a C#/.NET project, orchestrated by Cline.
+  description: Agentic Spec-Driven Development workspace for a C#/.NET project. The main DeepSeek Harness session orchestrates role subagents (DSH agent presets) under a spec-first workflow.
   profile: csharp-api          # see openspec/schemas/csharp-api.yaml
   standards: openspec/standards        # обязательные инженерные стандарты
   constitution: openspec/constitution.md  # высший приоритет
@@ -42,6 +42,22 @@ workflow:
   archive_dir: proposals/archive
   specs_dir: specs
   proposals_dir: proposals
+  require_discovery_gate: true      # inputs/INDEX.md + измеримый критерий успеха
+  require_release_gate: true        # DoD 5.4: changelog, SemVer, rollback, runbook
+  require_support_gate: true        # health/alerts + runbook + канал обратной связи
+
+# Фазы жизненного цикла: артефакт → гейт → владелец (openspec/constitution.md §7).
+lifecycle:
+  phases:
+    - { name: discovery, artifact: "inputs/** + inputs/INDEX.md (IN-NNN)", gate: discovery, owner: analyst }
+    - { name: spec,      artifact: "openspec/proposals/<id>/proposal.md",  gate: spec,        owner: architect }
+    - { name: design,    artifact: "design.md, contracts/, docs/architecture/adr/", gate: adr, owner: architect }
+    - { name: build,     artifact: "src/, tests/",                         gate: "build+test", owner: csharp-dev }
+    - { name: verify,    artifact: "acceptance.md, performance.md",        gate: verification, owner: qa-engineer }
+    - { name: review,    artifact: "review verdict",                       gate: review,      owner: reviewer }
+    - { name: release,   artifact: "CHANGELOG.md, version, migrations, rollback plan", gate: "release (DoD 5.4)", owner: ops-release }
+    - { name: operate,   artifact: "docs/operations/{slo,capacity,runbooks}", gate: support, owner: ops-release }
+    - { name: feedback,  artifact: "OQ-N / new proposal",                   gate: "feedback loop", owner: "ops-release -> analyst" }
 
 # Commands the agents use for the verification gate.
 commands:
@@ -50,15 +66,21 @@ commands:
   test: dotnet test --configuration Release --no-build
   format_check: dotnet format --verify-no-changes
 
-# Subagent delegation (Cline).
+# Subagent delegation (DeepSeek Harness).
 agents:
-  orchestrator: cline
+  orchestrator: dsh                        # main DeepSeek Harness session (no separate orchestrator agent)
+  environment: dsh                         # see dsh/README.md
+  presets: dsh/profile/cordis.patch.yml    # agent presets: analyst, architect, csharp-dev, qa-engineer, reviewer, ops-release
   roles:
+    analyst: .agents/analyst.md
     architect: .agents/architect.md
     developer: .agents/csharp-dev.md
+    qa: .agents/qa-engineer.md
     reviewer: .agents/reviewer.md
+    ops_release: .agents/ops-release.md
   skills_dir: .agents/skills
-  delegation_tool: spawn_agent   # Cline CLI subagent tool
+  delegation: dsh_subagent_with_agent_preset   # свой контекст, композиция и модель на роль
+  role_admission_rule: artifact_and_gate       # роль без артефакта и гейта не добавляется
 
 # Guardrails enforced during review.
 guardrails:

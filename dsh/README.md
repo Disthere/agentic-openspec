@@ -36,7 +36,7 @@ npx @deepseek-ai/dsh web
 
 # 3) Choose workspace -> выберите КОРЕНЬ этого репозитория
 
-# 4) Установить наш профиль (роли: Архитектор / Разработчик / Ревьюер)
+# 4) Установить наш профиль (шесть ролей: аналитик, архитектор, разработчик, QA, ревьюер, Ops/Release)
 powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1
 ```
 
@@ -56,8 +56,8 @@ npx @deepseek-ai/dsh --profile agentic-openspec
 npx @deepseek-ai/dsh --profile agentic-openspec --dump-config
 ```
 
-В собранном дереве должны быть `agent-default-model`, `agent-preset-registry` и три пресета:
-`architect`, `csharp-dev`, `reviewer`.
+В собранном дереве должны быть `agent-default-model`, `agent-preset-registry` и шесть пресетов:
+`analyst`, `architect`, `csharp-dev`, `qa-engineer`, `reviewer`, `ops-release`.
 
 Полезно: `--dump-config-schema` (JSON Schema вместо значений), `--dump-default-config` (чистый
 шаблон без ваших слоёв).
@@ -84,13 +84,17 @@ npx @deepseek-ai/dsh --profile agentic-openspec --dump-config
 
 ## Роли и модели (agent presets)
 
-| Роль | preset `id` | Модель (по умолчанию в патче) | Задача |
-| - | - | - | - |
-| Архитектор | `architect` | `deepseek/deepseek-v4-pro` | спецификация, C4/Mermaid, без кода |
-| Разработчик | `csharp-dev` *(default)* | `deepseek/deepseek-v4.1-flash` | код + `dotnet build/test` |
-| Ревьюер | `reviewer` | `deepseek/deepseek-v4.1-flash` | вердикт `VERDICT: Pass/Fail` |
+| Роль | preset `id` | `order` | Модель (по умолчанию в патче) | Фаза и задача |
+| - | - | - | - | - |
+| Продуктовый аналитик | `analyst` | 5 | `deepseek/deepseek-v4-pro` | Discovery: `inputs/`, `IN-NNN`, измеримый критерий успеха |
+| Архитектор | `architect` | 10 | `deepseek/deepseek-v4-pro` | Spec, Design: спецификация, C4/Mermaid, без кода |
+| Разработчик | `csharp-dev` *(default)* | 20 | `deepseek/deepseek-v4.1-flash` | Build: код + `dotnet build/test` |
+| Инженер верификации | `qa-engineer` | 25 | `deepseek/deepseek-v4.1-flash` | Verify: `acceptance.md`, `performance.md`, воспроизводимые улики |
+| Ревьюер | `reviewer` | 30 | `deepseek/deepseek-v4.1-flash` | Review: вердикт `VERDICT: Pass/Fail` по двум осям |
+| Ops / Release | `ops-release` | 40 | `deepseek/deepseek-v4.1-flash` | Release, Operate, Feedback: changelog, план отката, runbook |
 
-Роли объявлены тремя записями `@deepseek-ai/dsh-agent-preset` в
+Состав ролей, их владельцы и порядок фаз — [`openspec/constitution.md`](../openspec/constitution.md) §7.
+Роли объявлены шестью записями `@deepseek-ai/dsh-agent-preset` в
 [`profile/cordis.patch.yml`](./profile/cordis.patch.yml):
 
 ```yaml
@@ -120,16 +124,22 @@ npx @deepseek-ai/dsh --profile agentic-openspec --dump-config
 
 ## SDD-цикл в DSH
 
-Тот же процесс, что и в других обвязках, инструментами DSH:
+Тот же процесс, что и в других обвязках, инструментами DSH — по фазам жизненного цикла:
 
-| Этап | В DSH |
-| - | - |
-| Explore | агент читает `openspec/specs/` и код (Plan mode) |
-| Propose | сессия пресета **Архитектор** → `openspec/proposals/<NNN-slug>/` |
-| Approve | утверждение человеком (`Status: Approved`) |
-| Apply | сессия пресета **Разработчик** → код + гейт `dotnet build/test` |
-| Review | сессия пресета **Ревьюер** → `VERDICT: Pass` или нарушения |
-| Archive | перенос в `proposals/archive/` + вливание дельт в `specs/` |
+| Фаза | preset | В DSH |
+| - | - | - |
+| Discovery | `analyst` | разбор `inputs/`, регистрация `IN-NNN`, измеримый критерий успеха, `OQ-N` |
+| Explore / Spec | `architect` | читает `openspec/specs/` и код (Plan mode) → `openspec/proposals/<NNN-slug>/` |
+| Approve | — | утверждение человеком (`Status: Approved`) |
+| Build | `csharp-dev` | код + гейт `dotnet build/test/format` |
+| Verify | `qa-engineer` | `acceptance.md`, `performance.md` — воспроизводимые улики |
+| Review | `reviewer` | `VERDICT: Pass` / нарушения по двум осям (Standards, Spec) |
+| Release | `ops-release` | `CHANGELOG.md`, версия по SemVer, миграции, план отката |
+| Operate / Feedback | `ops-release` | SLO, capacity, runbook; инцидент → `OQ-N` или предложение |
+| Archive | — | перенос в `proposals/archive/` + вливание дельт в `specs/` |
+
+Карта фаз с артефактами, гейтами и владельцами — [`openspec/constitution.md`](../openspec/constitution.md) §7;
+DoD фаз — [`openspec/standards/05-definition-of-done.md`](../openspec/standards/05-definition-of-done.md) §5.6–5.7.
 
 Опоры DSH: **Plan mode** (фаза разведки), **approvals / permission presets** (подтверждение правок
 и команд), **subagents** с `agentPreset` (делегирование с собственной композицией и моделью),
@@ -138,7 +148,7 @@ npx @deepseek-ai/dsh --profile agentic-openspec --dump-config
 ## Headless для CI
 
 ```powershell
-npx @deepseek-ai/dsh --profile headless "Прочитай .clinerules и создай предложение 001-<slug> через Архитектора"
+npx @deepseek-ai/dsh --profile headless "Прочитай AGENTS.md и создай предложение 001-<slug> через пресет architect"
 ```
 
 `headless` — один свежий сеанс, печатает финальный ответ и выходит (удобно для пайплайнов).
@@ -152,7 +162,7 @@ npx @deepseek-ai/dsh --profile headless "Прочитай .clinerules и соз�
    называется `agentic-openspec`.
 3. **Скиллы — один уровень вглубь**: `ai-writing-tells/references/…` и `scripts/` — это ресурсы
    скилла (нормально); вложенные `**/SKILL.md` DSH намеренно не сканирует.
-4. **`argument-hint`** (из наших Cline/Claude-скиллов) не входит в список полей DSH. Обычно
+4. **`argument-hint`** (из наших Claude-скиллов) не входит в список полей DSH. Обычно
    игнорируется; если скилл не появился — удалите это поле из фронтматтера.
 5. **`.clinerules` DSH не читает** — канон для DSH: `AGENTS.md` + `openspec/`.
 6. **Переустановить профиль**: `npx @deepseek-ai/dsh --profile agentic-openspec --from-default-profile web`,

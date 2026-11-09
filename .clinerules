@@ -1,7 +1,9 @@
-# Правила Cline — agentic-openspec
+# Правила агента — agentic-openspec
 
 > Рабочее пространство Spec-Driven Development (SDD) для проекта на **C# / .NET**.
-> Оркестратор — Cline; специализированные субагенты — в `.agents/`; машиночитаемые спецификации — в `openspec/`.
+> Оркестратор — главная сессия **DeepSeek Harness**; роли-субагенты (пресеты) — `.agents/` и `dsh/`;
+> машиночитаемые спецификации — в `openspec/`. Канон правил — [`AGENTS.md`](AGENTS.md); этот файл —
+> совместимое зеркало для других инструментов (DSH `.clinerules` не читает).
 
 ## ⏸ Режим старта (временно действующий)
 
@@ -98,25 +100,29 @@ The system SHALL <поведение>.
 Cline выступает **Оркестратором**. Для любой нетривиальной задачи:
 
 1. Составь короткий план и определи, какие роли нужны.
-2. Делегируй сфокусированные задачи ролям в `.agents/` через инструмент субагентов Cline CLI
-   (`spawn_agent`) — по одной чёткой цели на субагента:
-   - `.agents/architect.md` — требования, диаграммы C4/Mermaid, запись `openspec/proposals/`.
-   - `.agents/csharp-dev.md` — реализация утверждённой спецификации; обязаны пройти `dotnet build` и `dotnet test`.
-   - `.agents/reviewer.md` — сверка кода со спецификацией; вердикт `Pass` или список конкретных нарушений.
+2. Делегируй сфокусированные задачи ролям в `.agents/` субагентам **DeepSeek Harness** с `agentPreset`
+   (пресеты — [`dsh/profile/cordis.patch.yml`](dsh/profile/cordis.patch.yml)) — по одной чёткой цели на субагента:
+   - `analyst` ([`.agents/analyst.md`](.agents/analyst.md)) — разбор `inputs/`, реестр `IN-NNN`, измеримый критерий успеха; закрывает Discovery gate.
+   - `architect` ([`.agents/architect.md`](.agents/architect.md)) — требования, диаграммы C4/Mermaid, запись `openspec/proposals/`.
+   - `csharp-dev` ([`.agents/csharp-dev.md`](.agents/csharp-dev.md)) — реализация утверждённой спецификации; обязаны пройти `dotnet build` и `dotnet test`.
+   - `qa-engineer` ([`.agents/qa-engineer.md`](.agents/qa-engineer.md)) — независимые улики в `acceptance.md` и `performance.md`; код не правит.
+   - `reviewer` ([`.agents/reviewer.md`](.agents/reviewer.md)) — двухосевой вердикт (`Standards`, `Spec`), находки с ID и диспозициями.
+   - `ops-release` ([`.agents/ops-release.md`](.agents/ops-release.md)) — changelog и версия, план отката, SLO/capacity/runbook, обратная связь из поддержки.
 3. Держи основной контекст чистым: проси у субагентов краткие отчёты, не вставляй целые файлы обратно.
 4. Объедини результаты, разреши конфликты и доложи результат пользователю.
 
 Правила делегирования:
 - Ни один субагент не может пропустить гейт спецификации.
 - Ревьюер — всегда независимый проход, никогда не тот же агент, что писал код.
+- Инженер верификации не подтверждает работу автора кода: улики добывает он, вердикт о соблюдении — Ревьюер.
 - При `Fail` верни нарушения Разработчику, затем проведи повторное ревью, прежде чем сообщать об успехе.
 
 ## 4. Структура репозитория
 
 ```text
 agentic-openspec/
-├── .clinerules            # эти правила (workspace)
-├── AGENTS.md              # кросс-инструментальное зеркало правил
+├── AGENTS.md              # канон правил для агентов (DSH читает этот файл)
+├── .clinerules            # совместимое зеркало правил для других инструментов
 ├── CHANGELOG.md           # история изменений (Keep a Changelog + SemVer)
 ├── OPEN_QUESTIONS.md      # открытые вопросы (OQ-N)
 ├── DECISIONS.md           # журнал решений (D-NNN)

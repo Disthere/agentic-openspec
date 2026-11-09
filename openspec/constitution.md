@@ -50,9 +50,41 @@
 | Тема | Где |
 | - | - |
 | Этот документ (высший приоритет) | `openspec/constitution.md` |
-| Правила для Cline | [`.clinerules`](../.clinerules) |
+| Правила для агентов (канон DSH) | [`AGENTS.md`](../AGENTS.md) + [`openspec/`](./README.md); [`.clinerules`](../.clinerules) — совместимое зеркало |
 | Инженерные стандарты | [`standards/`](./standards/) |
 | Границы сервисов | [`../docs/architecture/service-boundaries.md`](../docs/architecture/service-boundaries.md) |
 | ADR | [`../docs/architecture/adr/`](../docs/architecture/adr/) |
 | SLO / ёмкость / runbook | [`../docs/operations/`](../docs/operations/) |
 | Схема валидации | [`schemas/csharp-api.yaml`](./schemas/csharp-api.yaml) |
+| Роли и пресеты среды (DSH) | [`.agents/`](../.agents/README.md), [`dsh/profile/cordis.patch.yml`](../dsh/profile/cordis.patch.yml) |
+
+## 7. Фазы жизненного цикла
+
+Полный цикл продукта — от идеи до поддержки. У каждой фазы есть **артефакт**, **гейт** и **владелец**;
+фаза без артефакта или без владельца — дефект процесса, а не «зона свободы».
+
+| Фаза | Артефакт | Гейт | Владелец |
+| - | - | - | - |
+| Discovery | `inputs/**` + [`inputs/INDEX.md`](../inputs/INDEX.md) (`IN-NNN`), измеримый критерий успеха | Discovery: материал зарегистрирован, критерий измерим, нерешённое → `OQ-N` | Продуктовый аналитик ([`.agents/analyst.md`](../.agents/analyst.md)) |
+| Spec | `openspec/proposals/<id>/proposal.md`, дельты `specs/` | Spec: утверждение человеком (`Status: Approved`) | Архитектор ([`.agents/architect.md`](../.agents/architect.md)) |
+| Design | `design.md`, `contracts/`, [`docs/architecture/adr/`](../docs/architecture/adr/) | ADR для архитектурного решения | Архитектор |
+| Build | `src/`, `tests/` | Build + Test: `dotnet build`/`test`/`format` зелёные | Разработчик ([`.agents/csharp-dev.md`](../.agents/csharp-dev.md)) |
+| Verify | `acceptance.md`, `performance.md` | Verification: улики воспроизводимы и добыты не автором кода | Инженер верификации ([`.agents/qa-engineer.md`](../.agents/qa-engineer.md)) |
+| Review | вердикт ревью | Review: `VERDICT: Pass` (двухосевой проход) | Ревьюер ([`.agents/reviewer.md`](../.agents/reviewer.md)) |
+| Release | [`CHANGELOG.md`](../CHANGELOG.md), версия, миграции, план отката | Release (DoD 5.4) | Ops / Release ([`.agents/ops-release.md`](../.agents/ops-release.md)) |
+| Operate | [`docs/operations/`](../docs/operations/) — SLO, capacity, runbooks | Support: health-checks, алерты и runbook готовы | Ops / Release |
+| Feedback | `OQ-N` либо новое предложение | Инцидент и запрос поддержки становятся отслеживаемым пунктом | Ops / Release → Продуктовый аналитик |
+
+Правила фаз:
+
+1. **Гейт без артефакта не вводится.** Если условие нельзя подтвердить артефактом — это пункт чек-листа,
+   а не гейт.
+2. **Невыполненный гейт блокирует следующую фазу.** Обход возможен только как исключение по §5, с явным
+   решением владельца и сроком.
+3. **Обратная связь замкнута:** инцидент или запрос поддержки попадает в
+   [`OPEN_QUESTIONS.md`](../OPEN_QUESTIONS.md) либо в новое предложение, а не остаётся в переписке.
+4. **Допуск роли:** новый агент появляется только тогда, когда владеет артефактом и закрывает гейт;
+   в остальных случаях содержание уходит в стандарт, чек-лист DoD или скилл.
+5. **Среда исполнения ролей** — субагенты DeepSeek Harness с пресетами из
+   [`dsh/profile/cordis.patch.yml`](../dsh/profile/cordis.patch.yml); главная сессия DSH выступает
+   Оркестратором. Отдельного агента-оркестратора не существует.

@@ -1,7 +1,7 @@
 # Proposals
 
 Feature proposals live here. A proposal is the **single source of truth** for a change and must be
-approved before any code is written (see [`.clinerules`](../../.clinerules), rule 0).
+approved before any code is written (see [`AGENTS.md`](../../AGENTS.md) and [`.clinerules`](../../.clinerules), rule 0).
 
 ## Naming
 

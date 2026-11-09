@@ -1,8 +1,8 @@
 # agentic-openspec
 
 > Шаблон **Spec-Driven Development (SDD)** и мультиагентной разработки для **C# / .NET** —
-> высоконагруженные ASP.NET Core-приложения и микросервисы. Заточен под [Cline](https://cline.bot)
-> (VS Code, Desktop, CLI) и его субагентов.
+> высоконагруженные ASP.NET Core-приложения и микросервисы. Рабочая среда — **DeepSeek Harness**
+> (`dsh`): роли исполняются субагентами с `agentPreset`, шаблон открывается как воркспейс DSH.
 
 [![Use this template](https://img.shields.io/badge/Use%20this-template-2ea44f?logo=github)](#сценарий-a--новое-решение)
 ![workflow](https://img.shields.io/badge/workflow-Spec--First-blue)
@@ -17,9 +17,11 @@
 
 ## Что внутри
 
-- **Правила агента** — [`.clinerules`](./.clinerules) (Cline), [`AGENTS.md`](./AGENTS.md)
-  (кросс-инструментальный стандарт), краткие указатели в [`.github/instructions/`](./.github/instructions).
-- **Роли субагентов** — [`.agents/`](./.agents): Архитектор, Разработчик C#, Ревьюер + скиллы.
+- **Правила агента** — [`AGENTS.md`](./AGENTS.md) (канон для DSH) и [`openspec/`](./openspec);
+  [`.clinerules`](./.clinerules) — совместимое зеркало для других инструментов, краткие указатели в
+  [`.github/instructions/`](./.github/instructions).
+- **Роли субагентов** — [`.agents/`](./.agents): шесть ролей цикла (продуктовый аналитик → архитектор →
+  разработчик → инженер верификации → ревьюер → Ops/Release) + скиллы; пресеты среды — в [`dsh/profile/`](./dsh/profile).
 - **Конституция проекта** — [`openspec/constitution.md`](./openspec/constitution.md) (высший приоритет).
 - **Инженерные стандарты 01–11** — [`openspec/standards/`](./openspec/standards): Code Style, Architecture,
   Handoffs, Documentation, DoD, API, Persistence, Messaging, Security, Observability, Performance.
@@ -34,14 +36,14 @@
 ## Требования
 
 - **.NET SDK 10** (см. [`global.json`](./global.json)) — либо поправьте версию под свой SDK.
-- **Node.js 18+** и npm — для Cline CLI.
-- **Cline** — расширение VS Code (базово) или **Cline CLI / Desktop** (нужны для субагентов `spawn_agent`).
+- **Node.js 18+** и npm — чтобы запускать DeepSeek Harness командой `npx @deepseek-ai/dsh`.
+- **DeepSeek Harness** (`dsh`) — рабочая среда; профиль с ролями и моделями ставится из [`dsh/`](./dsh/README.md).
 
 ## Структура
 
 ```text
 agentic-openspec/
-├── .clinerules                 # правила Cline (C#, SDD, делегирование, протокол агента)
+├── .clinerules                 # совместимое зеркало правил (C#, SDD, делегирование)
 ├── AGENTS.md                   # кросс-инструментальное зеркало правил
 ├── CHANGELOG.md                # история изменений (Keep a Changelog + SemVer)
 ├── OPEN_QUESTIONS.md           # открытые пункты (OQ-N) + ответы пользователя
@@ -93,21 +95,24 @@ agentic-openspec/
    - [`Directory.Packages.props`](./Directory.Packages.props) — нужные зависимости (лишнее уберите);
    - `src/` и `tests/` — удалите заглушки и создайте проекты (`dotnet new`).
 
-3. **Убедитесь, что Cline видит правила**: откройте репозиторий в Cline — в панели Rules должны
-   появиться `.clinerules` и `AGENTS.md`.
+3. **Убедитесь, что DSH видит правила**: откройте корень репозитория как workspace —
+   канон для DSH — [`AGENTS.md`](./AGENTS.md) и [`openspec/`](./openspec); скиллы подхватываются из
+   [`.agents/skills/`](./.agents/skills) автоматически.
 
 4. **Первая спецификация (Spec First)** — попросите Оркестратора:
 
    ```text
-   Прочитай openspec/constitution.md и .clinerules. Делегируй роль Архитектора
-   (.agents/architect.md) и создай предложение openspec/proposals/001-<slug>/ со всеми
-   артефактами (proposal.md, tasks.md, contracts/, performance.md, acceptance.md).
+   Прочитай AGENTS.md, openspec/constitution.md и стандарты. Делегируй субагенту
+   пресет architect (.agents/architect.md) и создай предложение openspec/proposals/001-<slug>/
+   со всеми артефактами (proposal.md, tasks.md, contracts/, performance.md, acceptance.md).
    Код не пиши — верни спецификацию на утверждение.
    ```
 
-5. **Сквозной цикл**: утвердите спецификацию → Разработчик ([`.agents/csharp-dev.md`](./.agents/csharp-dev.md))
-   реализует и прогоняет `dotnet build`/`dotnet test` → Ревьюер ([`.agents/reviewer.md`](./.agents/reviewer.md))
-   даёт `Pass` или список нарушений.
+5. **Сквозной цикл**: Discovery (аналитик) → утвердите спецификацию → Build
+   ([`.agents/csharp-dev.md`](./.agents/csharp-dev.md), `dotnet build`/`dotnet test`) → Verify
+   ([`.agents/qa-engineer.md`](./.agents/qa-engineer.md) — улики в `acceptance.md`) → Review
+   ([`.agents/reviewer.md`](./.agents/reviewer.md) — `VERDICT: Pass/Fail`) → Release
+   ([`.agents/ops-release.md`](./.agents/ops-release.md) — changelog, откат, runbook).
 
 ---
 
@@ -174,15 +179,18 @@ Explore → Propose → (человек утверждает) → Apply → Revi
 
 ### Роли (мультиагентность)
 
-| Роль | Файл | Отвечает за |
-| - | - | - |
-| Оркестратор | Cline | план, делегирование, сведение результатов |
-| Архитектор | [`.agents/architect.md`](./.agents/architect.md) | требования, C4/Mermaid, спецификация |
-| Разработчик | [`.agents/csharp-dev.md`](./.agents/csharp-dev.md) | код + `dotnet build`/`dotnet test` |
-| Ревьюер | [`.agents/reviewer.md`](./.agents/reviewer.md) | вердикт `Pass` / список нарушений |
+| Роль | Файл | Фаза | Отвечает за |
+| - | - | - | - |
+| Оркестратор | главная сессия DeepSeek Harness | все | план, делегирование субагентам (`agentPreset`), сведение результатов |
+| Продуктовый аналитик | [`.agents/analyst.md`](./.agents/analyst.md) | Discovery | входные материалы, `IN-NNN`, измеримый критерий успеха |
+| Архитектор | [`.agents/architect.md`](./.agents/architect.md) | Spec, Design | требования, C4/Mermaid, спецификация |
+| Разработчик | [`.agents/csharp-dev.md`](./.agents/csharp-dev.md) | Build | код + `dotnet build`/`dotnet test` |
+| Инженер верификации | [`.agents/qa-engineer.md`](./.agents/qa-engineer.md) | Verify | `acceptance.md`, `performance.md`, воспроизводимые улики |
+| Ревьюер | [`.agents/reviewer.md`](./.agents/reviewer.md) | Review | вердикт `VERDICT: Pass/Fail` по двум осям |
+| Ops / Release | [`.agents/ops-release.md`](./.agents/ops-release.md) | Release, Operate | changelog и версия, откат, SLO/capacity/runbook, поддержка |
 
-Субагенты (`spawn_agent`) работают в **Cline CLI и Desktop**; в VS Code-расширении их нет — там роли
-применяются последовательно.
+Роли объявлены пресетами в [`dsh/profile/cordis.patch.yml`](./dsh/profile/cordis.patch.yml): субагент
+получает свою композицию и модель. Отдельного агента-оркестратора нет — оркестратор это главная сессия.
 
 ### Гейт проверки
 
@@ -193,14 +201,16 @@ dotnet test  --configuration Release --no-build
 dotnet format --verify-no-changes
 ```
 
-### Запуск через Cline CLI
+### Запуск через DeepSeek Harness
 
 ```powershell
-npm install -g cline     # установка (даёт команду cline)
-cline --version
+npx @deepseek-ai/dsh web       # запуск Web UI без глобальной установки
+# профиль с ролями и моделями:
+powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1
+npx @deepseek-ai/dsh --profile agentic-openspec
 
-# одноразовый прогон в plan-режиме (JSON удобен для скриптов/CI)
-cline -c . -p --json -t 300 "Прочитай .clinerules и создай предложение 001-<slug> через Архитектора"
+# headless-прогон (для скриптов/CI)
+npx @deepseek-ai/dsh --profile headless "Прочитай AGENTS.md и создай предложение 001-<slug> через пресет architect"
 ```
 
 ---

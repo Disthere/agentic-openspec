@@ -4,9 +4,9 @@ Context for every agent working in this repository. Keep it short, factual, and 
 
 ## What this is
 
-An **agentic, Spec-Driven Development** workspace for a **C# / .NET** project. Cline orchestrates
-specialized subagents (Architect → Developer → Reviewer) and every change is specified before it is
-implemented.
+An **agentic, Spec-Driven Development** workspace for a **C# / .NET** project. The main **DeepSeek Harness**
+session orchestrates role subagents (DSH agent presets: analyst → architect → developer → QA → reviewer →
+ops/release) and every change is specified before it is implemented.
 
 ## Tech stack
 
@@ -41,7 +41,7 @@ C4Context
 
 | Concern | Location |
 | - | - |
-| Rules for Cline | `.clinerules` |
+| Rules for agents (DSH canon) | `AGENTS.md` (`.clinerules` is a compatibility mirror) |
 | Subagent roles | `.agents/*.md` |
 | Skills | `.agents/skills/*/SKILL.md` |
 | Specs & proposals | `openspec/` |

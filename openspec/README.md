@@ -1,7 +1,7 @@
 # `openspec/` — Spec-Driven Development artifacts
 
 This folder holds every specification and SDD artifact for the project. Nothing in `src/` is written
-before its spec lands here (see [`.clinerules`](../.clinerules), rule 0 — *Spec First*).
+before its spec lands here (see [`AGENTS.md`](../AGENTS.md) and [`.clinerules`](../.clinerules), rule 0 — *Spec First*).
 
 ## Layout
 
