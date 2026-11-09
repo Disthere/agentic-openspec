@@ -21,6 +21,8 @@
 - **`inputs/` + [`docs/INPUTS-TEMPLATE.md`](docs/INPUTS-TEMPLATE.md)** — каталог входных материалов заказчика
   (`briefs/`, `concepts/`, `graphics/`, `samples/`), `README.md` (правила) и `INDEX.md` (реестр `IN-NNN`).
   Вшит в роли (Архитектор/Разработчик/Ревьюер), раздел `## Sources` предложения, схему и стандарт §4.9. (`docs-inputs`)
+- **Handoff наружу:** [`03-handoffs.md` §3.5](openspec/standards/03-handoffs.md) + [`docs/HANDOFF-TEMPLATE.md`](docs/HANDOFF-TEMPLATE.md) —
+  состав пакета для внешнего исполнителя, принципы, чек-лист вычистки (что НЕ уходит наружу). (`docs-handoff-external`)
 
 ### Изменено
 

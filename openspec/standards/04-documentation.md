@@ -15,6 +15,7 @@
 | **Open Questions** | Нерешённые вопросы и ответы пользователя | Markdown (таблица `OQ-N`) | `OPEN_QUESTIONS.md` (корень) |
 | **Decisions** | Журнал принятых решений | Markdown (записи `D-NNN`) | `DECISIONS.md` (корень) |
 | **Input** | ТЗ, концепции, макеты, материалы заказчика | Любой (pdf/docx/png/csv…) | `inputs/` (корень) |
+| **Handoff (наружу)** | Пакет работ для внешнего исполнителя | Markdown + контракты | `handoff/<NNN-slug>-vX.Y/` |
 
 ## 4.2 Шаблон XML Doc Comments
 
