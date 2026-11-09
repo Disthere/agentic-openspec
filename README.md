@@ -26,6 +26,7 @@
 - **SDD-процесс** — [`openspec/`](./openspec): конфиг, схемы валидации, шаблоны предложений.
 - **Документация эксплуатации** — [`docs/`](./docs): границы сервисов, ADR, SLO, capacity, runbooks.
 - **История изменений** — [`CHANGELOG.md`](./CHANGELOG.md) (Keep a Changelog + SemVer, привязка к задачам).
+- **Открытые вопросы и решения** — [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) (OQ-N) и [`DECISIONS.md`](./DECISIONS.md) (D-NNN).
 - **Настройки сборки .NET** — [`global.json`](./global.json), [`Directory.Build.props`](./Directory.Build.props),
   [`Directory.Packages.props`](./Directory.Packages.props), [`.editorconfig`](./.editorconfig).
 
@@ -42,6 +43,8 @@ agentic-openspec/
 ├── .clinerules                 # правила Cline (C#, SDD, делегирование, протокол агента)
 ├── AGENTS.md                   # кросс-инструментальное зеркало правил
 ├── CHANGELOG.md                # история изменений (Keep a Changelog + SemVer)
+├── OPEN_QUESTIONS.md           # открытые пункты (OQ-N) + ответы пользователя
+├── DECISIONS.md                # журнал решений (D-NNN)
 ├── .editorconfig               # стиль C# (Allman, отступы, именование, анализаторы)
 ├── global.json                 # фиксация версии .NET SDK
 ├── Directory.Build.props       # общие настройки сборки всех проектов

@@ -14,11 +14,17 @@
   (Keep a Changelog + SemVer, обязательная привязка к задачам). Правила ведения — в
   [`openspec/standards/04-documentation.md` §4.6](openspec/standards/04-documentation.md#46-changelog),
   DoD релиза обновлён ([`05-definition-of-done.md`](openspec/standards/05-definition-of-done.md) п. 5.4). (`docs-changelog`)
+- **`OPEN_QUESTIONS.md` + `DECISIONS.md`** — открытые пункты (`OQ-N`) и журнал решений (`D-NNN`); шаблоны —
+  [`docs/OPEN_QUESTIONS-TEMPLATE.md`](docs/OPEN_QUESTIONS-TEMPLATE.md),
+  [`docs/DECISIONS-TEMPLATE.md`](docs/DECISIONS-TEMPLATE.md). Правила —
+  [`04-documentation.md` §4.7–4.8](openspec/standards/04-documentation.md#47-open-questions). (`docs-open-questions`)
 
 ### Изменено
 
 - **`openspec/standards/04-documentation.md`** — уровень «Changelog» в таблице 4.1 и новый раздел 4.6. (`docs-changelog`)
 - **`README.md`, `AGENTS.md`** — CHANGELOG добавлен в карту и дерево. (`docs-changelog`)
+- **`05-definition-of-done.md`** — DoD спеки: открытые вопросы вынесены в `OPEN_QUESTIONS.md`; DoD релиза: решения зафиксированы в `DECISIONS.md`. (`docs-open-questions`)
+- **`openspec/proposals/000-template.md`, `openspec/project.md`** — ссылки на OPEN_QUESTIONS/DECISIONS. (`docs-open-questions`)
 
 ## [0.2.0] — 2026-11-09 · Обвязка DeepSeek Harness + скилл работы с текстами (dsh-profile, ai-writing-tells)
 

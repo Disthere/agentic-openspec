@@ -71,6 +71,9 @@ State clearly if this is a breaking change and the migration path. Write "None" 
 
 - [ ] <question> — _recommended default:_ <default>.
 
+Resolved items move to `OPEN_QUESTIONS.md` and `DECISIONS.md`
+(see [`../standards/04-documentation.md`](../standards/04-documentation.md) §4.7–4.8).
+
 ## Performance & SLO
 
 For changes affecting throughput, latency or resources, fill `performance.md` (request profile, targets,

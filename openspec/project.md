@@ -52,4 +52,5 @@ C4Context
 
 ## Open decisions
 
-- (add unresolved architectural decisions here, with the chosen default and the reason)
+Unresolved items are tracked in [`OPEN_QUESTIONS.md`](../OPEN_QUESTIONS.md) (questions) and
+[`DECISIONS.md`](../DECISIONS.md) (accepted decisions). Keep this file short: stack, conventions, map.
