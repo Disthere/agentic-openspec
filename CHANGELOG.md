@@ -23,6 +23,8 @@
   Вшит в роли (Архитектор/Разработчик/Ревьюер), раздел `## Sources` предложения, схему и стандарт §4.9. (`docs-inputs`)
 - **Handoff наружу:** [`03-handoffs.md` §3.5](openspec/standards/03-handoffs.md) + [`docs/HANDOFF-TEMPLATE.md`](docs/HANDOFF-TEMPLATE.md) —
   состав пакета для внешнего исполнителя, принципы, чек-лист вычистки (что НЕ уходит наружу). (`docs-handoff-external`)
+- **`docs/SESSION-START.md`** — хендофф сессии: правило «старт без действий», текущее состояние, открытые
+  пункты и меню готовых команд. Вшито в [`.clinerules`](.clinerules) и [`AGENTS.md`](AGENTS.md). (`docs-session-start`)
 
 ### Изменено
 
