@@ -28,6 +28,7 @@
 - **`openspec/proposals/000-template.md`** — новый раздел `## Changelog`: Архитектор обязан планировать запись в changelog. (`docs-changelog-process`)
 - **`.agents/architect.md`** — план записи в CHANGELOG добавлен в результаты Архитектора и в его DoD. (`docs-changelog-process`)
 - **`.agents/reviewer.md`** — в процедуру ревью добавлена проверка записи в CHANGELOG (шаг 9). (`docs-changelog-process`)
+- **`docs/DECISIONS-TEMPLATE.md`, `DECISIONS.md`, `standards/04-documentation.md` §4.8** — формат журнала решений приведён к табличному виду (`# | Дата | Решение | Статус | Источник` + разделы «подробности»). (`docs-decisions-format`)
 
 ## [0.2.0] — 2026-11-09 · Обвязка DeepSeek Harness + скилл работы с текстами (dsh-profile, ai-writing-tells)
 
