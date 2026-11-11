@@ -180,6 +180,23 @@ try {
         exit 1
     }
 
+    # --- Детектор стейл-кэша запущенного приложения (найдено на живой проверке G3) ----------
+    # Приложение читает бандл при старте. Если файл новее процесса, в UI будет СТАРАЯ картина
+    # (например, шесть легаси-пресетов вместо sdd), хотя диск чист. Предупреждаем явно,
+    # чтобы это не приняли за регресс P0-9.
+    $bundlePatch = Join-Path $repoRoot 'dsh/presets-bundle/cordis.patch.yml'
+    if (Test-Path -LiteralPath $bundlePatch) {
+        $bundleTime = (Get-Item -LiteralPath $bundlePatch).LastWriteTime
+        $appProcess = Get-Process -Name 'DeepSeek Harness' -ErrorAction SilentlyContinue |
+            Sort-Object StartTime | Select-Object -First 1
+        if ($null -ne $appProcess -and $appProcess.StartTime -lt $bundleTime) {
+            Write-Host ''
+            Write-Host 'WARN  запущенное приложение старше файла бандла — UI покажет устаревший набор пресетов' -ForegroundColor Yellow
+            Write-Host ("      приложение: {0:yyyy-MM-dd HH:mm:ss} | бандл: {1:yyyy-MM-dd HH:mm:ss}" -f $appProcess.StartTime, $bundleTime) -ForegroundColor Yellow
+            Write-Host '      диск чист; перезапустите DeepSeek Harness, чтобы приложение перечитало бандл.' -ForegroundColor Yellow
+        }
+    }
+
     Write-Host ''
     Write-Host "ИТОГ: УСПЕХ — все $($rolePresets.Count) пресетов ролей имеют >= $MinPlugins плагинов" -ForegroundColor Green
     exit 0
