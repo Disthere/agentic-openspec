@@ -49,6 +49,10 @@ jobs:
           finally {
             Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
           }
+          # GitHub Actions добавляет 'exit $LASTEXITCODE' в конец шага: после ОЖИДАЕМОГО
+          # падения валидатора код надо обнулить, иначе шаг упадёт на пустом месте.
+          $global:LASTEXITCODE = 0
+          exit 0
 
   # --- 2. .NET: build / test / format (G1) -------------------------------------------------
   dotnet:
@@ -176,6 +180,10 @@ jobs:
           finally {
             Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
           }
+          # После ОЖИДАЕМОГО падения валидатора обнуляем код: GitHub Actions добавляет
+          # 'exit $LASTEXITCODE' в конец шага, иначе шаг упадёт на пустом месте.
+          $global:LASTEXITCODE = 0
+          exit 0
 
   # --- 4. Композиция DSH-профиля (P0-9, регресс-защита) -----------------------------------
   dsh-profile:

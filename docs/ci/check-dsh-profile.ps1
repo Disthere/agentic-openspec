@@ -33,6 +33,13 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# --- Запуск дочернего скрипта тем же хостом PowerShell (Windows: powershell, Linux: pwsh) ----
+function Invoke-PwshScript {
+    param([string]$ScriptPath)
+    $hostExe = if ($PSVersionTable.PSEdition -eq 'Core') { Join-Path $PSHOME 'pwsh' } else { Join-Path $PSHOME 'powershell.exe' }
+    if (-not (Test-Path -LiteralPath $hostExe)) { $hostExe = 'pwsh' }
+    & $hostExe -NoProfile -ExecutionPolicy Bypass -File $ScriptPath
+}
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 # D-016 (гейт D-02(A)): роль доставляется ОДНИМ пресетом `sdd` с полной композицией
 # standard. Шесть пресетов-ролей удалены — у них в plugins была только персона (P0-9).
@@ -70,7 +77,7 @@ try {
     # install.ps1 ставит профиль scaffolds в изолированный DSH_HOME.
     $installer = Join-Path $repoRoot 'dsh/install.ps1'
     if (Test-Path -LiteralPath $installer) {
-        & powershell -NoProfile -ExecutionPolicy Bypass -File $installer *> $null
+        Invoke-PwshScript -ScriptPath $installer *> $null
         if ($LASTEXITCODE -ne 0) {
             Write-Host "FAIL: dsh/install.ps1 завершился с кодом $LASTEXITCODE" -ForegroundColor Red
             exit 1

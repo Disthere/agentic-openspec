@@ -31,6 +31,19 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+
+# --- Запуск дочернего скрипта тем же хостом PowerShell (Windows: powershell, Linux: pwsh) ----
+# Жёсткий вызов `powershell` падает на Linux-раннере (нет такого исполняемого файла).
+function Invoke-PwshScript {
+    param([string]$ScriptPath, [string[]]$Arguments = @())
+    $hostExe = if ($PSVersionTable.PSEdition -eq 'Core') {
+        Join-Path $PSHOME 'pwsh'
+    } else {
+        Join-Path $PSHOME 'powershell.exe'
+    }
+    if (-not (Test-Path -LiteralPath $hostExe)) { $hostExe = 'pwsh' }
+    & $hostExe -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Arguments
+}
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $errors = [System.Collections.Generic.List[string]]::new()
 $warnings = [System.Collections.Generic.List[string]]::new()
@@ -136,7 +149,7 @@ foreach ($rel in $mustKeep) {
 # но относительные ссылки в документации обязаны работать (это ловило ../openspec из корня).
 $validator = Join-Path $PSScriptRoot 'validate-proposals.ps1'
 if (Test-Path -LiteralPath $validator) {
-    $linkCheck = & powershell -NoProfile -ExecutionPolicy Bypass -File $validator -CheckLinks 2>&1 | Out-String
+    $linkCheck = Invoke-PwshScript -ScriptPath $validator -Arguments @('-CheckLinks') 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0) {
         Add-Error 'битые относительные ссылки в репозитории — запустите tools/validate-proposals.ps1 -CheckLinks для деталей'
     }
