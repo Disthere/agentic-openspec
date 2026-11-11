@@ -155,6 +155,17 @@ if (Test-Path -LiteralPath $validator) {
     }
 }
 
+# --- 8. Материалы в inputs/ зарегистрированы ----------------------------------------------
+# Материал без записи в реестре для процесса не существует: Архитектор не может на него
+# сослаться, Discovery-гейт не закрывается. Проверяем автоматически, а не «на глаз».
+$registrar = Join-Path $PSScriptRoot 'register-inputs.ps1'
+if (Test-Path -LiteralPath $registrar) {
+    $regCheck = Invoke-PwshScript -ScriptPath $registrar -Arguments @('-Check') 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        Add-Error 'в inputs/ есть незарегистрированные материалы — запустите tools/register-inputs.ps1 -Apply'
+    }
+}
+
 # --- Вывод --------------------------------------------------------------------------------
 foreach ($w in $warnings) { Write-Host "WARN  $w" -ForegroundColor Yellow }
 foreach ($e in $errors) { Write-Host "FAIL  $e" -ForegroundColor Red }
