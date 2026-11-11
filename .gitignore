@@ -37,3 +37,6 @@ docs/session/
 *.binlog
 .vscode/
 BenchmarkDotNet.Artifacts/
+
+# Генерируемая сводка метрик (собирается tools/collect-metrics.ps1)
+METRICS.md
