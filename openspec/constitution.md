@@ -69,7 +69,7 @@
 | ADR | [`../docs/architecture/adr/`](../docs/architecture/adr/) |
 | SLO / ёмкость / runbook | [`../docs/operations/`](../docs/operations/) |
 | Схема валидации | [`schemas/csharp-api.yaml`](./schemas/csharp-api.yaml) |
-| Роли и пресеты среды (DSH) | [`.agents/`](../.agents/README.md), [`dsh/profile/cordis.patch.yml`](../dsh/profile/cordis.patch.yml) |
+| Роли и пресеты среды (DSH) | [`.agents/`](../.agents/README.md), [`dsh/presets-bundle/cordis.patch.yml`](../dsh/presets-bundle/cordis.patch.yml) |
 
 ## 7. Фазы жизненного цикла
 
@@ -100,5 +100,5 @@
 4. **Допуск роли:** новый агент появляется только тогда, когда владеет артефактом и закрывает гейт;
    в остальных случаях содержание уходит в стандарт, чек-лист DoD или скилл.
 5. **Среда исполнения ролей** — субагенты DeepSeek Harness с пресетами из
-   [`dsh/profile/cordis.patch.yml`](../dsh/profile/cordis.patch.yml); главная сессия DSH выступает
+   [`dsh/presets-bundle/cordis.patch.yml`](../dsh/presets-bundle/cordis.patch.yml); главная сессия DSH выступает
    Оркестратором. Отдельного агента-оркестратора не существует.

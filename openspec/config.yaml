@@ -133,7 +133,7 @@ commands:
 agents:
   orchestrator: dsh                        # main DeepSeek Harness session (no separate orchestrator agent)
   environment: dsh                         # see dsh/README.md
-  presets: dsh/profile/cordis.patch.yml    # agent presets: analyst, architect, csharp-dev, qa-engineer, reviewer, ops-release
+  presets: dsh/presets-bundle/cordis.patch.yml    # D-016: ОДИН пресет `sdd` (полная композиция standard + SDD-персона); роли — шесть файлов в .agents/
   roles:
     analyst: .agents/analyst.md
     architect: .agents/architect.md

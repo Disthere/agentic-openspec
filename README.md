@@ -24,7 +24,7 @@
   [`.clinerules`](./.clinerules) — совместимое зеркало для других инструментов, краткие указатели в
   [`.github/instructions/`](./.github/instructions).
 - **Роли субагентов** — [`.agents/`](./.agents): шесть ролей цикла (продуктовый аналитик → архитектор →
-  разработчик → инженер верификации → ревьюер → Ops/Release) + скиллы; пресеты среды — в [`dsh/profile/`](./dsh/profile).
+  разработчик → инженер верификации → ревьюер → Ops/Release) + скиллы; пресет роли `sdd` — в [`dsh/presets-bundle/`](./dsh/presets-bundle).
 - **Конституция проекта** — [`openspec/constitution.md`](./openspec/constitution.md) (высший приоритет).
 - **Инженерные стандарты 01–12** — [`openspec/standards/`](./openspec/standards): Code Style, Architecture,
   Handoffs, Documentation, DoD, API, Persistence, Messaging, Security, Observability, Performance,
@@ -126,7 +126,8 @@ agentic-openspec/
 
    ```text
    Прочитай AGENTS.md, openspec/constitution.md и стандарты. Делегируй субагенту
-   пресет architect (.agents/architect.md) и создай предложение openspec/proposals/001-<slug>/
+   с пресетом `sdd` и промптом «Ты — Архитектор» (.agents/architect.md) и создай
+   предложение openspec/proposals/<первый-свободный-номер>-<slug>/
    со всеми артефактами (proposal.md, tasks.md, contracts/, performance.md, acceptance.md).
    Код не пиши — верни спецификацию на утверждение.
    ```
@@ -213,7 +214,7 @@ Explore → Propose → (человек утверждает) → Apply → Revi
 | Ревьюер | [`.agents/reviewer.md`](./.agents/reviewer.md) | Review | вердикт `VERDICT: Pass/Fail` по двум осям |
 | Ops / Release | [`.agents/ops-release.md`](./.agents/ops-release.md) | Release, Operate | changelog и версия, откат, SLO/capacity/runbook, поддержка |
 
-Роли объявлены пресетами в [`dsh/profile/cordis.patch.yml`](./dsh/profile/cordis.patch.yml): субагент
+Роль доставляется ОДНИМ пресетом `sdd` в [`dsh/presets-bundle/cordis.patch.yml`](./dsh/presets-bundle/cordis.patch.yml) (решение `D-016`): субагент
 получает свою композицию и модель. Отдельного агента-оркестратора нет — оркестратор это главная сессия.
 
 ### Гейт проверки
@@ -234,7 +235,7 @@ powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1
 npx @deepseek-ai/dsh --profile agentic-openspec
 
 # headless-прогон (для скриптов/CI)
-npx @deepseek-ai/dsh --profile headless "Прочитай AGENTS.md и создай предложение 001-<slug> через пресет architect"
+npx @deepseek-ai/dsh --profile headless "Прочитай AGENTS.md, выступи в роли Архитектора (.agents/architect.md) и создай предложение 001-<slug>"
 ```
 
 ---
