@@ -7,12 +7,12 @@
 
 - п. 1.1: каталог `agents/` не создан — адаптер `agents/<платформа>.yaml` пока без потребителя
   (рантаймы — Cline и DeepSeek Harness); само соглашение зафиксировано в
-  [`.agents/skills/README.md`](../../../.agents/skills/README.md).
+  [`.agents/skills/README.md`](../../../../.agents/skills/README.md).
 - Гейт `dotnet build` / `dotnet test` не запускался: исполняемого C#-кода предложение не добавляет.
 
 ## 1. Каркас скилла `code-review`
 
-- [x] 1.1 Создать `.agents/skills/code-review/` (`SKILL.md`, `references/`) с фронтматтером по конвенции [`.agents/skills/README.md`](../../../.agents/skills/README.md). (R1, R8)
+- [x] 1.1 Создать `.agents/skills/code-review/` (`SKILL.md`, `references/`) с фронтматтером по конвенции [`.agents/skills/README.md`](../../../../.agents/skills/README.md). (R1, R8)
 
 ## 2. Ось Standards
 
@@ -43,5 +43,5 @@
 
 - [x] 7.1 Сверить скилл с конвенцией (фронтматтер, рабочие ссылки, `references/`) и обновить таблицы в `.agents/README.md` и `.agents/skills/README.md`. (R8)
 - [x] 7.2 Заполнить [`acceptance.md`](./acceptance.md): матрица `R1`..`R10`, непроверенные условия отмечены явно. (R1..R10)
-- [x] 7.3 Внести запись в [`CHANGELOG.md`](../../../CHANGELOG.md) под `[Unreleased]` с привязкой `(001-two-axis-review)`. (R1)
-- [x] 7.4 Добавить в [`05-definition-of-done.md`](../../standards/05-definition-of-done.md) §5.5 ссылку на двухосевой прогон Ревьюера. (R1, R8)
+- [x] 7.3 Внести запись в [`CHANGELOG.md`](../../../../CHANGELOG.md) под `[Unreleased]` с привязкой `(001-two-axis-review)`. (R1)
+- [x] 7.4 Добавить в [`05-definition-of-done.md`](../../../standards/05-definition-of-done.md) §5.5 ссылку на двухосевой прогон Ревьюера. (R1, R8)

@@ -7,29 +7,29 @@
 
 | # | Требование / сценарий | Проверка (тест/команда/шаг) | Результат | Примечание |
 | - | - | - | - | - |
-| R1 | Фазы объявлены с артефактом, гейтом и владельцем | Сверка [`constitution.md`](../../constitution.md) §7 и `config.yaml` → `lifecycle` | Pass | 9 фаз, у каждой артефакт, гейт и владелец |
+| R1 | Фазы объявлены с артефактом, гейтом и владельцем | Сверка [`constitution.md`](../../../constitution.md) §7 и `config.yaml` → `lifecycle` | Pass | 9 фаз, у каждой артефакт, гейт и владелец |
 | R2 | Гейт блокирует и подтверждён артефактом | Карта фаз §7: у каждого гейта артефакт и условие блокировки + правило «гейт без артефакта не вводится» | Pass | |
-| R3 | Discovery gate | [`analyst.md`](../../../.agents/analyst.md): `IN-NNN`, измеримый критерий, `OQ-N` при неизмеримости; DoD §5.6 | Pass | 4 условия гейта зафиксированы |
-| R4 | Улики независимы от автора | [`qa-engineer.md`](../../../.agents/qa-engineer.md) + DoD §5.2 (правка) + §5.5 | Pass | «автор кода не подтверждает собственную работу» |
-| R5 | Release gate | [`ops-release.md`](../../../.agents/ops-release.md) + DoD §5.4: changelog, SemVer, обратимость миграций, откат, runbook | Pass | отсутствие отката → гейт `Fail` |
-| R6 | Support gate и обратная связь | [`ops-release.md`](../../../.agents/ops-release.md) + DoD §5.7 + handoff `Ops → Spec` | Pass | инцидент → `OQ-N`/предложение |
-| R7 | Новые переходы в handoffs | [`03-handoffs.md`](../../standards/03-handoffs.md) §3.1: пять новых строк с критериями | Pass | Brief→Spec, Build→Verify, Verify→Release, Release→Ops, Ops→Spec |
-| R8 | DoD фаз без перенумерации | [`05-definition-of-done.md`](../../standards/05-definition-of-done.md): §5.1–5.5 на месте, добавлены §5.6 и §5.7 | Pass | ссылки из 001 и ролей не сломаны |
+| R3 | Discovery gate | [`analyst.md`](../../../../.agents/analyst.md): `IN-NNN`, измеримый критерий, `OQ-N` при неизмеримости; DoD §5.6 | Pass | 4 условия гейта зафиксированы |
+| R4 | Улики независимы от автора | [`qa-engineer.md`](../../../../.agents/qa-engineer.md) + DoD §5.2 (правка) + §5.5 | Pass | «автор кода не подтверждает собственную работу» |
+| R5 | Release gate | [`ops-release.md`](../../../../.agents/ops-release.md) + DoD §5.4: changelog, SemVer, обратимость миграций, откат, runbook | Pass | отсутствие отката → гейт `Fail` |
+| R6 | Support gate и обратная связь | [`ops-release.md`](../../../../.agents/ops-release.md) + DoD §5.7 + handoff `Ops → Spec` | Pass | инцидент → `OQ-N`/предложение |
+| R7 | Новые переходы в handoffs | [`03-handoffs.md`](../../../standards/03-handoffs.md) §3.1: пять новых строк с критериями | Pass | Brief→Spec, Build→Verify, Verify→Release, Release→Ops, Ops→Spec |
+| R8 | DoD фаз без перенумерации | [`05-definition-of-done.md`](../../../standards/05-definition-of-done.md): §5.1–5.5 на месте, добавлены §5.6 и §5.7 | Pass | ссылки из 001 и ролей не сломаны |
 | R9 | Три роли объявлены | Наличие `analyst.md`, `qa-engineer.md`, `ops-release.md`: артефакты, гейты, «никогда не делает» | Pass | |
-| R10 | Роли — пресеты DSH | [`cordis.patch.yml`](../../../dsh/profile/cordis.patch.yml): шесть пресетов, у каждого модель и персона | Pass (текст) · Not run (композиция) | композиция проверяется `--dump-config` после установки профиля |
-| R11 | Оркестратор — главная сессия DSH | `AGENTS.md` как канон; поиск `spawn_agent`/Cline CLI в авторитетных документах | Pass | остались только исторические записи в [`CHANGELOG.md`](../../../CHANGELOG.md) и в предложениях |
-| R12 | Правило допуска роли | [`AGENTS.md`](../../../AGENTS.md), [`constitution.md`](../../constitution.md) §7 п. 4, `.agents/README.md` | Pass | |
+| R10 | Роли — пресеты DSH | [`cordis.patch.yml`](../../../../dsh/profile/cordis.patch.yml): шесть пресетов, у каждого модель и персона | Pass (текст) · Not run (композиция) | композиция проверяется `--dump-config` после установки профиля |
+| R11 | Оркестратор — главная сессия DSH | `AGENTS.md` как канон; поиск `spawn_agent`/Cline CLI в авторитетных документах | Pass | остались только исторические записи в [`CHANGELOG.md`](../../../../CHANGELOG.md) и в предложениях |
+| R12 | Правило допуска роли | [`AGENTS.md`](../../../../AGENTS.md), [`constitution.md`](../../../constitution.md) §7 п. 4, `.agents/README.md` | Pass | |
 
 ## Выполненные проверки
 
-- [x] Обязательные разделы `proposal.md` по схеме [`csharp-api.yaml`](../../schemas/csharp-api.yaml) — 8/8 присутствуют.
+- [x] Обязательные разделы `proposal.md` по схеме [`csharp-api.yaml`](../../../schemas/csharp-api.yaml) — 8/8 присутствуют.
 - [x] Требования и сценарии: `R1`..`R12`, у каждого ≥1 сценарий; в каждом сценарии есть `WHEN` и `THEN`.
 - [x] Паритет требований: умбрелла-спека ↔ дельты `product-lifecycle` (R1–R8) и `delivery-roles` (R9–R12).
 - [x] Текст `dsh/profile/cordis.patch.yml`: шесть пресетов (`analyst`, `architect`, `csharp-dev`, `qa-engineer`,
   `reviewer`, `ops-release`), у каждого — модель и персона; порядок `order` 5→40 совпадает с картой фаз.
 - [x] Относительные ссылки во всех затронутых Markdown-файлах резолвятся (проверка по репозиторию).
 - [x] Поиск `spawn_agent` / Cline CLI: в авторитетных документах не осталось; совпадения — только исторические
-  записи в [`CHANGELOG.md`](../../../CHANGELOG.md) и тексты предложений `001`/`002`.
+  записи в [`CHANGELOG.md`](../../../../CHANGELOG.md) и тексты предложений `001`/`002`.
 - [x] Роли, гейты и «никогда не делает» присутствуют в трёх новых файлах ролей.
 - [ ] `dotnet build` / `dotnet test` — **не применимо**: C#-кода в предложении нет.
 - [ ] `npx @deepseek-ai/dsh --profile agentic-openspec --dump-config` — **Not run**: профиль не установлен.
@@ -56,7 +56,7 @@
 - Вердикт ревью: `Not run` — независимый проход Ревьюера не выполнялся (роль запускается отдельной сессией),
   поэтому `Pass` не заявляется.
 - **Композиция профиля не проверена живьём:** шесть пресетов присутствуют в тексте
-  [`cordis.patch.yml`](../../../dsh/profile/cordis.patch.yml), но `--dump-config` не запускался — условие
+  [`cordis.patch.yml`](../../../../dsh/profile/cordis.patch.yml), но `--dump-config` не запускался — условие
   и план проверки выше.
 - Утверждение человеком: владелец, 2026-11-09, команда «реализуй 002».
 - Ссылки: [`proposal.md`](./proposal.md), [`tasks.md`](./tasks.md), [`design.md`](./design.md),

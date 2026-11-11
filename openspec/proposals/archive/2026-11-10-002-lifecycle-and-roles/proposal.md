@@ -1,13 +1,13 @@
 # Proposal: Full product lifecycle — фазы, гейты и роли в среде DeepSeek Harness
 
 - **ID:** 002-lifecycle-and-roles
-- **Status:** Approved <!-- Draft | Approved | In Progress | Done | Rejected -->
+- **Status:** Done <!-- Draft | Approved | In Progress | Done | Rejected -->
   — утверждено владельцем 2026-11-09 командой «реализуй 002»: полный цикл (фазы + три роли) с учётом
   того, что рабочая среда — **DeepSeek Harness**, а не Cline.
 - **Owner:** Disthere (владелец репозитория)
 - **Date:** 2026-11-09
 - **Profile:** csharp-api (see `openspec/config.yaml`)
-- **Constitution:** [`openspec/constitution.md`](../../constitution.md) (highest priority — read first)
+- **Constitution:** [`openspec/constitution.md`](../../../constitution.md) (highest priority — read first)
 
 ## Context
 
@@ -25,14 +25,14 @@
 Второй дефект — **рассинхрон со средой исполнения**. Авторитетные документы описывают Cline
 (`spawn_agent`, Cline CLI, «тонкие правила в `.clinerules`»), тогда как рабочая среда — **DeepSeek Harness**:
 делегирование идёт субагентами с `agentPreset`, роли объявляются пресетами в
-[`dsh/profile/cordis.patch.yml`](../../../dsh/profile/cordis.patch.yml), а `.clinerules` DSH **не читает**
+[`dsh/profile/cordis.patch.yml`](../../../../dsh/profile/cordis.patch.yml), а `.clinerules` DSH **не читает**
 (канон — `AGENTS.md` + `openspec/`). Из 15+ файлов агент получает инструкции про инструменты, которых
 у него нет.
 
 Целевой результат: у каждой фазы жизненного цикла есть **артефакт, гейт и владелец**; три новые роли
 (аналитик, QA, Ops/Release) объявлены и **проведены в DSH как пресеты**; авторитетные документы
 описывают реальную среду. Коммерческий контур (маркетинг, продажи) в объём не входит — он остаётся
-вопросом [`OQ-8`](../../../OPEN_QUESTIONS.md).
+вопросом [`OQ-8`](../../../../OPEN_QUESTIONS.md).
 
 Капабилити: новые — `product-lifecycle`, `delivery-roles`. Существующие спецификации не меняются.
 
@@ -46,8 +46,8 @@ None — изменение процесса и обвязки; внешних �
   (вариант «каркас + роли», а не «каркас без ролей»);
 - решение владельца 2026-11-09 «Мы не работаем с Cline, среда — DeepSeek Harness» — из него следуют
   требования `R10`–`R11`;
-- факты о среде — [`dsh/README.md`](../../../dsh/README.md) (§«Роли и модели», §«Ограничения» п. 5–6);
-- открытый вопрос [`OQ-8`](../../../OPEN_QUESTIONS.md) — маркетингово-продуктовый контур (вне объёма).
+- факты о среде — [`dsh/README.md`](../../../../dsh/README.md) (§«Роли и модели», §«Ограничения» п. 5–6);
+- открытый вопрос [`OQ-8`](../../../../OPEN_QUESTIONS.md) — маркетингово-продуктовый контур (вне объёма).
 
 ## Requirements
 
@@ -246,7 +246,7 @@ None — HTTP/gRPC/событийные контракты не затрагив
 - **Unit (xUnit):** не применимо — C#-код не добавляется.
 - **Integration (`WebApplicationFactory<T>`):** не применимо.
 - **Документарные и конфигурационные проверки:**
-  - схема [`csharp-api.yaml`](../../schemas/csharp-api.yaml): обязательные разделы `proposal.md`, ≥1 сценарий на требование;
+  - схема [`csharp-api.yaml`](../../../schemas/csharp-api.yaml): обязательные разделы `proposal.md`, ≥1 сценарий на требование;
   - паритет требований умбрелла-спеки и дельт капабилити (`product-lifecycle`, `delivery-roles`);
   - YAML-синтаксис `dsh/profile/cordis.patch.yml` и наличие шести пресетов (`analyst`, `architect`,
     `csharp-dev`, `qa-engineer`, `reviewer`, `ops-release`);
@@ -266,7 +266,7 @@ None — HTTP/gRPC/событийные контракты не затрагив
 
 ### Modified Capabilities
 
-- Нет — живые спецификации [`openspec/specs/`](../../specs) пока содержат только `README.md`.
+- Нет — живые спецификации [`openspec/specs/`](../../../specs) пока содержат только `README.md`.
 
 ## Impact
 
@@ -325,7 +325,7 @@ None — контракты черновиков не меняются. Изме
 
 ## Changelog
 
-Планируемая запись в [`CHANGELOG.md`](../../../CHANGELOG.md) под `[Unreleased]`:
+Планируемая запись в [`CHANGELOG.md`](../../../../CHANGELOG.md) под `[Unreleased]`:
 
 - привязка `(002-lifecycle-and-roles)` в каждой строке; версия при срезе релиза — **MINOR** (новое поведение
   процесса, обратная совместимость артефактов сохранена);

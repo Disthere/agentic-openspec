@@ -108,11 +108,11 @@ This change requires an entry in [`CHANGELOG.md`](../../CHANGELOG.md) under `[Un
 - version bump per SemVer: **MINOR** — new behaviour, **PATCH** — fix, **MAJOR** — breaking change;
 - sections per [`../standards/04-documentation.md`](../standards/04-documentation.md) §4.6, including
   `Не изменилось` when the default behaviour is preserved and `Миграция` for breaking changes;
-- add a task for the changelog entry to [`tasks.md`](./tasks.md).
+- add a task for the changelog entry to `tasks.md`.
 
 Every proposal plans its changelog entry; the release DoD requires it
 ([`../standards/05-definition-of-done.md`](../standards/05-definition-of-done.md) §5.4).
 
 ## Tasks
 
-See [`tasks.md`](./tasks.md). Every task must trace back to a requirement above.
+See `tasks.md`. Every task must trace back to a requirement above.

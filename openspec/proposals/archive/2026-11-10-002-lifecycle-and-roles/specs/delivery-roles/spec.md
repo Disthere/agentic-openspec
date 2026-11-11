@@ -1,7 +1,7 @@
 # Spec delta — capability `delivery-roles`
 
 Капабилити о ролях доставки и эксплуатации и о среде их исполнения (DeepSeek Harness).
-Дельта вливается в [`openspec/specs/`](../../../../specs) при архивации предложения.
+Дельта вливается в [`openspec/specs/`](../../../../../specs) при архивации предложения.
 
 ## ADDED Requirements
 

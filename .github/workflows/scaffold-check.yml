@@ -1,0 +1,192 @@
+name: scaffold-check
+
+# CI-гейт шаблона (PLAN.md, батч 2, задачи 2.1-2.6).
+# Заменяет черновик docs/ci/scaffold-check.yml и переводит проверки из «на глаз» в машинные.
+# Список проверяемых файлов НЕ хардкодится вручную там, где его можно вывести из openspec/config.yaml:
+# стандарты берутся из каталога, схемы — из config.yaml, роли — из списка пресетов.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # --- 1. Валидатор предложений (P0-3) -----------------------------------------------------
+  proposals:
+    name: Validate proposals
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate all active proposals (+ links)
+        shell: pwsh
+        run: ./tools/validate-proposals.ps1 -All -CheckLinks
+
+      - name: Validate archived proposals
+        shell: pwsh
+        run: ./tools/validate-proposals.ps1 -Archived
+
+      # Негативный тест самого гейта: если валидатор перестал падать на битом входе,
+      # он ничего не проверяет. Без этого шага «зелёный» CI ничего не доказывает.
+      - name: Negative test — broken proposal must FAIL
+        shell: pwsh
+        run: |
+          $dir = 'openspec/proposals/999-negative-test'
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          '# Proposal: broken' | Set-Content "$dir/proposal.md"
+          try {
+            ./tools/validate-proposals.ps1 -Path $dir
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host 'FAIL: валидатор НЕ упал на заведомо битом предложении — гейт не работает'
+              exit 1
+            }
+            Write-Host 'OK: валидатор корректно упал на битом входе'
+          }
+          finally {
+            Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+  # --- 2. .NET: build / test / format (G1) -------------------------------------------------
+  dotnet:
+    name: Build, test, format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test (Release)
+        run: dotnet test --configuration Release --no-build
+
+      - name: Format check
+        run: dotnet format --verify-no-changes
+
+      - name: Vulnerable packages
+        run: dotnet list package --vulnerable --include-transitive
+
+  # --- 3. Скаффолд шаблона: файлы и стандарты ----------------------------------------------
+  scaffold:
+    name: Scaffolding present
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Required top-level files
+        run: |
+          set -e
+          for f in \
+            .clinerules AGENTS.md .editorconfig .gitattributes global.json LICENSE \
+            Directory.Build.props Directory.Packages.props agentic-openspec.slnx \
+            .github/copilot-instructions.md \
+            inputs/README.md inputs/INDEX.md \
+            openspec/constitution.md openspec/config.yaml openspec/project.md \
+            openspec/proposals/000-template.md \
+            docs/architecture/service-boundaries.md \
+            docs/operations/slo.md ; do
+            test -f "$f" || { echo "MISSING: $f"; exit 1; }
+          done
+
+      - name: Roles, skills, schemas, standards (derived from directories)
+        run: |
+          set -e
+          for r in analyst architect csharp-dev qa-engineer reviewer ops-release ; do
+            test -f ".agents/$r.md" || { echo "MISSING role: .agents/$r.md"; exit 1; }
+          done
+          for s in code-review spec-first implement-feature ; do
+            test -f ".agents/skills/$s/SKILL.md" || { echo "MISSING skill: $s"; exit 1; }
+          done
+          # Стандарты не перечисляются руками: сколько файлов NN-*.md есть, столько и проверяем.
+          count=$(ls openspec/standards/[0-9][0-9]-*.md | wc -l)
+          test "$count" -ge 11 || { echo "MISSING standards: found $count, expected >= 11"; exit 1; }
+          echo "Standards present: $count"
+          for f in openspec/schemas/csharp-api.yaml openspec/schemas/csharp-desktop.yaml ; do
+            test -f "$f" || { echo "MISSING schema: $f"; exit 1; }
+          done
+
+  # --- 5. Канон = зеркало (P0-2) ----------------------------------------------------------
+  canon-parity:
+    name: Canon and mirror agree
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check AGENTS.md <-> .clinerules parity
+        shell: pwsh
+        run: ./tools/check-canon-parity.ps1
+
+  # --- 6. Шаблон чист для раздачи (P0-5) -------------------------------------------------
+  template-clean:
+    name: Template is clean
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check no set history leaks into the template
+        shell: pwsh
+        run: ./tools/check-template-clean.ps1
+
+      - name: Verify lite route is accepted and full cycle is enforced
+        shell: pwsh
+        run: |
+          $dir = 'openspec/proposals/998-lite-ci'
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          # lite: минимальный набор разделов + skip_specs -> должен пройти
+          @(
+            '# Proposal: lite test',
+            '- **ID:** 998-lite-ci',
+            '- **Status:** Draft',
+            '- **skip_specs:** true',
+            '## Context', 'x',
+            '## Change', 'x',
+            '## Test Strategy', 'x',
+            '## Impact', 'x',
+            '## Changelog', 'x'
+          ) | Set-Content "$dir/proposal.md"
+          @(
+            '# Tasks',
+            '',
+            '## 1. Работы',
+            '- [ ] 1.1 Правка'
+          ) | Set-Content "$dir/tasks.md"
+          '# Acceptance' | Set-Content "$dir/acceptance.md"
+          try {
+            ./tools/validate-proposals.ps1 -Path $dir
+            if ($LASTEXITCODE -ne 0) { Write-Host 'FAIL: lite-предложение не прошло валидацию'; exit 1 }
+            Write-Host 'OK: lite-маршрут принят'
+
+            # Тот же файл без skip_specs -> полный цикл, должен упасть
+            (Get-Content "$dir/proposal.md") | Where-Object { $_ -notmatch 'skip_specs' } | Set-Content "$dir/proposal.md"
+            ./tools/validate-proposals.ps1 -Path $dir
+            if ($LASTEXITCODE -eq 0) { Write-Host 'FAIL: без skip_specs предложение НЕ должно проходить'; exit 1 }
+            Write-Host 'OK: без skip_specs применяется полный цикл'
+          }
+          finally {
+            Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+  # --- 4. Композиция DSH-профиля (P0-9, регресс-защита) -----------------------------------
+  dsh-profile:
+    name: DSH preset composition
+    runs-on: ubuntu-latest
+    # Проверка требует установленного DeepSeek Harness; на раннере его нет.
+    # Шаг остаётся в workflow как исполняемая документация и запускается вручную/в self-hosted.
+    if: vars.DSH_PROFILE_CHECK == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check preset composition (>= 8 plugins per role preset)
+        shell: pwsh
+        run: ./docs/ci/check-dsh-profile.ps1

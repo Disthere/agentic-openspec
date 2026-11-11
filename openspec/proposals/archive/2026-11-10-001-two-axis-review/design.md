@@ -116,8 +116,8 @@ VERDICT: Pass        # или Fail — одна из двух строк, пер
 
 | Элемент дизайна | Норма |
 | - | - |
-| Независимое ревью двумя осями | [`constitution.md`](../../constitution.md) §3.4 (Review gate), [`05-definition-of-done.md`](../../standards/05-definition-of-done.md) §5.2 |
-| ID и диспозиции находок | [`04-documentation.md`](../../standards/04-documentation.md) §4.7–4.8 (`OQ-N` → `D-NNN`) |
-| Правило сходимости и возврат Разработчику | [`.clinerules`](../../../.clinerules) §3 (делегирование) |
-| Фиксация `base`/`head` и применимость улик | [`03-handoffs.md`](../../standards/03-handoffs.md) (передача контекста) |
-| Сохранение `VERDICT: Pass|Fail` | [`000-acceptance.md`](../000-acceptance.md) («Вердикт ревью») |
+| Независимое ревью двумя осями | [`constitution.md`](../../../constitution.md) §3.4 (Review gate), [`05-definition-of-done.md`](../../../standards/05-definition-of-done.md) §5.2 |
+| ID и диспозиции находок | [`04-documentation.md`](../../../standards/04-documentation.md) §4.7–4.8 (`OQ-N` → `D-NNN`) |
+| Правило сходимости и возврат Разработчику | [`.clinerules`](../../../../.clinerules) §3 (делегирование) |
+| Фиксация `base`/`head` и применимость улик | [`03-handoffs.md`](../../../standards/03-handoffs.md) (передача контекста) |
+| Сохранение `VERDICT: Pass|Fail` | [`000-acceptance.md`](../../000-acceptance.md) («Вердикт ревью») |

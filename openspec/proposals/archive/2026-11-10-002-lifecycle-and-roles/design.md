@@ -64,7 +64,7 @@ flowchart LR
 
 ## 4. Среда исполнения: DeepSeek Harness
 
-Роли объявляются пресетами в [`dsh/profile/cordis.patch.yml`](../../../dsh/profile/cordis.patch.yml);
+Роли объявляются пресетами в [`dsh/profile/cordis.patch.yml`](../../../../dsh/profile/cordis.patch.yml);
 порядок (`order`) отражает последовательность фаз:
 
 | preset `id` | order | Роль | Фаза |
@@ -101,7 +101,7 @@ sequenceDiagram
 - **Персоны перечисляют файлы явно** (`AGENTS.md`, `openspec/constitution.md`, `openspec/standards/`, файл роли):
   `OQ-1` (читает ли DSH `AGENTS.md` как инструкции воркспейса) остаётся открытым, поэтому явный список
   гарантирует доставку правил делегированному агенту независимо от ответа на этот вопрос.
-- **`.clinerules` DSH не читает** (факт из [`dsh/README.md`](../../../dsh/README.md) §«Ограничения», п. 5).
+- **`.clinerules` DSH не читает** (факт из [`dsh/README.md`](../../../../dsh/README.md) §«Ограничения», п. 5).
   Канон среды — `AGENTS.md` + `openspec/` + `.agents/*`; `.clinerules` остаётся совместимым зеркалом для
   других инструментов, но теряет Cline-зависимые инструкции.
 - **Скиллы не добавляем.** Роли на первом шаге самодостаточны; скилл появляется, когда процедура
@@ -131,9 +131,9 @@ sequenceDiagram
 
 | Элемент дизайна | Норма |
 | - | - |
-| Spec First, гейты, запрет несогласованных изменений | [`constitution.md`](../../constitution.md) §1, §3 |
-| Фазы и передачи между ними | [`03-handoffs.md`](../../standards/03-handoffs.md) §3.1–3.2 |
-| DoD фаз (дискавери, эксплуатация) | [`05-definition-of-done.md`](../../standards/05-definition-of-done.md) §5.6–5.7 |
-| Привязка записей к задаче `(<ID>)` | [`04-documentation.md`](../../standards/04-documentation.md) §4.6 |
-| Роли = пресеты, правила не дублируются | [`DECISIONS.md`](../../../DECISIONS.md) `D-003` п. b–c |
-| Неизвестное — в `OQ-N`, а не в допущение | [`OPEN_QUESTIONS.md`](../../../OPEN_QUESTIONS.md) (`OQ-8`, `OQ-9`), [`04-documentation.md`](../../standards/04-documentation.md) §4.7 |
+| Spec First, гейты, запрет несогласованных изменений | [`constitution.md`](../../../constitution.md) §1, §3 |
+| Фазы и передачи между ними | [`03-handoffs.md`](../../../standards/03-handoffs.md) §3.1–3.2 |
+| DoD фаз (дискавери, эксплуатация) | [`05-definition-of-done.md`](../../../standards/05-definition-of-done.md) §5.6–5.7 |
+| Привязка записей к задаче `(<ID>)` | [`04-documentation.md`](../../../standards/04-documentation.md) §4.6 |
+| Роли = пресеты, правила не дублируются | [`DECISIONS.md`](../../../../DECISIONS.md) `D-003` п. b–c |
+| Неизвестное — в `OQ-N`, а не в допущение | [`OPEN_QUESTIONS.md`](../../../../OPEN_QUESTIONS.md) (`OQ-8`, `OQ-9`), [`04-documentation.md`](../../../standards/04-documentation.md) §4.7 |

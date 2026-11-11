@@ -1,14 +1,14 @@
 # Proposal: Two-axis independent review with a finding lifecycle — двухосевое ревью и жизненный цикл находок
 
 - **ID:** 001-two-axis-review
-- **Status:** Approved <!-- Draft | Approved | In Progress | Done | Rejected -->
+- **Status:** Done <!-- Draft | Approved | In Progress | Done | Rejected -->
   — утверждено владельцем 2026-11-09 командой «реализуй 001». `OQ-7` (обязательность двухосевого режима)
   остаётся открытым: реализован рекомендованный дефолт — двухосевой проход обязателен, для малых изменений
   допустим последовательный запуск осей.
 - **Owner:** Disthere (владелец репозитория)
 - **Date:** 2026-11-09
 - **Profile:** csharp-api (see `openspec/config.yaml`)
-- **Constitution:** [`openspec/constitution.md`](../../constitution.md) (highest priority — read first)
+- **Constitution:** [`openspec/constitution.md`](../../../constitution.md) (highest priority — read first)
 
 ## Context
 
@@ -31,14 +31,14 @@
 прежний контракт вердикта (`VERDICT: Pass|Fail`) сохраняется, чтобы не ломать `acceptance.md` и DoD 5.5.
 
 Капабилити, которую затрагивает изменение: новая — `independent-review`
-(живые спецификации в [`openspec/specs/`](../../specs) пока пусты).
+(живые спецификации в [`openspec/specs/`](../../../specs) пока пусты).
 
 ## Sources
 
 None — изменение процесса, внешних материалов заказчика нет.
 
 Источник требования — решение пользователя зафиксировать в шаблон двухосевое ревью
-(вопрос [`OQ-7`](../../../OPEN_QUESTIONS.md), предложение `001`); структурная идея заимствована из
+(вопрос [`OQ-7`](../../../../OPEN_QUESTIONS.md), предложение `001`); структурная идея заимствована из
 референсного набора `KirillSachkov/ai-dev-kit` (скиллы `code-review`, `references/findings.md`),
 формулировки не копируются. Обоснование и трассировка — в [`design.md`](./design.md).
 
@@ -197,9 +197,9 @@ None — HTTP/gRPC/событийные контракты не затрагив
 - **Unit (xUnit):** не применимо — исполняемого C#-кода предложение не добавляет.
 - **Integration (`WebApplicationFactory<T>`):** не применимо.
 - **Документарные проверки:**
-  - состав предложения и сверка со схемой [`csharp-api.yaml`](../../schemas/csharp-api.yaml)
+  - состав предложения и сверка со схемой [`csharp-api.yaml`](../../../schemas/csharp-api.yaml)
     (обязательные разделы, ≥1 сценарий на требование);
-  - конвенция скиллов ([`.agents/skills/README.md`](../../../.agents/skills/README.md)): фронтматтер
+  - конвенция скиллов ([`.agents/skills/README.md`](../../../../.agents/skills/README.md)): фронтматтер
     `name`/`description`/`argument-hint`, `name` = имя папки, рабочие относительные ссылки;
   - ручной прогон: две оси на реальном диффе — проверка исполнимости правил (см. «Непроверенные
     условия» в [`acceptance.md`](./acceptance.md)).
@@ -215,7 +215,7 @@ None — HTTP/gRPC/событийные контракты не затрагив
 
 ### Modified Capabilities
 
-- Нет — живые спецификации [`openspec/specs/`](../../specs) пока содержат только `README.md`.
+- Нет — живые спецификации [`openspec/specs/`](../../../specs) пока содержат только `README.md`.
 
 ## Impact
 
@@ -247,8 +247,8 @@ None — HTTP/gRPC/событийные контракты не затрагив
   один проход для малых изменений? — _recommended default:_ обязателен для всех предложений; для малых
   изменений допускается последовательный запуск осей (независимость сохраняется, см. `design.md` §3, §6).
 
-Закрытие вопроса = запись `D-NNN` в [`DECISIONS.md`](../../../DECISIONS.md); сам вопрос ведётся в
-[`OPEN_QUESTIONS.md`](../../../OPEN_QUESTIONS.md).
+Закрытие вопроса = запись `D-NNN` в [`DECISIONS.md`](../../../../DECISIONS.md); сам вопрос ведётся в
+[`OPEN_QUESTIONS.md`](../../../../OPEN_QUESTIONS.md).
 
 ## Performance & SLO
 
@@ -267,11 +267,11 @@ None — контракты черновиков (OpenAPI/gRPC/события) �
 
 ## Changelog
 
-Планируемая запись в [`CHANGELOG.md`](../../../CHANGELOG.md) под `[Unreleased]`:
+Планируемая запись в [`CHANGELOG.md`](../../../../CHANGELOG.md) под `[Unreleased]`:
 
 - заголовок `## [0.3.0] — YYYY-MM-DD · Двухосевое ревью и жизненный цикл находок (001-two-axis-review)`;
 - версия — **MINOR** (новое поведение процесса, обратная совместимость сохранена);
-- секции по [`04-documentation.md` §4.6](../../standards/04-documentation.md):
+- секции по [`04-documentation.md` §4.6](../../../standards/04-documentation.md):
   - `### Добавлено` — скилл `code-review` и его `references/`;
   - `### Изменено` — `.agents/reviewer.md`, таблицы скиллов, DoD §5.5;
   - `### Не изменилось` — контракт `VERDICT: Pass|Fail`, формат находок `Where/Breaks/Fix`,

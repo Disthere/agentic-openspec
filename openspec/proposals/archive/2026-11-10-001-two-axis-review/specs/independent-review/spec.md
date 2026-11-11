@@ -1,7 +1,7 @@
 # Spec delta — capability `independent-review`
 
 Изменение процессное: capability описывает независимое ревью кода и его артефакты.
-Дельта вливается в [`openspec/specs/`](../../../../specs) при архивации предложения.
+Дельта вливается в [`openspec/specs/`](../../../../../specs) при архивации предложения.
 
 ## ADDED Requirements
 
