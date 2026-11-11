@@ -1,0 +1,25 @@
+captured: 2026-11-11T13:35+05:00
+cwd: C:\Projects\agentic-openspec
+source of truth: baseline-before.txt (runtime log at repo root)
+
+=== dotnet build --configuration Release ===
+MSBUILD : error MSB1003: укажите проект или файл решения. Текущий рабочий каталог
+не содержит проект или файл решения.
+exit=1
+
+=== dotnet test --configuration Release ===
+MSBUILD : error MSB1003: укажите проект или файл решения. Текущий рабочий каталог
+не содержит проект или файл решения.
+exit=1
+
+=== dotnet format --verify-no-changes ===
+Unhandled exception: System.IO.FileNotFoundException: Не удалось найти файл проекта
+или решения MSBuild в "C:\Projects\agentic-openspec\". Укажите используемый файл
+с помощью аргумента <workspace>.
+  at MSBuildWorkspaceFinder.FindWorkspace(String searchDirectory, String workspacePath)
+  at FormatCommandCommon.ParseWorkspaceOptions(...)
+exit=1
+
+=== VERDICT (baseline) ===
+Все три команды красные. Причина одна: в репозитории нет .sln/.slnx и нет ни
+одного .csproj. Подтверждает P0-8 (нет проектов) и P0-7 (бутстрап).

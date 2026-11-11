@@ -1,0 +1,44 @@
+captured: 2026-11-11T13:36+05:00
+source of truth: baseline-dsh-before.txt (raw --dump-config, 1428 строк, sha256 8B68763804D9442496306C376A6B8243EFE536032F3F86EFB68481663EDB7657)
+
+=== Как получено ===
+Прямой вызов & dsh --profile agentic-openspec --dump-config упал EPERM:
+  Error: EPERM: operation not permitted, open
+  'C:\Users\ptbik\.dsh\profiles\agentic-openspec\cordis.yml'
+  at prepareProfile (.../profile-boot-e2mS45fC.js:221)
+(подтверждён известный факт из PLAN.md §1 — profile-boot перезаписывает cordis.yml)
+
+Обход из PLAN.md сработал без изменений:
+  $tmp = Join-Path $env:TEMP "dshplan-$stamp"
+  $env:DSH_HOME = $tmp
+  powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1   # exit 0
+  & $dsh --profile agentic-openspec --dump-config               # exit 0, 1428 строк
+
+=== Пресеты: число плагинов в config.plugins ===
+preset-standard        22
+preset-ptc             23
+preset-minimal          4
+preset-cordis          23
+preset-analyst          1      <-- P0-9
+preset-architect        1      <-- P0-9
+preset-csharp-dev       1      <-- P0-9
+preset-qa-engineer      1      <-- P0-9
+preset-reviewer         1      <-- P0-9
+preset-ops-release      1      <-- P0-9
+
+Единственный плагин у всех шести ролей — @deepseek-ai/dsh-persona.
+Критерий «до» из PLAN.md:81-83 выполнен буквально: ровно один элемент.
+Цель батча 3 (G3): >= 8 плагинов у пресета роли.
+
+=== Дефекты конфигурации, видимые в dump ===
+1. agent-preset-registry.config.default = csharp-dev   -> подтверждает D-07 / OQ-13
+   (Оркестратор стартует с персоной разработчика).
+2. tool-subagent: config.provider=spawn, без allowedAgentPresets -> P0-10
+   (список пресетов для делегирования не задан).
+3. tool-subagent-disabled, tool-subagent-control.disabled = true
+   (управляющий инструмент отключён — сверить с dsh/README.md при батче 3).
+
+=== P2-29 (YAML `>` вместо `|-`) ===
+Подтверждён в dump: у всех шести персон prefix отдан как folded block (`prefix: >`),
+в результате список файлов схлопнут в абзац — перечисление AGENTS.md / .agents/<роль>.md /
+openspec/... читается как сплошной текст, а не как список.

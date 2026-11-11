@@ -6,16 +6,33 @@ version: 1
 project:
   name: agentic-openspec
   description: Agentic Spec-Driven Development workspace for a C#/.NET project. The main DeepSeek Harness session orchestrates role subagents (DSH agent presets) under a spec-first workflow.
-  profile: csharp-api          # see openspec/schemas/csharp-api.yaml
+  profile: csharp-api          # АКТИВНЫЙ профиль проекта: csharp-api | csharp-desktop (см. блок `profiles:`)
   standards: openspec/standards        # обязательные инженерные стандарты
   constitution: openspec/constitution.md  # высший приоритет
   docs: docs                           # архитектура и эксплуатация
   language: csharp
 
+# Доступные профили проекта. Один проект = один активный профиль: схема валидации, набор стандартов
+# и раздел DoD следуют за выбором. Переключение профиля фиксируется решением в DECISIONS.md.
+profiles:
+  csharp-api:
+    kind: server
+    schema: csharp-api
+    stack: stack                 # блок `stack:` ниже
+    standards: standard-01-11    # стандарты 01–11 в полном объёме
+    dod: section-5.1-5.7
+  csharp-desktop:
+    kind: desktop
+    schema: csharp-desktop
+    stack: desktop_stack         # блок `desktop_stack:` ниже
+    standards: standard-01-11 + 12-desktop.md
+    dod: section-5.1-5.2-5.5-5.6-5.8   # серверные 5.3/5.4 заменяются 5.8
+
+
 stack:
   runtime: dotnet
-  target_framework: net8.0      # minimum; raise per project as needed
-  language_version: "12"        # C# 12+
+  target_framework: net10.0     # D-015 (гейт D-01(A)): .NET 8/9 EOL с 2026-11-10
+  language_version: "14"        # C# 14 — дефолт .NET 10 (D-015)
   nullable: enable
   implicit_usings: enable
   treat_warnings_as_errors: true
@@ -25,12 +42,45 @@ stack:
   web_framework: aspnetcore     # minimal APIs preferred
   orm: efcore                   # when persistence is required
 
-# Validation schemas applied to proposals and specs.
+# Стек десктопного профиля (`csharp-desktop`) — локальный продукт на устройстве.
+desktop_stack:
+  ui: avalonia-11 + CommunityToolkit.Mvvm
+  llm_runtime: LLamaSharp (llama.cpp), GGUF      # версия пакета фиксируется в Directory.Packages.props
+  llm_runtime_alt: ONNX Runtime GenAI (DirectML) # Lite-тир, один бэкенд для NVIDIA/AMD/Intel
+  stt: GigaAM / Whisper (small, turbo)
+  tts: sherpa-onnx (Piper / VITS)                # без GPL- и NC-голосов
+  vad: Silero VAD (ONNX, MIT)
+  vision_ocr: ONNX Runtime (PaddleOCR, Florence-2, CLIP/SigLIP)
+  vectors: SQLite + sqlite-vec
+  db_encryption: SQLCipher
+  ipc: in-process channels + named pipes         # HTTP-порты запрещены
+  crypto: AES-256-GCM, HKDF, Ed25519             # System.Security.Cryptography
+  seed_phrase: BIP39 (24 words)
+  installer: Velopack (Inno Setup — offline)     # установка без прав администратора
+  updates: gateway + signed manifest             # единственная точка выхода в сеть
+  analytics: none
+  architecture_tests: NetArchTest + Roslyn network-ban analyzer
+  rules: openspec/standards/12-desktop.md
+
+# Validation schemas applied to proposals and specs. The active schema follows `project.profile`.
+# Задача 5.1: `spec-first` удалён из active — файла openspec/schemas/spec-first.yaml не существует,
+# активная схема должна быть реальной. Правило «spec first» живёт в `workflow.spec_first` ниже
+# и в конституции §5, а не как схема.
 schemas:
   active:
     - csharp-api
-    - spec-first
+  available:
+    - csharp-api          # серверный профиль
+    - csharp-desktop      # десктопный профиль (Avalonia + локальные модели)
   proposal_template: proposals/000-template.md
+  # Лёгкий маршрут (D-020 / гейт D-08(A)): схема с минимальным набором разделов.
+  # Применимость — все условия сразу: <= 2 файлов, <= 50 строк, без изменения контрактов
+  # и видимого поведения. Обязательны и в lite: changelog, тесты, проверка командами.
+  lite: lite.yaml
+  lite_thresholds:
+    max_files: 2
+    max_changed_lines: 50
+    forbid_contract_changes: true
 
 # SDD workflow gates. "spec_first" must be true: no code before an approved spec.
 workflow:
@@ -44,6 +94,13 @@ workflow:
   proposals_dir: proposals
   require_discovery_gate: true      # inputs/INDEX.md + измеримый критерий успеха
   require_release_gate: true        # DoD 5.4: changelog, SemVer, rollback, runbook
+  # Лёгкий маршрут (D-020): когда допустим и что всё равно обязательно.
+  lite_allowed: true
+  lite_always_required:
+    - changelog_entry               # запись в CHANGELOG.md с привязкой (<ID>)
+    - tests_for_changed_logic       # тесты для изменённой логики
+    - command_verification          # dotnet build/test/format, валидатор
+  lite_fallback_rule: "любое нарушение порога или изменение контракта/поведения -> полный цикл"
   require_support_gate: true        # health/alerts + runbook + канал обратной связи
 
 # Фазы жизненного цикла: артефакт → гейт → владелец (openspec/constitution.md §7).
@@ -58,13 +115,19 @@ lifecycle:
     - { name: release,   artifact: "CHANGELOG.md, version, migrations, rollback plan", gate: "release (DoD 5.4)", owner: ops-release }
     - { name: operate,   artifact: "docs/operations/{slo,capacity,runbooks}", gate: support, owner: ops-release }
     - { name: feedback,  artifact: "OQ-N / new proposal",                   gate: "feedback loop", owner: "ops-release -> analyst" }
+    - { name: archive,   artifact: "specs/<capability>/spec.md + proposals/archive/<YYYY-MM-DD>-<NNN>-<slug>/", gate: "archive: checkboxes closed, deltas folded, acceptance.md filled, Status: Done", owner: orchestrator }
 
 # Commands the agents use for the verification gate.
+# ЕДИНЫЙ ИСТОЧНИК команд гейта (P1-5, задача 4.20): остальные документы ссылаются сюда.
 commands:
   restore: dotnet restore
   build: dotnet build --configuration Release --no-restore
+  # Покрытие — через MTP (задача 1.5): settings задаёт формат cobertura и порог.
   test: dotnet test --configuration Release --no-build
+  test_coverage: dotnet test --configuration Release --no-build --coverage --coverage-output-format cobertura
+  coverage_settings: tests/coverlet.runsettings
   format_check: dotnet format --verify-no-changes
+  vulnerable: dotnet list package --vulnerable --include-transitive
 
 # Subagent delegation (DeepSeek Harness).
 agents:

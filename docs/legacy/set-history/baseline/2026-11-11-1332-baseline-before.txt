@@ -1,0 +1,30 @@
+# 2026-11-11T13:35:06.3965365+05:00
+=== dotnet build -c Release ===
+MSBUILD : error MSB1003: укажите проект или файл решения. Текущий рабочий каталог не содержит проект или файл решения.
+
+exit=1
+=== dotnet test -c Release ===
+MSBUILD : error MSB1003: укажите проект или файл решения. Текущий рабочий каталог не содержит проект или файл решения.
+
+exit=1
+=== dotnet format --verify-no-changes ===
+dotnet : Unhandled exception: System.IO.FileNotFoundException: Не удалось найти файл проекта или решения MSBuild в "C:\
+Projects\agentic-openspec\". Укажите используемый файл с помощью аргумента <workspace>.
+строка:17 знак:7
++ $fm = dotnet format --verify-no-changes 2>&1 | Out-String
++       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Unhandled excep...та <workspace>.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   at Microsoft.CodeAnalysis.Tools.Workspaces.MSBuildWorkspaceFinder.FindWorkspace(String searchDirectory, String works
+pacePath)
+   at Microsoft.CodeAnalysis.Tools.Workspaces.MSBuildWorkspaceFinder.FindWorkspace(String searchDirectory, String works
+pacePath)
+   at Microsoft.CodeAnalysis.Tools.FormatCommandCommon.ParseWorkspaceOptions(ParseResult parseResult, FormatOptions for
+matOptions)
+   at Microsoft.CodeAnalysis.Tools.Commands.RootFormatCommand.FormatCommandDefaultHandler.InvokeAsync(ParseResult parse
+Result, CancellationToken cancellationToken)
+   at System.CommandLine.Invocation.InvocationPipeline.InvokeAsync(ParseResult parseResult, CancellationToken cancellat
+ionToken)
+
+exit=1

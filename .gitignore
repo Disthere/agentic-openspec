@@ -31,3 +31,9 @@ appsettings.*.local.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Состояние конкретной сессии (не часть шаблона, см. docs/CLEANUP.md)
+docs/session/
+*.binlog
+.vscode/
+BenchmarkDotNet.Artifacts/

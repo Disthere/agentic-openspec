@@ -1,0 +1,69 @@
+# Схема «лёгкий маршрут» (lite) — решение D-020 / гейт D-08(A)
+#
+# Назначение: снять overhead полного SDD-цикла с мелких правок. Индустрия признала overhead
+# главным риском SDD; при этом полный цикл остаётся обязательным по умолчанию.
+#
+# Применимость — ВСЕ условия сразу (иначе полный цикл):
+#   * изменяется <= 2 файлов;
+#   * изменяется <= 50 строк суммарно;
+#   * НЕ меняются публичные контракты (API, схемы событий, форматы хранения, CLI-флаги);
+#   * НЕ меняется поведение, видимое пользователю (тогда нужны Requirements + specs).
+#
+# Обязательно ДАЖЕ в lite (нельзя пропустить):
+#   * запись в CHANGELOG.md под [Unreleased] с привязкой (<ID>);
+#   * тесты для изменённой логики (если логика затронута);
+#   * обновление openspec/specs/ при изменении поведения существующей возможности;
+#   * гейт проверки командами (dotnet build/test/format).
+
+id: lite
+description: Лёгкий маршрут для мелких правок (<= 2 файлов, <= 50 строк, без изменения контрактов)
+
+# Шапка предложения. `skip_specs` — признак, по которому валидатор выбирает набор проверок.
+proposal_header:
+  required_fields:
+    - "**ID:**"
+    - "**Status:**"
+    - "**Owner:**"
+    - "**Date:**"
+  skip_specs: true          # в lite нет дельт specs/<capability>/spec.md
+
+# Обязательные разделы proposal.md для lite: минимальный набор, без Requirements/Contracts.
+required_sections:
+  - Context
+  - Change
+  - Test Strategy
+  - Impact
+  - Changelog
+
+# В lite НЕ требуются:
+not_required:
+  - Requirements          # нет проверяемых требований — правка слишком мала
+  - "C# Implementation Plan"
+  - "API / Contract Changes"
+  - Capabilities
+  - "### Requirement:"
+  - "#### Scenario:"
+  - specs/<capability>/spec.md
+  - design.md
+  - performance.md
+
+# Обязательные пункты tasks.md (формат тот же, что в полном цикле).
+tasks:
+  section_pattern: "^## \\d+\\. .+"
+  item_pattern: "^\\s*- \\[[ xX]\\] \\d+\\.\\d+ .+"
+
+# Порог применимости: проверяется валидатором как предупреждение (не блокирует),
+# но ревьюер вправе вернуть за превышение — это дефект маршрута, а не кода.
+thresholds:
+  max_files: 2
+  max_changed_lines: 50
+  forbid_contract_changes: true
+
+# Что обязательно и в lite (нарушение = Fail ревью).
+always_required:
+  - changelog_entry
+  - tests_for_changed_logic
+  - command_verification
+
+# Как переключиться обратно на полный цикл: убрать `skip_specs: true` из шапки и добавить
+# раздел `## Requirements`. Валидатор при отсутствии `skip_specs` применяет полный набор (V1–V11).

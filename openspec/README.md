@@ -16,7 +16,7 @@ openspec/
 │   │   ├── tasks.md
 │   │   ├── design.md        # optional
 │   │   └── specs/<capability>/spec.md
-│   └── archive/             # <YYYY-MM-DD>-<slug>/ after completion
+│   └── archive/             # <YYYY-MM-DD>-<NNN>-<slug>/ after completion
 ├── schemas/                 # machine-readable validation schemas
 │   └── csharp-api.yaml
 └── specs/                   # living specifications (folded from archives)

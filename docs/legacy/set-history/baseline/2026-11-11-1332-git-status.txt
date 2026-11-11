@@ -1,0 +1,29 @@
+ M .agents/reviewer.md
+ M .agents/skills/code-review/SKILL.md
+ M .clinerules
+ M AGENTS.md
+ M CHANGELOG.md
+ M DECISIONS.md
+ M OPEN_QUESTIONS.md
+ M README.md
+ M docs/SESSION-START.md
+ M dsh/README.md
+ M dsh/install.ps1
+ M dsh/profile/cordis.patch.yml
+ M openspec/config.yaml
+ M openspec/project.md
+ M openspec/schemas/README.md
+ M openspec/standards/04-documentation.md
+ M openspec/standards/05-definition-of-done.md
+ M openspec/standards/README.md
+?? ASSESSMENT.md
+?? PLAN.md
+?? docs/ADOPTION.md
+?? docs/legacy/
+?? dsh/presets-bundle/
+?? openspec/proposals/003-dsh-profile-patch-fix/
+?? openspec/proposals/004-desktop-profile/
+?? openspec/proposals/005-adoption-guide/
+?? openspec/proposals/006-legacy-docs-alignment/
+?? openspec/schemas/csharp-desktop.yaml
+?? openspec/standards/12-desktop.md

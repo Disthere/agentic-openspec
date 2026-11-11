@@ -6,8 +6,8 @@
 
 [![Use this template](https://img.shields.io/badge/Use%20this-template-2ea44f?logo=github)](#сценарий-a--новое-решение)
 ![workflow](https://img.shields.io/badge/workflow-Spec--First-blue)
-![C#](https://img.shields.io/badge/C%23-12%2B-239120?logo=csharp)
-![.NET](https://img.shields.io/badge/.NET-8%2B-512BD4?logo=dotnet)
+![C#](https://img.shields.io/badge/C%23-14-239120?logo=csharp)
+![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet)
 
 Готовый «фундамент» проекта: правила для агента, роли субагентов, инженерные стандарты,
 конституция, SDD-артефакты и общие настройки сборки .NET. Подходит и для **новых**, и для
@@ -17,16 +17,24 @@
 
 ## Что внутри
 
+- **Как развернуть в проекте** — [`docs/ADOPTION.md`](./docs/ADOPTION.md): два сценария (новый проект и
+  существующий без SDD) готовыми промптами; единственное ручное действие — скопировать одну папку, корень
+  набора `agentic-openspec`.
 - **Правила агента** — [`AGENTS.md`](./AGENTS.md) (канон для DSH) и [`openspec/`](./openspec);
   [`.clinerules`](./.clinerules) — совместимое зеркало для других инструментов, краткие указатели в
   [`.github/instructions/`](./.github/instructions).
 - **Роли субагентов** — [`.agents/`](./.agents): шесть ролей цикла (продуктовый аналитик → архитектор →
   разработчик → инженер верификации → ревьюер → Ops/Release) + скиллы; пресеты среды — в [`dsh/profile/`](./dsh/profile).
 - **Конституция проекта** — [`openspec/constitution.md`](./openspec/constitution.md) (высший приоритет).
-- **Инженерные стандарты 01–11** — [`openspec/standards/`](./openspec/standards): Code Style, Architecture,
-  Handoffs, Documentation, DoD, API, Persistence, Messaging, Security, Observability, Performance.
+- **Инженерные стандарты 01–12** — [`openspec/standards/`](./openspec/standards): Code Style, Architecture,
+  Handoffs, Documentation, DoD, API, Persistence, Messaging, Security, Observability, Performance,
+  Desktop (`12-desktop.md` — профиль `csharp-desktop`).
 - **SDD-процесс** — [`openspec/`](./openspec): конфиг, схемы валидации, шаблоны предложений.
 - **Документация эксплуатации** — [`docs/`](./docs): границы сервисов, ADR, SLO, capacity, runbooks.
+- **Документация до SDD** — `docs/legacy/` (шаблон набора): реестр документов `LEG-NNN`, карта соответствий
+  «их документ → наш артефакт», замороженная история изменений; для проектов, у которых документация уже
+  есть и устроена иначе. Правила — [`openspec/standards/04-documentation.md` §4.10](./openspec/standards/04-documentation.md),
+  промпты — [`docs/ADOPTION.md`](./docs/ADOPTION.md) §3 (B1a, B5) и §7 (B6).
 - **История изменений** — [`CHANGELOG.md`](./CHANGELOG.md) (Keep a Changelog + SemVer, привязка к задачам).
 - **Открытые вопросы и решения** — [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) (OQ-N) и [`DECISIONS.md`](./DECISIONS.md) (D-NNN).
 - **Входные материалы заказчика** — [`inputs/`](./inputs/README.md): ТЗ, концепции, макеты, образцы данных + реестр [`INDEX.md`](./inputs/INDEX.md).
@@ -64,7 +72,8 @@ agentic-openspec/
 │   └── skills/<name>/SKILL.md  # переиспользуемые скиллы
 ├── docs/
 │   ├── architecture/{service-boundaries.md, adr/}
-│   └── operations/{slo.md, capacity.md, runbooks/}
+│   ├── operations/{slo.md, capacity.md, runbooks/}
+│   └── legacy/                 # документация до SDD: реестр LEG-NNN, карта соответствий, замороженный changelog
 ├── openspec/                   # артефакты SDD
 │   ├── constitution.md         # конституция проекта (высший приоритет)
 │   ├── config.yaml             # профиль (csharp-api), активные схемы, гейты
@@ -93,7 +102,21 @@ agentic-openspec/
    - [`openspec/project.md`](./openspec/project.md) — стек, конвенции, архитектурная диаграмма;
    - [`README.md`](./README.md) — заголовок и описание вашего проекта;
    - [`Directory.Packages.props`](./Directory.Packages.props) — нужные зависимости (лишнее уберите);
-   - `src/` и `tests/` — удалите заглушки и создайте проекты (`dotnet new`).
+   - `src/` и `tests/` — в шаблоне уже есть рабочая пара `Smoke` / `Smoke.Tests`;
+     новые проекты добавляйте через `dotnet new` (см. ниже).
+
+   **Бутстрап проектов (обязательно для тестов):**
+
+   ```powershell
+   dotnet new classlib -n <Name> -o src/<Name>
+   dotnet new install xunit.v3.templates      # однократно: шаблон xUnit v3
+   dotnet new xunit3 -n <Name>.Tests -o tests/<Name>.Tests
+   dotnet sln add src/<Name>/<Name>.csproj tests/<Name>.Tests/<Name>.Tests.csproj
+   ```
+
+   ⚠️ `dotnet new xunit` (xUnit **v2**) при включённом Central Package Management даёт
+   `NU1008` + `NU1010` — используйте `xunit3`. Версии пакетов задаются только в
+   [`Directory.Packages.props`](./Directory.Packages.props), inline `Version=` не пишите.
 
 3. **Убедитесь, что DSH видит правила**: откройте корень репозитория как workspace —
    канон для DSH — [`AGENTS.md`](./AGENTS.md) и [`openspec/`](./openspec); скиллы подхватываются из
@@ -134,6 +157,7 @@ agentic-openspec/
 | `Directory.Build.props`, `Directory.Packages.props` | ✅ **смёржить** | ваши версии пакетов приоритетнее |
 | `global.json` | ⚪ по желанию | подставьте свой SDK |
 | `README.md`, `LICENSE`, `src/`, `tests/` | ❌ нет | это часть шаблона, не инструмента |
+| `THIRD-PARTY.md` | ✅ если копируете `.agents/skills/` | сохраняет обязательства по MIT/CC BY-SA |
 
 ### Команда копирования (PowerShell)
 
