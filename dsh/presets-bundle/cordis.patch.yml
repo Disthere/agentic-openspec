@@ -1,0 +1,171 @@
+# Патч-слой бандла «openspec SDD presets».
+#
+# Назначение: принести роль SDD в DSH так, чтобы агент роли РЕАЛЬНО РАБОТАЛ —
+# читал файлы, запускал dotnet, видел скиллы и AGENTS.md (P0-9, P0-11).
+#
+# Семантика слоя (DSH 0.2.2-rc.1):
+#   * запись верхнего уровня адресует СУЩЕСТВУЮЩИЙ id из бандлов (override);
+#   * новые плагины — только списком `insert`.
+#
+# РЕШЕНИЕ D-016 (гейт D-02(A) плана): роль доставляется ОДНИМ пресетом `sdd`,
+# который является точной копией композиции `preset-standard` (22 плагина) с заменой
+# только `persona.prefix`. Шесть отдельных пресетов-ролей больше не создаются:
+# роль выбирается промптом при делегировании, а не отдельным пресетом. Причина —
+# у шести пресетов в `config.plugins` была РОВНО ОДНА запись (персона), и агент роли
+# не имел ни `read`, ни `pwsh`, ни `skill` (это и есть P0-9).
+#
+# РЕШЕНИЕ D-018 (гейт D-07(A)): дефолт реестра — `standard`, нейтральный. Оркестратор
+# не должен получать персону роли. Чтобы работать ролью, выберите пресет `sdd` в UI.
+
+# ---------------------------------------------------------------------------
+# 1) Дефолтный пресет — нейтральный standard (D-018), не роль.
+# ---------------------------------------------------------------------------
+- id: agent-preset-registry
+  config:
+    default: standard
+
+# ---------------------------------------------------------------------------
+# 2) Пресет `sdd` — роль SDD с полным набором инструментов (D-016).
+#    Композиция = `preset-standard` один-в-один; изменена только персона.
+# ---------------------------------------------------------------------------
+- insert:
+    - id: preset-sdd
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: sdd
+        name: SDD-роль (agentic-openspec)
+        description: >-
+          Роль Spec-Driven Development: аналитик, архитектор, разработчик,
+          инженер верификации, ревьюер или Ops/Release. Роль уточняется промптом;
+          канон правил — AGENTS.md и .agents/<роль>.md рабочего пространства.
+        order: 10
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              # Литеральный блок (`|`), а не folded (`>`): списки файлов должны сохранять
+              # переводы строк (P2-29). Задача 3.2: персона — 3–5 строк сути + ссылки;
+              # правила НЕ дублируются, они живут в файлах роли и конституции.
+              prefix: |
+                Ты — агент Spec-Driven Development (SDD) в этом рабочем пространстве.
+                Роль приходит из задачи; правила — в файлах проекта, они главнее пересказа:
+
+                  - AGENTS.md                        — канон правил воркспейса
+                  - .agents/<роль>.md                 — твоя роль, артефакты, критерии готовности
+                  - openspec/constitution.md          — конституция (высший приоритет), §7 — фазы
+                  - openspec/standards/               — инженерные стандарты
+                  - .agents/skills/<скилл>/SKILL.md   — скиллы (code-review, spec-first, implement-feature)
+
+                Роли: analyst (Discovery), architect (Spec/Design), csharp-dev (Build),
+                qa-engineer (Verify), reviewer (Review), ops-release (Release/Operate/Feedback).
+                Spec First: код — только после утверждённой спецификации. Не выходи за рамки роли.
+                Проверяй командой (dotnet build/test/format), не суждением. Нерешённое — в OQ-N.
+
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: tool-bash
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+            config:
+              applyPatch: false
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: tool-schedule
+            name: '@deepseek-ai/dsh-tool-schedule'
+          - id: skill-filesystem
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: command-goal
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: tool-goal
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: planning
+            name: cordis:group
+            group: true
+            isolate:
+              planMode: true
+            config:
+              - id: plan-mode
+                name: '@deepseek-ai/dsh-plan-mode'
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024
+          - id: delegation
+            name: cordis:group
+            group: true
+            isolate:
+              workflowEngine: true
+            config:
+              # Делегирование по роли (P0-10): список пресетов, которые модель может
+              # адресовать. `sdd` — единственный пресет роли (D-016); роль уточняется
+              # промптом, поэтому адресат один.
+              - id: tool-subagent-control
+                name: '@deepseek-ai/dsh-tool-subagent-control'
+                config:
+                  allowedAgentPresets:
+                    - sdd
+              - id: tool-subagent
+                name: '@deepseek-ai/dsh-tool-subagent'
+                config:
+                  provider: spawn
+                  toolName: subagent
+                  modelSelection: true
+                  modelDiscovery: true
+              - id: tool-subagent-fork
+                name: '@deepseek-ai/dsh-tool-subagent'
+                config:
+                  provider: fork
+                  toolName: subagent_fork
+              - id: workflow-ptc
+                name: '@deepseek-ai/dsh-workflow-ptc'
+                config:
+                  provider: spawn
+              - id: tool-workflow
+                name: '@deepseek-ai/dsh-tool-workflow'
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: tool-web
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: present
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: tool-plugin-manager
+            name: '@deepseek-ai/dsh-plugin-manager/tools'
+            disabled: !!js '!ctx.get(''profileContext'')'
+          - id: tool-plugin-market
+            name: '@deepseek-ai/dsh-plugin-market/tools'
+            disabled: true

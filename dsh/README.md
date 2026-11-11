@@ -27,24 +27,24 @@
 
 ## Быстрый старт
 
+`dsh` — приложение **DeepSeek Harness** (Electron). CLI поставляется вместе с ним и в `PATH` не попадает:
+
 ```powershell
-# 1) Запустить DSH и открыть Web UI (http://127.0.0.1:3080)
-npx @deepseek-ai/dsh web
+# CLI из установленного приложения (в PATH его нет)
+$dsh = Join-Path $env:LOCALAPPDATA 'Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd'
+& $dsh --version      # 0.2.2-rc.1 и выше
+```
 
-# 2) В Web UI: Settings -> Models -> введите DeepSeek API key и сохраните
-#    (маршрут модели становится доступен сразу, без перезапуска)
-
-# 3) Choose workspace -> выберите КОРЕНЬ этого репозитория
-
-# 4) Установить наш профиль (шесть ролей: аналитик, архитектор, разработчик, QA, ревьюер, Ops/Release)
+```powershell
+# 1) Установить наш профиль (шесть ролей: аналитик, архитектор, разработчик, QA, ревьюер, Ops/Release)
 powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1
+
+# 2) Проверить композицию (обязательный шаг, см. ниже)
+& $dsh --profile agentic-openspec --dump-config
 ```
 
-Запуск с нашим профилем:
-
-```powershell
-npx @deepseek-ai/dsh --profile agentic-openspec
-```
+Дальше — открыть приложение, выбрать рабочее пространство (корень этого репозитория) и работать в
+профиле `agentic-openspec`. Провайдер и модели задаются в Web UI (Settings → Models) либо в патче профиля.
 
 > Профиль живёт в `$DSH_HOME/profiles/<name>` (`$DSH_HOME` = `~/.dsh`, если не переопределён),
 > а **не** в репозитории. Поэтому `dsh/profile/` — это «исходник» профиля, который `install.ps1`
@@ -53,14 +53,70 @@ npx @deepseek-ai/dsh --profile agentic-openspec
 ## Проверка композиции
 
 ```powershell
-npx @deepseek-ai/dsh --profile agentic-openspec --dump-config
+$dsh = Join-Path $env:LOCALAPPDATA 'Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd'
+& $dsh --profile agentic-openspec --dump-config   # ожидаемый код возврата: 0
 ```
 
-В собранном дереве должны быть `agent-default-model`, `agent-preset-registry` и шесть пресетов:
-`analyst`, `architect`, `csharp-dev`, `qa-engineer`, `reviewer`, `ops-release`.
+В собранном дереве должны быть `agent-default-model`, один `agent-preset-registry` и наш пресет роли
+**`preset-sdd`** (плюс поставляемые `preset-standard`, `preset-ptc`, `preset-minimal`, `preset-cordis`).
+Шесть пресетов-ролей (`preset-analyst` и т.д.) удалены решением `D-016` — не возвращайте их.
 
-Полезно: `--dump-config-schema` (JSON Schema вместо значений), `--dump-default-config` (чистый
-шаблон без ваших слоёв).
+Полезно: `--dump-config-schema` (JSON Schema записей и патчей — **тоже требует `--profile`**),
+`--dump-default-config` (дерево без пользовательского слоя), `--from-default-profile <template>`
+(сбросить профиль из поставляемого шаблона).
+
+**Фактический список шаблонов** (проверено на DSH 0.2.2-rc.1, `--from-default-profile <name> --dump-config`):
+
+| Шаблон | Строк в дереве | Что это |
+| - | - | - |
+| `web` | ~1244 | веб-приложение (используется профилем `desktop`) |
+| `acp` | ~384 | ACP-сервер |
+| `headless` | ~392 | headless-режим |
+| `sdk` | ~439 | SDK-хост |
+| `sdk-minimal` | ~158 | минимальный SDK-хост |
+
+`tui` и `rescue` **не существуют** (CLI отвечает ошибкой) — в прежней версии этого README они были
+указаны ошибочно (P1-20 плана).
+
+> Профиль `desktop` принадлежит Electron-приложению: CLI отказывается его дампить
+> (`profile "desktop" is managed exclusively by the Electron application`). Это нормально — правьте
+> приложение, а не CLI.
+
+## Патч-слой: override или insert
+
+`cordis.patch.yml` — массив записей. Запись верхнего уровня **адресует существующий id** из бандлов:
+
+```yaml
+- id: agent-default-model          # id объявлен в dsh-base
+  config: { provider: <провайдер>, model: <модель> }
+
+- id: tool-subagent                # выключение плагина
+  disabled: true
+```
+
+**Новые** плагины добавляются только списком `insert`:
+
+```yaml
+- insert:
+    - id: preset-analyst           # новый id
+      name: '@deepseek-ai/dsh-agent-preset'
+      config: { id: analyst, plugins: [ ... ] }
+```
+
+Запись верхнего уровня с новым id ломает запуск:
+
+```text
+dsh: [...\cordis.patch.yml] patch: entry "preset-analyst" not found
+```
+
+Что уже объявлено бандлами (переопределять, но не вставлять повторно):
+
+| id | Кто объявляет | Дефолт |
+| - | - | - |
+| `agent-default-model` | `dsh-base` | `deepseek-official` / `deepseek-flash` |
+| `agent-preset-registry` | `dsh-web-app` | `default: standard` |
+| `agent-preset`, `dsh-persona`, `dsh-subagent`, `dsh-skill-filesystem` | `dsh-base` | — |
+
 
 ## Как DSH находит скиллы
 
@@ -76,48 +132,67 @@ npx @deepseek-ai/dsh --profile agentic-openspec --dump-config
 
 Корень проекта — **ближайший предок, содержащий `.git`** (в этом репозитории есть). Значит
 [`.agents/skills/spec-first`](../.agents/skills/spec-first), [`implement-feature`](../.agents/skills/implement-feature)
-и ваш новый [`ai-writing-tells`](../.agents/skills/ai-writing-tells) видны агенту сразу.
+и новые скиллы проекта видны агенту сразу.
 
 Формат скилла: каталог `<name>/SKILL.md` или плоский `<name>.md` (глубина — один уровень).
 Фронтматтер: обязательны `name` и `description`; опционально `whenToUse`, `metadata`,
 `disable-model-invocation`, `user-invocable`.
 
-## Роли и модели (agent presets)
+## Роль и модель (agent preset)
 
-| Роль | preset `id` | `order` | Модель (по умолчанию в патче) | Фаза и задача |
+**Один пресет `sdd`** — решение `D-016` (гейт D-02(A) плана). Раньше здесь было шесть пресетов-ролей,
+и у каждого в `config.plugins` лежала **ровно одна** персона: агент роли не имел ни `read`, ни `pwsh`,
+ни `skill` (дефект P0-9). Теперь роль несёт полную композицию `preset-standard`.
+
+| Пресет `id` | `order` | Модель | Плагинов | Что умеет |
 | - | - | - | - | - |
-| Продуктовый аналитик | `analyst` | 5 | `deepseek/deepseek-v4-pro` | Discovery: `inputs/`, `IN-NNN`, измеримый критерий успеха |
-| Архитектор | `architect` | 10 | `deepseek/deepseek-v4-pro` | Spec, Design: спецификация, C4/Mermaid, без кода |
-| Разработчик | `csharp-dev` *(default)* | 20 | `deepseek/deepseek-v4.1-flash` | Build: код + `dotnet build/test` |
-| Инженер верификации | `qa-engineer` | 25 | `deepseek/deepseek-v4.1-flash` | Verify: `acceptance.md`, `performance.md`, воспроизводимые улики |
-| Ревьюер | `reviewer` | 30 | `deepseek/deepseek-v4.1-flash` | Review: вердикт `VERDICT: Pass/Fail` по двум осям |
-| Ops / Release | `ops-release` | 40 | `deepseek/deepseek-v4.1-flash` | Release, Operate, Feedback: changelog, план отката, runbook |
+| `sdd` | 10 | `deepseek/deepseek-v4.1-flash` | **22** | все инструменты стандарта + SDD-персона |
 
-Состав ролей, их владельцы и порядок фаз — [`openspec/constitution.md`](../openspec/constitution.md) §7.
-Роли объявлены шестью записями `@deepseek-ai/dsh-agent-preset` в
-[`profile/cordis.patch.yml`](./profile/cordis.patch.yml):
+Роль **выбирается промптом**, а не отдельным пресетом: персоны `sdd` ссылается на `.agents/<роль>.md`,
+`openspec/constitution.md` §7 и `openspec/standards/`, поэтому агент сам берёт нужную роль из задачи.
+Роли цикла (аналитик → архитектор → разработчик → QA → ревьюер → Ops/Release), их владельцы и порядок
+фаз — [`openspec/constitution.md`](../openspec/constitution.md) §7.
+
+Состав композиции = `preset-standard` один-в-один, изменена только `persona.prefix`. Пресет объявлен
+списком `insert` в [`presets-bundle/cordis.patch.yml`](./presets-bundle/cordis.patch.yml) — это
+**единственный** источник (решение `D-017`, гейт D-03(A)); `profile/` содержит только scaffolding.
+
+> **Модель** — решение владельца `OQ-2` → `D-007` (2026-11-09): провайдер `routerai`,
+> `deepseek/deepseek-v4.1-flash`. Провайдер задаётся переопределением `llm-pi-ai`
+> (ключ — из переменной `ROUTERAI_API_KEY`), дефолт модели — переопределением `agent-default-model`.
+>
+> **Дефолтный пресет сессии — `standard`** (нейтральный), решение `D-018` (гейт D-07(A)):
+> Оркестратор не должен получать персону роли. Чтобы работать ролью, выберите `sdd` в UI.
+>
+> **Разные модели на роли** (если понадобится): в `plugins:` пресета `sdd` добавить
+> `@deepseek-ai/dsh-agent-default-model`. Сейчас все роли на одной модели — так и задумано (D-007).
 
 ```yaml
-- id: preset-architect
-  name: '@deepseek-ai/dsh-agent-preset'
-  config:
-    id: architect
-    name: Архитектор
-    order: 10
-    plugins:
-      - name: '@deepseek-ai/dsh-agent-default-model'
-        config: { provider: deepseek, model: deepseek/deepseek-v4-pro }
-      - name: '@deepseek-ai/dsh-persona'
-        config: { prefix: "…текст роли со ссылкой на .agents/architect.md…" }
+- insert:                                   # НОВЫЕ плагины — только через insert
+    - id: preset-architect                 # id записи патча (адресует загрузчик)
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: architect                      # идентификатор пресета, его сохраняют сессии
+        name: Архитектор
+        description: Требования, спецификации, без кода
+        order: 10                          # порядок в ростере
+        plugins:                           # дочерние плагины пресета
+          - name: '@deepseek-ai/dsh-persona'
+            config: { prefix: "…текст роли со ссылкой на .agents/architect.md…" }
+          # модель на роль (необязательно: задана глобально через agent-default-model)
+          # - name: '@deepseek-ai/dsh-agent-default-model'
+          #   config: { provider: routerai, model: deepseek/deepseek-v4.1-flash }
 ```
 
 - **Модель на роль** — дочерним плагином `@deepseek-ai/dsh-agent-default-model`. Роли можно развести
   по разным моделям (архитектору — сильнее, ревьюеру — независимую от разработчика).
 - **Персона роли** — `@deepseek-ai/dsh-persona` (`prefix`, `suffix`, `complete`, `includeRuntimeContext`).
   Текст персоны короткий и **ссылается на файл роли** — чтобы не дублировать правила.
-- **Смена модели**: правите `cordis.patch.yml` и перезапускаете; либо удаляете блок
-  `agent-default-model` и задаёте модель в Web UI (Settings → Models).
-- **`default: csharp-dev`** в `agent-preset-registry` — роль по умолчанию для новых сессий.
+- **Смена модели**: правите [`presets-bundle/cordis.patch.yml`](./presets-bundle/cordis.patch.yml) и
+  перезапускаете; либо удаляете блок `agent-default-model` и задаёте модель в Web UI (Settings → Models).
+  Смена модели из UI **не требует перезапуска** приложения, но требует новой сессии.
+- **`default: standard`** в `agent-preset-registry` — нейтральный пресет для новых сессий (D-018).
+  Пресет `sdd` выбирается в UI, когда нужна роль.
 
 > Если DSH откажется принимать `agent-default-model` внутри `plugins:` — уберите его из пресетов
 > (модель возьмётся из Web UI), роли продолжат работать без изменений.
@@ -148,7 +223,7 @@ DoD фаз — [`openspec/standards/05-definition-of-done.md`](../openspec/stand
 ## Headless для CI
 
 ```powershell
-npx @deepseek-ai/dsh --profile headless "Прочитай AGENTS.md и создай предложение 001-<slug> через пресет architect"
+& $dsh --profile headless "Прочитай AGENTS.md и создай предложение 001-<slug> через пресет architect"
 ```
 
 `headless` — один свежий сеанс, печатает финальный ответ и выходит (удобно для пайплайнов).
@@ -160,23 +235,29 @@ npx @deepseek-ai/dsh --profile headless "Прочитай AGENTS.md и созд�
 1. **Developer preview** — «THERE WILL BE COMPATIBILITY-BREAKING CHANGES»; прочитайте `SAFETY.md`.
 2. **Имя профиля `desktop` зарезервировано** под Electron — CLI им не управляет; поэтому наш профиль
    называется `agentic-openspec`.
-3. **Скиллы — один уровень вглубь**: `ai-writing-tells/references/…` и `scripts/` — это ресурсы
+3. **Скиллы — один уровень вглубь**: `code-review/references/…` — это ресурсы
    скилла (нормально); вложенные `**/SKILL.md` DSH намеренно не сканирует.
 4. **`argument-hint`** (из наших Claude-скиллов) не входит в список полей DSH. Обычно
    игнорируется; если скилл не появился — удалите это поле из фронтматтера.
 5. **`.clinerules` DSH не читает** — канон для DSH: `AGENTS.md` + `openspec/`.
-6. **Переустановить профиль**: `npx @deepseek-ai/dsh --profile agentic-openspec --from-default-profile web`,
-   затем снова `install.ps1`.
-7. **Управление плагинами профиля**: `npx @deepseek-ai/dsh plugin --profile agentic-openspec <pnpm args>`.
+6. **Переустановить профиль**: `& $dsh --profile agentic-openspec --from-default-profile web`, затем снова
+   `install.ps1`.
+7. **Управление плагинами профиля**: `& $dsh plugin --profile agentic-openspec <pnpm args>`.
+8. **Профиль `desktop` CLI не обслуживает** — им владеет Electron-приложение; команды CLI и `--dump-config`
+   для него отклоняются.
 
 ## Файлы
 
 | Файл | Назначение |
 | - | - |
+| [`presets-bundle/cordis.patch.yml`](./presets-bundle/cordis.patch.yml) | **Единственный источник**: пресет `sdd`, персона, дефолт реестра (D-016, D-017) |
+| [`presets-bundle/package.json`](./presets-bundle/package.json) | Манифест бандла (`dsh.bundle.patch`) |
 | [`profile/package.json`](./profile/package.json) | Бандлы профиля (`dsh-base`, `dsh-web-app`) |
 | [`profile/cordis.yml`](./profile/cordis.yml) | Корень профиля (пустой список) |
-| [`profile/cordis.patch.yml`](./profile/cordis.patch.yml) | **Роли, персоны, модели** — правьте здесь |
-| [`install.ps1`](./install.ps1) | Установка профиля в `$DSH_HOME/profiles/agentic-openspec` |
+| [`install.ps1`](./install.ps1) | Установка профиля в `$DSH_HOME/profiles/agentic-openspec` (с бэкапом `.bak-<timestamp>`) |
+
+> Каталог `profile/` — **тонкая обёртка**: персон и пресета в нём нет. Патч профиля производится из
+> бандла при установке (`install.ps1`), поэтому двух расходящихся копий не существует (D-017, P1-11).
 
 Официальная документация: <https://deepseek-harness.github.io/deepseek-harness/>.
 Репозиторий: <https://github.com/deepseek-ai/deepseek-harness>.

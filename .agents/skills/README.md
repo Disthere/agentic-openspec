@@ -33,7 +33,7 @@ argument-hint: <что передаёт вызывающий>
 | [`spec-first`](./spec-first/SKILL.md) | Превратить запрос в черновик спецификации (без кода). |
 | [`implement-feature`](./implement-feature/SKILL.md) | Реализовать утверждённое предложение с `dotnet build`/`dotnet test`. |
 | [`code-review`](./code-review/SKILL.md) | Двухосевое независимое ревью диффа: ось Standards и ось Spec, раздельные отчёты. |
-| [`ai-writing-tells`](./ai-writing-tells/SKILL.md) | Аудит и правка текстов, подозреваемых в AI-генерации. |
+| [`code-review`](./code-review/SKILL.md) | Двухосевое независимое ревью (Standards / Spec). |
 
 ## Соглашения по содержимому
 

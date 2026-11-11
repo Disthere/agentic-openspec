@@ -1,0 +1,12 @@
+{
+  "name": "dsh-presets-agentic-openspec",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SDD role preset (`sdd`) for DeepSeek Harness: full standard composition with an SDD persona.",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

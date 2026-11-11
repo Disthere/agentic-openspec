@@ -1,5 +1,8 @@
 # dsh profile root — пустой список записей.
 # Дерево собирается патчами: бандлы из dsh.profile.bundles (package.json),
 # затем cordis.patch.yml, затем $DSH_HOME/cordis.patch.yml и --patch оверлеи.
-# Редактируйте cordis.patch.yml, а не этот файл.
+#
+# Решение D-017 (гейт D-03(A)): персоны и пресет роли живут ТОЛЬКО в
+# ../presets-bundle/cordis.patch.yml. Этот каталог — тонкая обёртка профиля:
+# здесь только scaffolding (cordis.yml + package.json), без копий персон.
 []

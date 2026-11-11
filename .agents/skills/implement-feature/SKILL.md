@@ -1,7 +1,6 @@
 ---
 name: implement-feature
 description: Пошагово реализует утверждённое предложение OpenSpec по лучшим практикам C#/.NET, прогоняя dotnet build и dotnet test перед передачей. Применяй только после утверждения предложения.
-argument-hint: путь к папке утверждённого предложения
 ---
 
 # Скилл: implement-feature

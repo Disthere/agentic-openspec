@@ -1,7 +1,6 @@
 ---
 name: code-review
 description: Двухосевое независимое ревью изменения. Ось Standards — соответствие задокументированным стандартам проекта (плюс базлайн запахов кода как эвристики); ось Spec — покрытие требований, регрессии поведения, существующие вызывающие, корневая причина для багфикса. Оси выполняются в независимых сессиях только на чтение и никогда не объединяются в один отчёт. Применяй перед закрытием предложения OpenSpec и на любом диффе «с фиксированной точки».
-argument-hint: фиксированная точка (commit/branch/tag) + путь к предложению OpenSpec
 ---
 
 # Скилл: code-review
@@ -59,6 +58,9 @@ argument-hint: фиксированная точка (commit/branch/tag) + пу�
 Прочитай и передай оси Standards список источников целиком:
 
 - [`.clinerules`](../../../.clinerules) — правила C# и процесса (совместимое зеркало [`AGENTS.md`](../../../AGENTS.md));
+- **стандарт активного профиля** — `openspec/config.yaml` → `project.profile`: для `csharp-desktop` это
+  [`openspec/standards/12-desktop.md`](../../../openspec/standards/12-desktop.md) (стек, бюджеты ресурсов,
+  лицензионный инвентарь, доказуемость приватности, DoD 5.8), для `csharp-api` — стандарты 01–11;
 - [`openspec/constitution.md`](../../../openspec/constitution.md) — высший приоритет;
 - [`openspec/standards/01-code-style.md`](../../../openspec/standards/01-code-style.md) … `11-performance.md`;
 - [`openspec/standards/05-definition-of-done.md`](../../../openspec/standards/05-definition-of-done.md) §5.2 — чек-лист приёмки;

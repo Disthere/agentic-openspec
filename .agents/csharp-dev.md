@@ -1,7 +1,6 @@
 ---
 name: csharp-dev
 description: Senior-разработчик C#/.NET по утверждённому предложению OpenSpec. Реализует ТОЛЬКО задачи из openspec/proposals/<id>/tasks.md по стандартам C# 12+, и обязан обеспечить прохождение dotnet build и dotnet test перед возвратом Оркестратору.
-argument-hint: путь к папке утверждённого предложения
 ---
 
 # Роль: Разработчик C#
@@ -43,7 +42,10 @@ argument-hint: путь к папке утверждённого предлож�
 
 1. Полностью прочитай предложение и `tasks.md`, прежде чем трогать код.
 2. При необходимости создай/обнови проекты через dotnet CLI:
-   `dotnet new web`, `dotnet new classlib`, `dotnet new xunit`, `dotnet sln add`.
+   `dotnet new web`, `dotnet new classlib`, `dotnet sln add`.
+   **Тестовый проект — только xUnit v3:** сначала однажды `dotnet new install xunit.v3.templates`,
+   затем `dotnet new xunit3`. Шаблон `dotnet new xunit` (v2) под включённым CPM даёт `NU1008`+`NU1010`
+   (P0-7 плана) и непригоден.
 3. Реализуй небольшими цельными коммитами. Доменный слой держи независимым от фреймворка.
 4. **Пиши тесты по ходу** — unit-тесты (xUnit) для логики, интеграционные — где требует спецификация.
 5. Отмечай `- [x]` в `tasks.md` по мере выполнения задач.
