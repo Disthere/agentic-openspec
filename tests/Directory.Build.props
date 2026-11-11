@@ -1,0 +1,23 @@
+<Project>
+
+  <!--
+    Настройки для тестовых проектов (задача 4.7 плана / P2-22).
+    ВАЖНО: MSBuild берёт БЛИЖАЙШИЙ Directory.Build.props и на этом останавливается —
+    поэтому корневой файл импортируется явно, иначе тесты теряют общие настройки.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <!-- Тесты не являются публичным API: не требуем XML-комментарий у каждого метода. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!--
+      UseArtifactsOutput вычисляет корень от БЛИЖАЙШЕГО Directory.Build.props, поэтому без этой
+      строки тесты уезжают в tests/artifacts, а src — в корневой artifacts. Два разных каталога
+      ломают документированную команду запуска тестов. Прибиваем корень явно.
+    -->
+    <ArtifactsPath>$(MSBuildThisFileDirectory)../artifacts</ArtifactsPath>
+  </PropertyGroup>
+
+</Project>

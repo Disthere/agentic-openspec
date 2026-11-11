@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Настройки покрытия (задача 1.5 плана, P1-6).
+  Путь выбран один — Microsoft.Testing.Platform (MTP): тесты на xunit.v3 запускаются как MTP,
+  и `coverlet.collector` в этом режиме не работает. Поэтому сбор покрытия идёт через
+  `Microsoft.Testing.Extensions.CodeCoverage`, а не через `--collect:"XPlat Code Coverage"`.
+
+  Запуск:
+    dotnet test                         # тесты + покрытие по этим настройкам
+    dotnet test --coverage --coverage-output-format cobertura
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <CodeCoverage>
+            <ModulePaths>
+              <Include>
+                <ModulePath>.*\.dll$</ModulePath>
+              </Include>
+              <Exclude>
+                <!-- Тестовые сборки и сгенерированный код не измеряем. -->
+                <ModulePath>.*\.Tests\.dll$</ModulePath>
+                <ModulePath>.*xunit.*</ModulePath>
+                <ModulePath>.*Microsoft\.Testing.*</ModulePath>
+              </Exclude>
+            </ModulePaths>
+            <Attributes>
+              <Exclude>
+                <Attribute>^System\.Diagnostics\.DebuggerHiddenAttribute$</Attribute>
+                <Attribute>^System\.Diagnostics\.DebuggerNonUserCodeAttribute$</Attribute>
+                <Attribute>^System\.CodeDom\.Compiler\.GeneratedCodeAttribute$</Attribute>
+                <Attribute>^System\.ExcludeFromCodeCoverageAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

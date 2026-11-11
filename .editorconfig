@@ -56,7 +56,7 @@ csharp_style_namespace_declarations = file_scoped:warning
 
 # Типы: ключевые слова вместо BCL; var только когда тип очевиден справа
 csharp_style_var_for_built_in_types = false:suggestion
-csharp_style_var_when_type_is_apparent = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = false:suggestion
 dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
 dotnet_style_predefined_type_for_member_access = true:suggestion
@@ -175,6 +175,21 @@ dotnet_diagnostic.IDE0071.severity = silent   # simplify interpolation (ReadOnly
 dotnet_diagnostic.IDE0031.severity = silent   # use null propagation
 # В ASP.NET Core нет SynchronizationContext — ConfigureAwait не требуется
 dotnet_diagnostic.CA2007.severity = none
+
+# --- Механика, которая раньше была обещана, но не включена (задача 4.7) ---
+# MA0141: предпочитать `is null`/`is not null` вместо `== null`/`!= null` (P2-19).
+dotnet_diagnostic.MA0141.severity = warning
+# MA0142: не использовать null-forgiving `!` без необходимости.
+dotnet_diagnostic.MA0142.severity = warning
+# S103: длина строки — 120 символов (P2-11); без этого правило не форсилось.
+dotnet_diagnostic.S103.severity = warning
+
+# --- Тестовые проекты ---
+# Конфликт анализаторов: MA0004 требует ConfigureAwait(false), а xUnit1030 его запрещает
+# в тестах (ломает лимиты параллелизации). В тестах приоритет у xUnit — правило MA0004
+# отключено только здесь, боевой код продолжает его соблюдать.
+[tests/**/*.cs]
+dotnet_diagnostic.MA0004.severity = none
 
 # --- Скрипты ---
 [*.sh]

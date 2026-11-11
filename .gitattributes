@@ -1,0 +1,34 @@
+# Нормализация переносов строк (задача 1.7 плана, P2-18).
+# Причина: в репозитории смешаны CRLF и LF (100 / 14 файлов) — диффы становятся шумными.
+# `text=auto` просит git нормализовать текст в LF в индексе независимо от ОС.
+
+* text=auto eol=lf
+
+# Windows-скрипты и файлы, которые исполняются cmd.exe / PowerShell, обязаны остаться CRLF:
+# иначе некоторые интерпретаторы и `git`-хуки на Windows ломаются.
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+*.ps1   text eol=crlf
+*.psm1  text eol=crlf
+*.psd1  text eol=crlf
+
+# Бинарные и сгенерированные файлы не нормализуем.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.docx  binary
+*.xlsx  binary
+*.pptx  binary
+*.dll   binary
+*.exe   binary
+*.pdb   binary
+*.snk   binary
+
+# Служебное — не участвует в диффах.
+.gitattributes  text
+.gitignore      text
+*.slnx          text eol=crlf

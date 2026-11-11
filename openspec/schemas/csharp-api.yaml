@@ -52,12 +52,12 @@ requirement:
 # Task list grammar.
 tasks:
   section_pattern: "^## \\d+\\. .+"
-  item_pattern: "^\\s*- \\[ \\] \\d+\\.\\d+ .+"   # "- [ ] 1.1 ..."
+  item_pattern: "^\\s*- \\[[ xX]\\] \\d+\\.\\d+ .+"   # "- [ ] 1.1 ..."
 
 # Enforced across C# code + tests.
 code_standards:
-  language_version: "12"
-  target_framework: "net8.0"       # minimum
+  language_version: "14"
+  target_framework: "net10.0"      # D-015 (гейт D-01(A))
   nullable: enable
   treat_warnings_as_errors: true
   async: "no .Result / .Wait()"

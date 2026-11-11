@@ -1,0 +1,182 @@
+# Validation schema: csharp-desktop
+# Applied to proposals built from openspec/proposals/000-template.md when project.profile = csharp-desktop.
+# Server projects keep using openspec/schemas/csharp-api.yaml.
+
+schema: csharp-desktop
+version: 1
+profile: csharp-desktop
+description: >-
+  Validation rules for C# desktop products in this repository: local models, data on the device,
+  a single outbound path for updates. A proposal passes when required sections are present,
+  requirements are testable, desktop safety rules are respected and the verification gate is declared.
+
+applies_to: openspec/proposals/*/proposal.md
+
+# Sections that MUST be present in proposal.md (matched as "^## <Title>").
+required_sections:
+  - Context
+  - Requirements
+  - C# Implementation Plan
+  - Test Strategy
+  - Capabilities
+  - Impact
+  - Changelog
+
+optional_sections:
+  - Sources
+  - API / Contract Changes     # only for the update gateway
+  - Open Questions
+  - Performance & SLO          # desktop: resource budgets instead of service SLOs
+  - Contracts
+  - Acceptance
+
+# Companion files expected next to proposal.md.
+required_files:
+  - proposal.md
+  - tasks.md
+  - acceptance.md
+optional_files:
+  - design.md
+  - performance.md             # required when resource budgets are affected
+  - licenses.md                # required for releases that ship third-party components
+  - contracts/                 # required when the update gateway contract changes
+
+# Requirement/scenario grammar (OpenSpec style).
+requirement:
+  heading_pattern: "^### Requirement: .+"
+  scenario:
+    heading_pattern: "^#### Scenario: .+"
+    require_when: true
+    require_then: true
+  min_scenarios_per_requirement: 1
+
+# Task list grammar.
+tasks:
+  section_pattern: "^## \\d+\\. .+"
+  item_pattern: "^\\s*- \\[[ xX]\\] \\d+\\.\\d+ .+"
+
+# Desktop stack rules (see openspec/standards/12-desktop.md).
+code_standards:
+  language_version: "14"
+  target_framework: "net10.0"
+  nullable: enable
+  treat_warnings_as_errors: true
+  async: "no .Result / .Wait()"
+  forbidden:
+    - "HttpClient outside *.Gateway"
+    - "System.Net.Sockets outside *.Gateway"
+    - "WebClient"
+    - "HTTP listeners and loopback servers"
+    - "analytics/telemetry SDKs"
+    - "GPL/AGPL or non-commercial components in the shipped bundle"
+  required:
+    - "UI: Avalonia 11+ with CommunityToolkit.Mvvm; core does not reference UI or vendor SDK types"
+    - "IPC: in-process channels or named pipes"
+    - "storage: SQLite + sqlite-vec, encrypted with SQLCipher"
+    - "secrets and the database key: Windows DPAPI / Credential Locker"
+    - "crypto: AES-256-GCM, HKDF, Ed25519 via System.Security.Cryptography"
+    - "recovery: BIP39 seed phrase (24 words)"
+    - "updates: signed manifest verified before applying"
+    - "installer: no administrator rights required"
+  model_runtime:
+    llm: "LLamaSharp (llama.cpp), GGUF, version pinned in Directory.Packages.props"
+    llm_alternative: "ONNX Runtime GenAI (DirectML) for the lite tier"
+    stt: "GigaAM / Whisper"
+    tts: "sherpa-onnx (no GPL or NC voices)"
+    vad: "Silero VAD (ONNX, MIT)"
+    vision_ocr: "PaddleOCR, Florence-2, CLIP/SigLIP via ONNX Runtime"
+    models_in_repo: "never — manifest with name, size, hash, licence"
+  max_line_length: 120
+
+# Tests.
+tests:
+  framework: xunit
+  naming: "Method_Scenario_ExpectedResult | Should_..."
+  require_tests_for_new_code: true
+  architecture_tests: "NetArchTest + Roslyn network-ban analyser, part of the mandatory run"
+  isolation: "tests never write into the user profile; temporary directory only"
+  coverage_min_percent: 80
+  coverage_min_percent_domain: 90
+
+# Resource budgets replace service SLOs (standard 12 §12.8).
+budgets:
+  artifact: performance.md
+  required_when: "change affects start-up time, memory, inference latency or package size"
+  must_include: [metric, method_of_measurement, reference_hardware]
+  numbers_after_first_measurement: true      # до первого замера фиксируется метрика и способ замера
+  metrics:
+    - cold_start_seconds
+    - model_load_seconds
+    - idle_memory_mb
+    - peak_inference_memory_mb
+    - first_token_latency_ms
+    - tokens_per_second
+    - installer_size_mb
+  ui_responsiveness: "UI must not block during inference"
+
+# Licence inventory and compatibility (standard 12 §12.10).
+licenses:
+  artifact: licenses.md
+  required_when: "the change ships third-party components or models"
+  must_include: [component, version, licence, usage_mode, obligations]
+  forbidden: [GPL, AGPL, non-commercial]
+  model_licence_recorded_in: "model manifest"
+
+# Provable privacy (standard 12 §12.9).
+privacy:
+  single_egress_point: "update gateway with signed manifest"
+  analytics: forbidden
+  evidence:
+    - "NetArchTest rules for network dependencies"
+    - "Roslyn analyser failing the build outside *.Gateway"
+    - "no-egress scenario recorded in acceptance.md"
+
+# Desktop release gate (DoD §5.8).
+release:
+  dod_section: "openspec/standards/05-definition-of-done.md §5.8"
+  must_include:
+    - installer_without_admin
+    - code_signature
+    - update_with_rollback
+    - offline_operation
+    - resource_budgets_measured
+    - no_telemetry_evidence
+    - licence_inventory_filled
+
+# Verification gate — declared and run before review.
+verification:
+  commands:
+    - dotnet restore
+    - dotnet build --configuration Release --no-restore
+    - dotnet test --configuration Release --no-build
+    - dotnet format --verify-no-changes
+  architecture_tests_must_pass: true
+  all_must_pass: true
+
+# Engineering standards (authoritative docs under openspec/standards).
+standards:
+  docs_dir: openspec/standards
+  profile_standard: 12-desktop.md
+  references:
+    - 01-code-style.md
+    - 02-architecture.md
+    - 03-handoffs.md
+    - 04-documentation.md
+    - 05-definition-of-done.md
+    - 12-desktop.md
+  not_applicable:
+    - 08-messaging.md              # no brokers: in-process bus
+    - 06-api.md                    # only the update gateway exposes HTTP
+  definition_of_done: openspec/standards/05-definition-of-done.md
+
+constitution: openspec/constitution.md
+
+# Extra guardrails.
+guardrails:
+  forbid_extra_dependencies: true    # any new package must be listed in the plan with its licence
+  forbid_secrets: true
+  forbid_models_in_repo: true
+  require_adr_for_architecture_change: true
+  require_runbook_for_release: true
+  require_xml_docs_for_public_api: true
+

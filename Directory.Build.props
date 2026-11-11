@@ -6,6 +6,12 @@
     Правила стиля — в .editorconfig; пояснения — в openspec/standards/01-code-style.md.
   -->
   <PropertyGroup>
+    <!--
+      Политика LangVersion (задача 1.4 плана): `latest` — осознанный выбор, а не недосмотр.
+      На SDK 10.0.401 `latest` = C# 14, что совпадает с линией проекта (D-015). Языковую версию
+      НЕ пинуем: это позволяло бы коду незаметно отставать от заявленной. Стандарт фиксирует
+      правило — openspec/standards/01-code-style.md.
+    -->
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -17,10 +23,21 @@
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <UseArtifactsOutput>true</UseArtifactsOutput>
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <!-- Временно: предупреждения безопасности транзитивных пакетов -->
-    <NoWarn>$(NoWarn);NU1901;NU1902;NU1903;NU1904</NoWarn>
+    <!--
+      Уязвимости не глушим (задача 4.8 / P1-7). Раньше NU1901..NU1904 стояли в NoWarn —
+      то есть предупреждения безопасности транзитивных пакетов выбрасывались молча.
+      Теперь они ошибки: сборка падает, пока уязвимость не устранена или не оформлена
+      исключением по §5 конституции с записью D-NNN.
+    -->
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditLevel>moderate</NuGetAuditLevel>
+    <WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
+    <!--
+      XML-документация включена (задача 4.7 / P2-22): публичный API должен быть описан.
+      CS1591 глушится только в тестовых проектах (см. tests/Directory.Build.props).
+    -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
