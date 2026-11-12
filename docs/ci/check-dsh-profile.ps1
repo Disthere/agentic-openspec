@@ -213,6 +213,40 @@ try {
             Write-Host 'FAIL  allowedAgentPresets стоит на tool-subagent-control — это ломает загрузку пресета' -ForegroundColor Red
             $failed++
         }
+
+        # Обязательные config-поля плагинов внутри пресета. Если композицию standard копировали
+        # не целиком, приложение падает с внятной ошибкой («PlanModeConfig needs a non-empty
+        # 'section'») — но лучше поймать это до запуска. Так и случилось 2026-11-12.
+        $requiredConfig = @(
+            @{ Plugin = 'plan-mode';      Field = 'section';        Message = "plan-mode требует непустой 'section'" }
+            @{ Plugin = 'compaction';     Field = 'config';         Message = 'группа compaction должна содержать список плагинов' }
+            @{ Plugin = 'delegation';     Field = 'config';         Message = 'группа delegation должна содержать список плагинов' }
+        )
+        foreach ($rc in $requiredConfig) {
+            $pb = [regex]::Match($presetBlock, '(?ms)^\s*- id: ' + [regex]::Escape($rc.Plugin) + '\s*$\n(.*?)(?=^\s*- id: |\z)')
+            if (-not $pb.Success) {
+                Write-Host ("FAIL  в preset-sdd нет плагина '{0}'" -f $rc.Plugin) -ForegroundColor Red
+                $failed++
+                continue
+            }
+            if ($pb.Groups[1].Value -notmatch ($rc.Field + ':')) {
+                Write-Host ("FAIL  {0}" -f $rc.Message) -ForegroundColor Red
+                $failed++
+            }
+        }
+
+        # plan-mode: section не должен быть пустым блоком.
+        $pmBlock = [regex]::Match($presetBlock, '(?ms)- id: plan-mode\s*\n(.*?)(?=^\s*- id: |\z)')
+        if ($pmBlock.Success) {
+            $secMatch = [regex]::Match($pmBlock.Groups[1].Value, '(?ms)section:\s*[>|]\s*\n(\s+\S.*?)(?=^\s{0,17}\S|\z)')
+            if (-not $secMatch.Success) {
+                Write-Host "FAIL  plan-mode.section пуст — приложение не загрузит пресет" -ForegroundColor Red
+                $failed++
+            }
+            else {
+                Write-Host 'OK    plan-mode.section непустой' -ForegroundColor Green
+            }
+        }
     }
 
     if ($failed -gt 0) {
