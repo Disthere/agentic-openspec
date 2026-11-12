@@ -166,12 +166,53 @@ try {
         }
     }
 
-    # Делегирование: список пресетов для субагентов должен быть непуст (P0-10).
-    if ($dump -notmatch 'allowedAgentPresets') {
-        Write-Host 'WARN  allowedAgentPresets не найден — делегирование по роли не сконфигурировано (P0-10)' -ForegroundColor Yellow
+    # Делегирование (P0-10). Проверяем НЕ просто наличие строки, а что allowlist стоит на
+    # правильном плагине ВНУТРИ пресета роли: по README @deepseek-ai/dsh-tool-subagent поле
+    # allowedAgentPresets относится именно к нему. Установка его на tool-subagent-control
+    # ломает загрузку пресета в приложении («Не удалось загрузить пользовательский пресет») —
+    # так и случилось 2026-11-12.
+    #
+    # Важно: в дереве есть и другие tool-subagent (из preset-standard и др.), поэтому
+    # проверяем блок именно нашего пресета, а не первое совпадение по файлу.
+    $presetStart = [regex]::Match($dump, '(?m)^- id: preset-sdd\s*$')
+    if (-not $presetStart.Success) {
+        Write-Host 'FAIL  пресет preset-sdd не найден в дереве' -ForegroundColor Red
+        $failed++
     }
     else {
-        Write-Host 'OK    allowedAgentPresets присутствует' -ForegroundColor Green
+        $fromPreset = $dump.Substring($presetStart.Index)
+        $nextPreset = [regex]::Match($fromPreset.Substring(1), '(?m)^- id: preset-')
+        $presetBlock = if ($nextPreset.Success) {
+            $fromPreset.Substring(0, $nextPreset.Index + 1)
+        } else {
+            $fromPreset
+        }
+
+        $subagentBlock = [regex]::Match($presetBlock, '(?ms)^\s*- id: tool-subagent\s*\n(.*?)(?=^\s*- id: |\z)')
+        if (-not $subagentBlock.Success) {
+            Write-Host 'FAIL  в preset-sdd нет tool-subagent — делегирование не сконфигурировано (P0-10)' -ForegroundColor Red
+            $failed++
+        }
+        else {
+            $block = $subagentBlock.Groups[1].Value
+            if ($block -notmatch 'allowedAgentPresets') {
+                Write-Host 'FAIL  у tool-subagent в preset-sdd нет allowedAgentPresets — модель не адресует роль (P0-10)' -ForegroundColor Red
+                $failed++
+            }
+            else {
+                Write-Host 'OK    allowedAgentPresets стоит на tool-subagent внутри preset-sdd' -ForegroundColor Green
+            }
+            if ($block -notmatch 'agentPreset:') {
+                Write-Host 'WARN  у tool-subagent нет agentPreset — субагент не получит пресет роли по умолчанию' -ForegroundColor Yellow
+            }
+        }
+
+        # Антирегресс: allowlist НЕ должен стоять на tool-subagent-control внутри пресета.
+        $controlBlock = [regex]::Match($presetBlock, '(?ms)^\s*- id: tool-subagent-control\s*\n(.*?)(?=^\s*- id: |\z)')
+        if ($controlBlock.Success -and $controlBlock.Groups[1].Value -match 'allowedAgentPresets') {
+            Write-Host 'FAIL  allowedAgentPresets стоит на tool-subagent-control — это ломает загрузку пресета' -ForegroundColor Red
+            $failed++
+        }
     }
 
     if ($failed -gt 0) {

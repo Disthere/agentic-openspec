@@ -1,5 +1,5 @@
 {
-  "name": "dsh-presets-agentic-openspec",
+  "name": "@local/dsh-openspec-presets",
   "version": "1.0.0",
   "private": true,
   "type": "module",

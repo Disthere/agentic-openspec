@@ -124,14 +124,14 @@
             isolate:
               workflowEngine: true
             config:
-              # Делегирование по роли (P0-10): список пресетов, которые модель может
-              # адресовать. `sdd` — единственный пресет роли (D-016); роль уточняется
-              # промптом, поэтому адресат один.
+              # Делегирование по роли (P0-10). ВАЖНО: allowedAgentPresets относится к
+              # @deepseek-ai/dsh-tool-subagent (см. его README: «Set allowedAgentPresets to let
+              # the model choose an id through agent_preset»), а НЕ к tool-subagent-control —
+              # у того такого поля нет, и установка его туда ломает загрузку пресета
+              # («Не удалось загрузить пользовательский пресет»).
+              # `sdd` — единственный пресет роли (D-016); роль уточняется промптом.
               - id: tool-subagent-control
                 name: '@deepseek-ai/dsh-tool-subagent-control'
-                config:
-                  allowedAgentPresets:
-                    - sdd
               - id: tool-subagent
                 name: '@deepseek-ai/dsh-tool-subagent'
                 config:
@@ -139,6 +139,9 @@
                   toolName: subagent
                   modelSelection: true
                   modelDiscovery: true
+                  agentPreset: sdd
+                  allowedAgentPresets:
+                    - sdd
               - id: tool-subagent-fork
                 name: '@deepseek-ai/dsh-tool-subagent'
                 config:
