@@ -81,6 +81,128 @@ function Read-Text {
     return Get-Content -LiteralPath $FilePath -Raw -Encoding utf8
 }
 
+# --- Минимальный YAML-ридер -----------------------------------------------------------------
+# Зачем свой: схемы (`openspec/schemas/*.yaml`) и `openspec/config.yaml` — источник истины о том,
+# какие разделы обязательны и каков формат задач. Модуля powershell-yaml в наборе нет, а
+# хардкодить списки разделов в скрипте — ровно дефект N-6: валидатор игнорировал
+# `project.profile`, и предложение, верное для десктопной схемы, отклонялось.
+#
+# Поддерживается подмножество, которое реально есть в этих файлах:
+#   `key: value`, `key:` + вложенный блок, `- scalar`, `- key: value`, комментарии `#`.
+# Чего нет: якорей, `|`/`>`-скаляров, flow-коллекций. Если нужный ключ не прочитался,
+# это сообщается явно (см. Get-ActiveSchema) — молчаливого «прочиталось пусто» не будет.
+
+function ConvertTo-YamlScalar {
+    param([string]$Raw)
+
+    $v = $Raw.Trim()
+    if ($v -eq '') { return '' }
+
+    # Двойные кавычки: снимаем и разэкранируем \\ и \" (YAML-escape).
+    if ($v -match '^"(?<b>.*)"$') {
+        $b = $matches['b']
+        $b = $b.Replace('\\', '[BSLASH]')
+        $b = $b.Replace('\"', '"')
+        $b = $b.Replace('[BSLASH]', '\')
+        return $b
+    }
+    if ($v -match "^'(?<b>.*)'$") {
+        return ($matches['b'] -replace "''", "'")
+    }
+    return $v
+}
+
+function Read-YamlBlock {
+    param($State, [int]$ParentIndent)
+
+    $map = [ordered]@{}
+    while ($State.Pos -lt $State.Entries.Count) {
+        $e = $State.Entries[$State.Pos]
+        if ($e.Indent -le $ParentIndent) { break }
+
+        # Список: "- ..." на одном отступе
+        if ($e.Body.Length -gt 0 -and $e.Body[0] -eq '-') {
+            $listIndent = $e.Indent
+            $list = [System.Collections.Generic.List[object]]::new()
+            while ($State.Pos -lt $State.Entries.Count) {
+                $le = $State.Entries[$State.Pos]
+                if ($le.Indent -ne $listIndent) { break }
+                if ($le.Body.Length -eq 0 -or $le.Body[0] -ne '-') { break }
+
+                $itemBody = $le.Body.Substring(1).Trim()
+                $State.Pos++
+
+                $kv = [regex]::Match($itemBody, '^(?<k>[A-Za-z0-9_.\-]+):\s*(?<v>.*)$')
+                if ($kv.Success) {
+                    $sub = [ordered]@{}
+                    $sub[$kv.Groups['k'].Value] = ConvertTo-YamlScalar $kv.Groups['v'].Value
+                    $mapIndent = $listIndent + 2
+                    while ($State.Pos -lt $State.Entries.Count) {
+                        $ne = $State.Entries[$State.Pos]
+                        if ($ne.Indent -ne $mapIndent) { break }
+                        $nkv = [regex]::Match($ne.Body, '^(?<k>[A-Za-z0-9_.\-]+):\s*(?<v>.*)$')
+                        if (-not $nkv.Success) { break }
+                        $sub[$nkv.Groups['k'].Value] = ConvertTo-YamlScalar $nkv.Groups['v'].Value
+                        $State.Pos++
+                    }
+                    $list.Add($sub)
+                }
+                else {
+                    $list.Add((ConvertTo-YamlScalar $itemBody))
+                }
+            }
+            return ,$list
+        }
+
+        $km = [regex]::Match($e.Body, '^(?<k>[A-Za-z0-9_.\-]+):\s*(?<v>.*)$')
+        if (-not $km.Success) { $State.Pos++; continue }
+
+        $key = $km.Groups['k'].Value
+        $rest = $km.Groups['v'].Value
+        $State.Pos++
+        if ($rest -eq '') { $map[$key] = Read-YamlBlock -State $State -ParentIndent $e.Indent }
+        else { $map[$key] = ConvertTo-YamlScalar $rest }
+    }
+    return $map
+}
+
+function ConvertFrom-SimpleYaml {
+    param([string]$Text)
+
+    $entries = [System.Collections.Generic.List[object]]::new()
+    foreach ($rawLine in ($Text -split "`r?`n")) {
+        if ($rawLine -match '^\s*$') { continue }
+
+        # Снимаем комментарий вне кавычек.
+        $line = $rawLine
+        $inS = $false; $inD = $false
+        for ($i = 0; $i -lt $line.Length; $i++) {
+            $ch = $line[$i]
+            if ($ch -eq "'" -and -not $inD) { $inS = -not $inS }
+            elseif ($ch -eq '"' -and -not $inS) { $inD = -not $inD }
+            elseif ($ch -eq '#' -and -not $inS -and -not $inD -and
+                    ($i -eq 0 -or $line[$i - 1] -match '\s')) {
+                $line = $line.Substring(0, $i)
+                break
+            }
+        }
+        if ($line -match '^\s*$') { continue }
+
+        $indent = $line.Length - $line.TrimStart().Length
+        $entries.Add([pscustomobject]@{ Indent = $indent; Body = $line.Trim() })
+    }
+
+    $state = @{ Pos = 0; Entries = $entries }
+    return Read-YamlBlock -State $state -ParentIndent -1
+}
+
+function Read-YamlFile {
+    param([string]$FilePath)
+    $text = Read-Text $FilePath
+    if ($null -eq $text) { return $null }
+    return ConvertFrom-SimpleYaml -Text $text
+}
+
 # --- Разбор markdown-ссылок ----------------------------------------------------------------
 # Раньше здесь стояло `($text -replace '`[^`\n]*', "''")`: класс исключал закрывающий бэктик,
 # поэтому матч обрывался ПЕРЕД ним, а сам бэктик стартовал новый матч и стирал остаток строки.
@@ -143,9 +265,16 @@ function Test-LinkScopeExcluded {
             $p -match '/artifacts/|/\.git/|/node_modules/')
 }
 
-# --- V1: обязательные разделы proposal.md -------------------------------------------------
-# Полный цикл (схема csharp-api / csharp-desktop).
-$requiredSections = @(
+# --- Схема активного профиля ---------------------------------------------------------------
+# N-6: раньше списки разделов были захардкожены здесь, поэтому `project.profile` ни на что не
+# влиял, а `csharp-desktop.yaml` (где `API / Contract Changes` — optional) не исполнялся:
+# предложение, верное для десктопной схемы, отклонялось с «отсутствует обязательный раздел».
+#
+# Теперь источник истины — файл схемы. Значения по умолчанию сохранены ровно на случай, если
+# схема не найдена или повреждена: тогда гейт честно падает с явной ошибкой, а не подставляет
+# молча другой профиль.
+
+$script:defaultRequiredSections = @(
     'Context'
     'Requirements'
     'C# Implementation Plan'
@@ -156,14 +285,102 @@ $requiredSections = @(
     'Changelog'
 )
 
-# Лёгкий маршрут `lite` (D-020 / схема lite.yaml): предложение помечает себя `skip_specs: true`.
-$liteRequiredSections = @(
-    'Context'
-    'Change'
-    'Test Strategy'
-    'Impact'
-    'Changelog'
-)
+function Get-ActiveSchema {
+    param([string]$Where = 'schema')
+
+    $configPath = Join-Path $repoRoot 'openspec/config.yaml'
+    $schema = [pscustomobject]@{
+        Source            = 'built-in fallback'
+        Profile           = 'unknown'
+        RequiredSections  = $script:defaultRequiredSections
+        OptionalSections  = @()
+        SectionPattern    = '^##\s+\d+\.\s+.+'
+        ItemPattern       = '^\s*-\s+\[[ xX]\]\s+\d+\.\d+\s+.+'
+        Found             = $false
+    }
+
+    $config = $null
+    try { $config = Read-YamlFile $configPath } catch { $config = $null }
+    if ($null -eq $config -or $null -eq $config['project']) {
+        Add-Error $Where 'не удалось прочитать openspec/config.yaml — активный профиль неизвестен'
+        return $schema
+    }
+
+    $profile = [string]$config['project']['profile']
+    if ([string]::IsNullOrWhiteSpace($profile)) {
+        Add-Error $Where 'openspec/config.yaml: не задан project.profile'
+        return $schema
+    }
+    $schema.Profile = $profile
+
+    # Путь схемы: schemas/<profile>.yaml (соглашение, зафиксированное в config.yaml → schemas).
+    $schemaPath = Join-Path $repoRoot ("openspec/schemas/{0}.yaml" -f $profile)
+    if (-not (Test-Path -LiteralPath $schemaPath)) {
+        Add-Error $Where "нет файла схемы для активного профиля '$profile' (ожидался openspec/schemas/$profile.yaml)"
+        return $schema
+    }
+
+    $doc = $null
+    try { $doc = Read-YamlFile $schemaPath } catch { $doc = $null }
+    if ($null -eq $doc) {
+        Add-Error $Where "не удалось разобрать схему '$profile'"
+        return $schema
+    }
+
+    $req = @($doc['required_sections'] | Where-Object { $_ -ne '' })
+    if ($req.Count -eq 0) {
+        Add-Error $Where "схема '$profile' не содержит required_sections — проверять нечего"
+        return $schema
+    }
+
+    $schema.RequiredSections = $req
+    $schema.OptionalSections = @($doc['optional_sections'] | Where-Object { $_ -ne '' })
+    $schema.Found = $true
+    $schema.Source = "openspec/schemas/$profile.yaml"
+
+    if ($null -ne $doc['tasks']) {
+        if ($doc['tasks']['section_pattern']) { $schema.SectionPattern = [string]$doc['tasks']['section_pattern'] }
+        if ($doc['tasks']['item_pattern'])    { $schema.ItemPattern    = [string]$doc['tasks']['item_pattern'] }
+    }
+
+    return $schema
+}
+
+function Get-LiteSchema {
+    param([string]$Where = 'schema')
+
+    # Лёгкий маршрут описан отдельной схемой (config.yaml → schemas.lite).
+    $config = $null
+    try { $config = Read-YamlFile (Join-Path $repoRoot 'openspec/config.yaml') } catch { $config = $null }
+    $liteFile = if ($config -and $config['schemas'] -and $config['schemas']['lite']) {
+        [string]$config['schemas']['lite']
+    } else { 'lite.yaml' }
+    if ($liteFile -notmatch '\.ya?ml$') { $liteFile = "$liteFile.yaml" }
+
+    $path = Join-Path $repoRoot ("openspec/schemas/{0}" -f $liteFile)
+    $schema = $null
+    try { $schema = Read-YamlFile $path } catch { $schema = $null }
+
+    $result = [pscustomobject]@{
+        Source           = "openspec/schemas/$liteFile"
+        RequiredSections = @('Context', 'Change', 'Test Strategy', 'Impact', 'Changelog')
+        SectionPattern   = '^##\s+\d+\.\s+.+'
+        ItemPattern      = '^\s*-\s+\[[ xX]\]\s+\d+\.\d+\s+.+'
+        Found            = $false
+    }
+    if ($null -eq $schema) {
+        Add-Error $Where "не удалось прочитать схему lite ('openspec/schemas/$liteFile')"
+        return $result
+    }
+    $req = @($schema['required_sections'] | Where-Object { $_ -ne '' })
+    if ($req.Count -gt 0) { $result.RequiredSections = $req }
+    if ($null -ne $schema['tasks']) {
+        if ($schema['tasks']['section_pattern']) { $result.SectionPattern = [string]$schema['tasks']['section_pattern'] }
+        if ($schema['tasks']['item_pattern'])    { $result.ItemPattern    = [string]$schema['tasks']['item_pattern'] }
+    }
+    $result.Found = $true
+    return $result
+}
 
 function Test-ProposalSections {
     param([string]$ProposalPath, [string]$Where)
@@ -176,8 +393,10 @@ function Test-ProposalSections {
 
     # Лёгкий маршрут: `skip_specs: true` в шапке переключает набор обязательных разделов (D-020).
     $isLite = $text -match '(?im)^\s*[-*]?\s*\**\s*skip_specs:?\**\s*true'
-    $sections = if ($isLite) { $liteRequiredSections } else { $requiredSections }
-    if ($isLite) { Write-Verbose "$Where : lite-маршрут (skip_specs: true)" }
+    $schema = if ($isLite) { Get-LiteSchema -Where $Where } else { Get-ActiveSchema -Where $Where }
+    $sections = @($schema.RequiredSections)
+    if ($isLite) { Write-Verbose "$Where : lite-маршрут (skip_specs: true), схема $($schema.Source)" }
+    else { Write-Verbose "$Where : профиль $($schema.Profile), схема $($schema.Source)" }
 
     foreach ($section in $sections) {
         # Раздел ищется как '## <Section>' в любом регистре.
@@ -309,14 +528,22 @@ function Test-ScenarioWhenThen {
 }
 
 # --- V7: формат tasks.md -------------------------------------------------------------------
+# Паттерны берутся из схемы (tasks.section_pattern / tasks.item_pattern), а не из констант:
+# так формат задач следует за профилем и за маршрутом lite, и схема перестаёт быть декоративной.
 function Test-TasksFormat {
-    param([string]$TasksPath, [string]$Where)
+    param([string]$TasksPath, [string]$Where, $Schema = $null)
 
     $text = Read-Text $TasksPath
     if ($null -eq $text) {
         Add-Error $Where 'tasks.md отсутствует'
         return
     }
+
+    if ($null -eq $Schema) { $Schema = Get-ActiveSchema -Where $Where }
+    $sectionRx = $Schema.SectionPattern
+    $itemRx    = $Schema.ItemPattern
+    if ([string]::IsNullOrWhiteSpace($sectionRx)) { $sectionRx = '^##\s+\d+\.\s+.+' }
+    if ([string]::IsNullOrWhiteSpace($itemRx))    { $itemRx    = '^\s*-\s+\[[ xX]\]\s+\d+\.\d+\s+.+' }
 
     $lines = $text -split "`r?`n"
     $sectionCount = 0
@@ -325,11 +552,11 @@ function Test-TasksFormat {
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
         $line = $lines[$i]
-        if ($line -match '^##\s+\d+\.\s+.+') { $sectionCount++; continue }
+        if ($line -match $sectionRx) { $sectionCount++; continue }
 
-        # Пункт задачи: "- [ ] 1.1 ..." или "- [x] 1.1 ..."
+        # Пункт задачи: "- [ ] 1.1 ..." или "- [x] 1.1 ..." — форма из схемы.
         if ($line -match '^\s*-\s+\[[ xX]\]') {
-            if ($line -match '^\s*-\s+\[[ xX]\]\s+\d+\.\d+\s+.+') { $itemCount++ }
+            if ($line -match $itemRx) { $itemCount++ }
             else { $badItems.Add("строка $($i + 1): $($line.Trim())") }
         }
     }
@@ -359,17 +586,34 @@ function Test-RequirementParity {
     }
 
     $proposalIds = @(Get-RequirementIds $proposalText)
+
+    # N-7: раньше отсутствие дельты было только предупреждением, поэтому Spec First держался на
+    # честности: предложение с требованиями проходило гейт без единой спецификации. Для
+    # утверждённого предложения (Status: Approved) это уже не «недоделка», а разрыв конституции
+    # §1 п. 3 (трассируемость): человек утвердил требования, которых нет в specs/.
+    # Для черновика предупреждение сохраняется — на этапе Draft дельта может ещё не быть.
+    $isApproved = $proposalText -match '(?im)^\s*[-*]?\s*\**\s*Status:?\**\s*Approved\b'
+    $missingDeltaIsBlocking = $isApproved
+
     $specsDir = Join-Path $ProposalDir 'specs'
     if (-not (Test-Path -LiteralPath $specsDir)) {
         if ($proposalIds.Count -gt 0) {
-            Add-Warning $Where 'V5: есть требования, но каталог specs/ отсутствует (дельта не сформирована)'
+            $msg = 'V5: есть требования, но каталог specs/ отсутствует (дельта не сформирована)'
+            if ($missingDeltaIsBlocking) {
+                Add-Error $Where "$msg — для Status: Approved это блокирует (конституция §1 п. 3)"
+            }
+            else { Add-Warning $Where $msg }
         }
         return
     }
 
     $specFiles = @(Get-ChildItem -LiteralPath $specsDir -Recurse -Filter 'spec.md' -File)
     if ($specFiles.Count -eq 0) {
-        Add-Warning $Where 'V5: каталог specs/ есть, но spec.md не найден'
+        $msg = 'V5: каталог specs/ есть, но spec.md не найден'
+        if ($missingDeltaIsBlocking -and $proposalIds.Count -gt 0) {
+            Add-Error $Where "$msg — для Status: Approved это блокирует (конституция §1 п. 3)"
+        }
+        else { Add-Warning $Where $msg }
         return
     }
 
@@ -463,9 +707,13 @@ function Test-Proposal {
     $where = $name
     $script:currentProposal = $name
 
+    # Схема определяется один раз и передаётся дальше: V1 (разделы), V7 (формат задач) и V5
+    # (дельта specs/) обязаны смотреть на один и тот же профиль — иначе проверки расходятся.
+    $schema = Get-ActiveSchema -Where $where
+
     Test-RequiredFiles -ProposalDir $ProposalDir -Where $where
     Test-ProposalSections -ProposalPath (Join-Path $ProposalDir 'proposal.md') -Where $where
-    Test-TasksFormat -TasksPath (Join-Path $ProposalDir 'tasks.md') -Where $where
+    Test-TasksFormat -TasksPath (Join-Path $ProposalDir 'tasks.md') -Where $where -Schema $schema
     Test-RequirementParity -ProposalDir $ProposalDir -Where $where
 
     # V6 для всех md-файлов предложения
