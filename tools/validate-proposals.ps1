@@ -81,6 +81,68 @@ function Read-Text {
     return Get-Content -LiteralPath $FilePath -Raw -Encoding utf8
 }
 
+# --- Разбор markdown-ссылок ----------------------------------------------------------------
+# Раньше здесь стояло `($text -replace '`[^`\n]*', "''")`: класс исключал закрывающий бэктик,
+# поэтому матч обрывался ПЕРЕД ним, а сам бэктик стартовал новый матч и стирал остаток строки.
+# Следствие (находка аудита N-2): любая ссылка после inline-кода в строке не проверялась вовсе —
+# в живых документах это сотни ссылок, включая реально битые.
+#
+# Теперь inline-код удаляется только вместе с ЗАКРЫВАЮЩИМ бэктиком и только в пределах строки
+# (`(?m)` + точка без \n), а блоки кода вырезаются отдельно: ссылки внутри примеров — не ссылки.
+
+function Remove-CodeFromMarkdown {
+    param([string]$Text)
+
+    # 1. Блоки кода (``` ... ``` и ~~~ ... ~~~) — построчно, чтобы не зависеть от жадности.
+    $sb = New-Object System.Text.StringBuilder
+    $inFence = $false
+    foreach ($line in ($Text -split "`r?`n")) {
+        if ($line -match '^\s*(```|~~~)') {
+            $inFence = -not $inFence
+            [void]$sb.AppendLine('')
+            continue
+        }
+        if ($inFence) { [void]$sb.AppendLine('') } else { [void]$sb.AppendLine($line) }
+    }
+    $body = $sb.ToString()
+
+    # 2. Inline-код: пара бэктиков с непустым содержимым, точка не переходит через перевод строки.
+    #    Двойные бэктики (``a`b``) обрабатываем первыми — иначе внутренний бэктик ломает парность.
+    $body = [regex]::Replace($body, '(?m)``[^`]*?``', ' ')
+    $body = [regex]::Replace($body, '(?m)`[^`\r\n]+`', ' ')
+    return $body
+}
+
+function Get-MarkdownLinks {
+    param([string]$Text)
+
+    # Code spans/fences убраны; ищем [текст](цель). Скобки в тексте ссылки допускаются.
+    $clean = Remove-CodeFromMarkdown -Text $Text
+    $pattern = '\[(?<text>(?:[^\[\]]|\[[^\[\]]*\])*)\]\((?<link>[^()\s]*(?:\([^()]*\)[^()\s]*)*)\)'
+    foreach ($m in [regex]::Matches($clean, $pattern)) {
+        $link = $m.Groups['link'].Value.Trim()
+        if ([string]::IsNullOrWhiteSpace($link)) { continue }
+        [pscustomobject]@{ Text = $m.Groups['text'].Value; Link = $link }
+    }
+}
+
+# Область проверки ссылок: живые документы. `docs/legacy/` — замороженная история набора, её ссылки
+# устарели намеренно (D-010: ничего не удаляется, оригинал остаётся указателем на старую структуру);
+# `openspec/proposals/archive/` — архивные предложения, которые не редактируются (guardrail);
+# `docs/session/` — рабочая тетрадь, не коммитится.
+function Test-LinkScopeExcluded {
+    param([string]$FullName)
+
+    # Приводим разделители к '/' — иначе фильтр работает только на Windows, а CI гоняется
+    # на ubuntu: там legacy-история не исключилась бы, и гейт упал бы на её устаревших ссылках.
+    $p = $FullName -replace '\\', '/'
+
+    return ($p -match '/docs/legacy/' -or
+            $p -match '/openspec/proposals/archive/' -or
+            $p -match '/docs/session/' -or
+            $p -match '/artifacts/|/\.git/|/node_modules/')
+}
+
 # --- V1: обязательные разделы proposal.md -------------------------------------------------
 # Полный цикл (схема csharp-api / csharp-desktop).
 $requiredSections = @(
@@ -125,6 +187,31 @@ function Test-ProposalSections {
         }
     }
 
+    # V11: Status: Approved требует подписи.
+    # Проверяется ДО раннего выхода для lite: иначе `skip_specs: true` обходил проверку
+    # подписи, и предложение могло быть помечено Approved без человека (находка аудита N-8).
+    #
+    # Значение проверяется по существу, а не по факту «там что-то есть»: плейсхолдеры шаблона
+    # (`<человек, не агент>`, `<YYYY-MM-DD>`) подписью не считаются. Без этого правило обходилось
+    # копированием шаблона: поля есть, человека нет (найдено регресс-тестом той же правки).
+    if ($text -match '(?im)^\s*[-*]?\s*\**\s*Status:?\**\s*Approved\b') {
+        $approvedBy = [regex]::Match($text, '(?im)^\s*[-*]?\s*\**\s*Approved by:?\**\s*(?<v>.+)$')
+        $approvedAt = [regex]::Match($text, '(?im)^\s*[-*]?\s*\**\s*Approved at:?\**\s*(?<v>.+)$')
+
+        $placeholder = '^\s*<[^>]*>\s*$'   # целиком плейсхолдер шаблона
+        $byValue = if ($approvedBy.Success) { ($approvedBy.Groups['v'].Value -replace '<!--.*$', '').Trim() } else { '' }
+        $atValue = if ($approvedAt.Success) { ($approvedAt.Groups['v'].Value -replace '<!--.*$', '').Trim() } else { '' }
+
+        if ([string]::IsNullOrWhiteSpace($byValue) -or $byValue -match $placeholder -or
+            $byValue -match '(?i)^(агент|agent|tbd|todo|xxx+)\.?$') {
+            Add-Error $Where 'V11: Status: Approved без "Approved by:" (нужно имя человека, не плейсхолдер)'
+        }
+        if ([string]::IsNullOrWhiteSpace($atValue) -or $atValue -match $placeholder -or
+            $atValue -notmatch '^\d{4}-\d{2}-\d{2}$') {
+            Add-Error $Where 'V11: Status: Approved без "Approved at:" (нужна дата YYYY-MM-DD, не плейсхолдер)'
+        }
+    }
+
     # В lite требований и сценариев нет по определению — V2/V3/V4 не применяются.
     if ($isLite) { return }
 
@@ -147,16 +234,6 @@ function Test-ProposalSections {
                 Add-Error $Where "V10: '[NEEDS CLARIFICATION]' без OQ-N рядом: '$($m.Value)'"
             }
             if ($null -eq $oqBlock) { continue }
-        }
-    }
-
-    # V11: Status: Approved требует подписи
-    if ($text -match '(?im)^\s*[-*]?\s*\**\s*Status:?\**\s*Approved\b') {
-        if ($text -notmatch '(?im)^\s*[-*]?\s*\**\s*Approved by:?\**\s*\S') {
-            Add-Error $Where 'V11: Status: Approved без "Approved by:"'
-        }
-        if ($text -notmatch '(?im)^\s*[-*]?\s*\**\s*Approved at:?\**\s*\S') {
-            Add-Error $Where 'V11: Status: Approved без "Approved at:"'
         }
     }
 }
@@ -321,9 +398,8 @@ function Test-RelativeLinks {
     $text = Read-Text $File
     if ($null -eq $text) { return }
 
-    foreach ($m in [regex]::Matches(($text -replace '`[^`
-]*', ''''), '\]\((?<link>[^)]+)\)')) {
-        $link = $m.Groups['link'].Value.Trim()
+    foreach ($m in @(Get-MarkdownLinks -Text $text)) {
+        $link = $m.Link
         if ($link -match '^(https?:|mailto:|#)') { continue }
         $target = ($link -split '#')[0]
         if ([string]::IsNullOrWhiteSpace($target)) { continue }
@@ -442,18 +518,21 @@ function Test-ArchivedProposal {
 # --- Проверка ссылок по всему репозиторию -------------------------------------------------
 function Test-RepositoryLinks {
     $mdFiles = @(Get-ChildItem -LiteralPath $repoRoot -Recurse -Filter '*.md' -File |
-        Where-Object { $_.FullName -notmatch '\\artifacts\\|\\.git\\|\\node_modules\\' })
+        Where-Object { -not (Test-LinkScopeExcluded -FullName $_.FullName) })
 
+    $checked = 0
+    $links = 0
     foreach ($file in $mdFiles) {
         $text = Read-Text $file.FullName
         if ($null -eq $text) { continue }
-        foreach ($m in [regex]::Matches(($text -replace '`[^`
-]*', ''''), '\]\((?<link>[^)]+)\)')) {
-            $link = $m.Groups['link'].Value.Trim()
+        $checked++
+        foreach ($m in @(Get-MarkdownLinks -Text $text)) {
+            $link = $m.Link
             if ($link -match '^(https?:|mailto:|#)') { continue }
             $target = ($link -split '#')[0]
             if ([string]::IsNullOrWhiteSpace($target)) { continue }
             if ($target -match '[\x00-\x1f<>|"?*]') { continue }
+            $links++
             try {
                 $resolved = Join-Path $file.DirectoryName $target
             } catch {
@@ -465,6 +544,7 @@ function Test-RepositoryLinks {
             }
         }
     }
+    Write-Verbose "ссылки: проверено файлов $checked, ссылок $links"
 }
 
 # --- Точка входа --------------------------------------------------------------------------

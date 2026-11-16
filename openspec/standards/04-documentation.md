@@ -161,7 +161,8 @@ Accepted
 ## 4.9 Входные документы (inputs/)
 
 Каталог — `inputs/` в корне. Правила — [`inputs/README.md`](../../inputs/README.md),
-реестр — [`inputs/INDEX.md`](../../inputs/INDEX.md). Шаблон — [`docs/INPUTS-TEMPLATE.md`](../../docs/INPUTS-TEMPLATE.md).
+реестр — [`inputs/INDEX.md`](../../inputs/INDEX.md). Отдельного шаблона нет: живые `inputs/README.md`
+и `INDEX.md` и есть шаблон (дубль `docs/INPUTS-TEMPLATE.md` удалён, P2-5).
 
 **Что здесь.** Материалы, задающие требования: ТЗ и постановки (`briefs/`), концепции (`concepts/`),
 макеты/примеры графики (`graphics/`), образцы данных и форматов (`samples/`).

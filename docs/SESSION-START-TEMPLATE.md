@@ -3,10 +3,14 @@
 > Этот файл — **шаблон**. Реальное состояние сессии живёт в `docs/session/` и **не коммитится**
 > (каталог в `.gitignore`): это рабочий журнал, а не часть шаблона.
 > Заполняйте поля при старте новой сессии и обновляйте по ходу работы.
+>
+> Ссылки ниже записаны **от текущего места** (`docs/`). После копирования в `docs/session/`
+> они сдвигаются на уровень выше: `../AGENTS.md` → `../../AGENTS.md`,
+> `../openspec/constitution.md` → `../../openspec/constitution.md`.
 
 ## Перед стартом
 
-- [ ] Прочитан [`AGENTS.md`](AGENTS.md) (канон) и [`openspec/constitution.md`](openspec/constitution.md).
+- [ ] Прочитан [`AGENTS.md`](../AGENTS.md) (канон) и [`openspec/constitution.md`](../openspec/constitution.md).
 - [ ] Выполнен `git status` — рабочее дерево понятно (что изменено, что не закоммичено).
 - [ ] Известно текущее предложение и его фаза (`openspec/proposals/<NNN-slug>/`).
 

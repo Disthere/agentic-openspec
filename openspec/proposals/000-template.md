@@ -2,13 +2,17 @@
 
 - **ID:** <NNN>-<slug>
 - **Status:** Draft <!-- Draft | Approved | In Progress | Done | Rejected -->
+- **Approved by:** <человек, не агент> <!-- заполняется человеком одновременно со Status: Approved -->
+- **Approved at:** <YYYY-MM-DD> <!-- дата утверждения человеком -->
 - **Owner:** <github handle / role>
 - **Date:** <YYYY-MM-DD>
 - **Profile:** csharp-api (see `openspec/config.yaml`)
 - **Constitution:** [`openspec/constitution.md`](../constitution.md) (highest priority — read first)
 
 > Copy this file into `openspec/proposals/<NNN>-<slug>/proposal.md` and fill every section.
-> Delete guidance comments as you go. A proposal is approved only when a human flips `Status`.
+> Delete guidance comments as you go. A proposal is approved only when a human flips `Status`
+> **and** fills `Approved by:` / `Approved at:` — the validator (`V11`) rejects `Status: Approved`
+> without them, so the signature is machine-checked, not a courtesy.
 
 ## Context
 
@@ -86,9 +90,13 @@ Resolved items move to `OPEN_QUESTIONS.md` and `DECISIONS.md`
 
 ## Performance & SLO
 
-For changes affecting throughput, latency or resources, fill `performance.md` (request profile, targets,
-environment, baseline vs candidate). **No SLO claim without a reproducible load test.**
-See [`../standards/11-performance.md`](../standards/11-performance.md).
+**None — this change does not affect throughput, latency or SLO.** <!-- leave this line if the change is perf-neutral -->
+
+> The validator (`V9`) requires `performance.md` as soon as throughput/latency/SLO are mentioned,
+> unless this section explicitly declines them — that is why the "None" line above is here.
+> If the change is **not** perf-neutral: replace that line with real targets and add `performance.md`
+> (request profile, targets, environment, baseline vs candidate). **No SLO claim without a
+> reproducible load test.** See [`../standards/11-performance.md`](../standards/11-performance.md).
 
 ## Contracts
 

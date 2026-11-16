@@ -20,7 +20,9 @@ description: Превращает сырой запрос на фичу в пр�
 3. **Scaffold (скаффолдинг)** — выбери следующий `<NNN>` (с ведущими нулями) и создай `openspec/proposals/<NNN>-<slug>/`.
 4. **Write artifacts (артефакты)** на основе `000-template.md`:
    - `proposal.md` — Context, Requirements (с `### Requirement:` + `#### Scenario:` `WHEN`/`THEN`),
-     C# Implementation Plan, API/Contract Changes, Test Strategy, Capabilities, Impact, Open Questions.
+     C# Implementation Plan, API/Contract Changes, Test Strategy, Capabilities, Impact, Changelog.
+     (`Changelog` обязателен: валидатор `V1` требует его как раздел — без него предложение
+     не проходит гейт. `Open Questions` — по необходимости, гейт его не требует.)
    - `tasks.md` — пронумерованный чек-лист `- [ ]`.
    - `design.md` — только если дизайн нетривиален (добавь диаграммы C4/sequence в Mermaid).
    - `specs/<capability>/spec.md` — дельты требований ADDED/MODIFIED.

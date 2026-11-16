@@ -242,8 +242,11 @@ npx @deepseek-ai/dsh --profile headless "Прочитай AGENTS.md, высту�
 
 ## CI (опционально)
 
-Готовый workflow проверки целостности шаблона лежит в [`docs/ci/scaffold-check.yml`](./docs/ci/scaffold-check.yml).
-Чтобы он запускался, перенесите его в `.github/workflows/`. Для пуша в этот защищённый путь нужен scope `workflow`:
+Готовый workflow проверки целостности шаблона лежит в [`.github/workflows/scaffold-check.yml`](./.github/workflows/scaffold-check.yml)
+и **уже подключён** — он запускается на push в `main` и на pull request. Если вы разворачиваете набор
+копированием папки и хотите запускать его в своём репозитории, перенесите файл в `.github/workflows/`
+(путь уже такой, так что достаточно убедиться, что каталог скопирован). Для пуша в этот защищённый
+путь нужен scope `workflow`:
 
 ```powershell
 gh auth refresh -h github.com -s workflow

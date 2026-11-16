@@ -9,17 +9,17 @@
 
 ## 1. Лицензия и сторонние материалы (2 мин)
 
-- [ ] [`LICENSE`](./LICENSE) — заменить на лицензию **своего** проекта.
-- [ ] [`THIRD-PARTY.md`](./THIRD-PARTY.md) — **сохранить**. Обязательства по MIT (OpenSpec) остаются,
+- [ ] [`LICENSE`](../LICENSE) — заменить на лицензию **своего** проекта.
+- [ ] [`THIRD-PARTY.md`](../THIRD-PARTY.md) — **сохранить**. Обязательства по MIT (OpenSpec) остаются,
       пока конвенции формата используются.
 - [ ] Если материалы Wikipedia не нужны — они уже удалены вместе со скиллом `ai-writing-tells` (D-06).
 
 ## 2. Реестры и журналы (2 мин)
 
-- [ ] [`CHANGELOG.md`](./CHANGELOG.md) — заменить на [`docs/CHANGELOG-TEMPLATE.md`](./docs/CHANGELOG-TEMPLATE.md).
-- [ ] [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) — заменить на [`docs/OPEN_QUESTIONS-TEMPLATE.md`](./docs/OPEN_QUESTIONS-TEMPLATE.md).
-- [ ] [`DECISIONS.md`](./DECISIONS.md) — заменить на [`docs/DECISIONS-TEMPLATE.md`](./docs/DECISIONS-TEMPLATE.md).
-- [ ] [`docs/SESSION-START.md`](./docs/SESSION-START.md) — заменить на [`docs/SESSION-START-TEMPLATE.md`](./docs/SESSION-START-TEMPLATE.md)
+- [ ] [`CHANGELOG.md`](../CHANGELOG.md) — заменить на [`docs/CHANGELOG-TEMPLATE.md`](./CHANGELOG-TEMPLATE.md).
+- [ ] [`OPEN_QUESTIONS.md`](../OPEN_QUESTIONS.md) — заменить на [`docs/OPEN_QUESTIONS-TEMPLATE.md`](./OPEN_QUESTIONS-TEMPLATE.md).
+- [ ] [`DECISIONS.md`](../DECISIONS.md) — заменить на [`docs/DECISIONS-TEMPLATE.md`](./DECISIONS-TEMPLATE.md).
+- [ ] `docs/session/SESSION-START.md` — заменить на [`docs/SESSION-START-TEMPLATE.md`](./SESSION-START-TEMPLATE.md)
       (или удалить `docs/session/`).
 
 ## 3. Предложения и спецификации (2 мин)
