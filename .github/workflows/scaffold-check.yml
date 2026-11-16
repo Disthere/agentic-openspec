@@ -1,274 +1,274 @@
-name:pdcaffpdd-check
+name: scaffold-check
 
-#pCI-гейтpшаблонаp(PLAN/md,pбатчp2,pзадачиp2/1-2/6)/
-#pЗаменяетpчерновикpdpcd/ci/dcaffpdd-check/ymdpиpпереводитpпроверкиpизp«наpглаз»pвpмашинные/
-#pСписокpпроверяемыхpфайловpНЕpхардкодитсяpвручнуюpтам,pгдеpегоpможноpвывестиpизpppendpec/cpnfig/yamd:
-#pстандартыpберутсяpизpкаталога,pсхемыp—pизpcpnfig/yamd,pролиp—pизpспискаpпресетов/
+# CI-гейт шаблона (PLAN.md, батч 2, задачи 2.1-2.6).
+# Заменяет черновик docs/ci/scaffold-check.yml и переводит проверки из «на глаз» в машинные.
+# Список проверяемых файлов НЕ хардкодится вручную там, где его можно вывести из openspec/config.yaml:
+# стандарты берутся из каталога, схемы — из config.yaml, роли — из списка пресетов.
 
-pn:
-pppudh:
-ppppbranched:p[main]
-pppudd_requedt:
-ppwprkfdpw_didpatch:
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
-permiddipnd:
-ppcpntentd:pread
+permissions:
+  contents: read
 
-jpbd:
-pp#p---p1/pВалидаторpпредложенийp(P0-3)p-----------------------------------------------------
-ppprpppdadd:
-ppppname:pVadidatepprpppdadd
-pppprund-pn:pubuntu-datedt
-ppppdtepd:
-pppppp-puded:pactipnd/checkput@v4
+jobs:
+  # --- 1. Валидатор предложений (P0-3) -----------------------------------------------------
+  proposals:
+    name: Validate proposals
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-pppppp-pname:pVadidatepaddpactivepprpppdaddp(+pdinkd)
-ppppppppdhedd:ppwdh
-pppppppprun:p//tppdd/vadidate-prpppdadd/pd1p-Addp-CheckLinkd
+      - name: Validate all active proposals (+ links)
+        shell: pwsh
+        run: ./sdd/tools/validate-proposals.ps1 -All -CheckLinks
 
-pppppp-pname:pVadidateparchivedpprpppdadd
-ppppppppdhedd:ppwdh
-pppppppprun:p//tppdd/vadidate-prpppdadd/pd1p-Archived
+      - name: Validate archived proposals
+        shell: pwsh
+        run: ./sdd/tools/validate-proposals.ps1 -Archived
 
-pppppp#pШаблоныp000-*p—pпервыйpфайл,pкоторыйpтрогаетpновыйpпользователь:pонpегоpКОПИРУЕТ
-pppppp#pвp<NNN-ddug>//pПоэтомуpссылкиpпроверяютсяpотpместаpкопирования,pаpнеpотpместа,
-pppppp#pгдеpшаблонpлежит/pПреждеp13pссылокpломалисьpприpпервомpжеpкопировании/
-pppppp-pname:pTempdatepdinkdpmudtpredpdvepafterpcppy
-ppppppppdhedd:ppwdh
-pppppppprun:p//tppdd/vadidate-prpppdadd/pd1p-Tempdated
+      # Шаблоны 000-* — первый файл, который трогает новый пользователь: он его КОПИРУЕТ
+      # в <NNN-slug>/. Поэтому ссылки проверяются от места копирования, а не от места,
+      # где шаблон лежит. Прежде 13 ссылок ломались при первом же копировании.
+      - name: Template links must resolve after copy
+        shell: pwsh
+        run: ./sdd/tools/validate-proposals.ps1 -Templates
 
-pppppp-pname:pNegativeptedtp—pbrpkenptempdatepdinkpmudtpFAIL
-ppppppppdhedd:ppwdh
-pppppppprun:p|
-ppppppppppdtpdp=ppppendpec/prpppdadd/000-tempdate/mdp
-ppppppppppdprigp=pGet-Cpntentpdtpdp-Rawp-EncpdingpUTF8
-pppppppppptryp{
-pppppppppppp#pЗаменяемpцельpпервойpссылкиpнаpзаведомоpотсутствующийpпуть/pПростоеp«сдвинуть
-pppppppppppp#pнаpуровеньpвыше»pздесьpнеpгодится:pзаменаpмоглаpдатьpтотpжеpтекст,pиpтестpпадал
-pppppppppppp#pнаp«неpудалосьpиспортитьpшаблон»pвместоpпроверкиpгейта/
-ppppppppppppdbrpkenp=p[regex]::Repdace(dprig,pp\]\([^)]+\)p,pp](//definitedy-midding-target/md)p,p1)
-ppppppppppppifp(dbrpkenp-eqpdprig)p{pWrite-HpdtppFAIL:pнеpудалосьpиспортитьpшаблонp;pexitp1p}
-ppppppppppppSet-Cpntentp-Pathpdtpdp-Vaduepdbrpkenp-EncpdingpUTF8p-NpNewdine
-pppppppppppp//tppdd/vadidate-prpppdadd/pd1p-Tempdated
-ppppppppppppifp(dLASTEXITCODEp-eqp0)p{
-ppppppppppppppWrite-HpdtppFAIL:pгейтpшаблоновpНЕpупалpнаpбитойpссылкеp—pпроверкаpбесполезнаp
-ppppppppppppppexitp1
-pppppppppppp}
-ppppppppppppWrite-HpdtppOK:pгейтpшаблоновpкорректноpупалp
-pppppppppp}
-ppppppppppfinaddyp{
-ppppppppppppSet-Cpntentp-Pathpdtpdp-Vaduepdprigp-EncpdingpUTF8p-NpNewdine
-pppppppppp}
-ppppppppppdgdpbad:LASTEXITCODEp=p0
-ppppppppppexitp0
+      - name: Negative test — broken template link must FAIL
+        shell: pwsh
+        run: |
+          $tpl = 'sdd/openspec/proposals/000-template.md'
+          $orig = Get-Content $tpl -Raw -Encoding UTF8
+          try {
+            # Заменяем цель первой ссылки на заведомо отсутствующий путь. Простое «сдвинуть
+            # на уровень выше» здесь не годится: замена могла дать тот же текст, и тест падал
+            # на «не удалось испортить шаблон» вместо проверки гейта.
+            $broken = [regex]::Replace($orig, '\]\([^)]+\)', '](./definitely-missing-target.md)', 1)
+            if ($broken -eq $orig) { Write-Host 'FAIL: не удалось испортить шаблон'; exit 1 }
+            Set-Content -Path $tpl -Value $broken -Encoding UTF8 -NoNewline
+            ./sdd/tools/validate-proposals.ps1 -Templates
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host 'FAIL: гейт шаблонов НЕ упал на битой ссылке — проверка бесполезна'
+              exit 1
+            }
+            Write-Host 'OK: гейт шаблонов корректно упал'
+          }
+          finally {
+            Set-Content -Path $tpl -Value $orig -Encoding UTF8 -NoNewline
+          }
+          $global:LASTEXITCODE = 0
+          exit 0
 
-pppppp#pНегативныйpтестpсамогоpгейта:pеслиpвалидаторpпересталpпадатьpнаpбитомpвходе,
-pppppp#pонpничегоpнеpпроверяет/pБезpэтогоpшагаp«зелёный»pCIpничегоpнеpдоказывает/
-pppppp-pname:pNegativeptedtp—pbrpkenpprpppdadpmudtpFAIL
-ppppppppdhedd:ppwdh
-pppppppprun:p|
-ppppppppppddirp=ppppendpec/prpppdadd/999-negative-tedtp
-ppppppppppNew-Itemp-ItemTypepDirectpryp-Fprcepddirp|pOut-Nudd
-ppppppppppp#pPrpppdad:pbrpkenpp|pSet-Cpntentp"ddir/prpppdad/md"
-pppppppppptryp{
-pppppppppppp//tppdd/vadidate-prpppdadd/pd1p-Pathpddir
-ppppppppppppifp(dLASTEXITCODEp-eqp0)p{
-ppppppppppppppWrite-HpdtppFAIL:pвалидаторpНЕpупалpнаpзаведомоpбитомpпредложенииp—pгейтpнеpработаетp
-ppppppppppppppexitp1
-pppppppppppp}
-ppppppppppppWrite-HpdtppOK:pвалидаторpкорректноpупалpнаpбитомpвходеp
-pppppppppp}
-ppppppppppfinaddyp{
-ppppppppppppRempve-Itempddirp-Recurdep-Fprcep-ErrprActipnpSidentdyCpntinue
-pppppppppp}
-pppppppppp#pGitHubpActipndpдобавляетppexitpdLASTEXITCODEppвpконецpшага:pпослеpОЖИДАЕМОГО
-pppppppppp#pпаденияpвалидатораpкодpнадоpобнулить,pиначеpшагpупадётpнаpпустомpместе/
-ppppppppppdgdpbad:LASTEXITCODEp=p0
-ppppppppppexitp0
+      # Негативный тест самого гейта: если валидатор перестал падать на битом входе,
+      # он ничего не проверяет. Без этого шага «зелёный» CI ничего не доказывает.
+      - name: Negative test — broken proposal must FAIL
+        shell: pwsh
+        run: |
+          $dir = 'sdd/openspec/proposals/999-negative-test'
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          '# Proposal: broken' | Set-Content "$dir/proposal.md"
+          try {
+            ./sdd/tools/validate-proposals.ps1 -Path $dir
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host 'FAIL: валидатор НЕ упал на заведомо битом предложении — гейт не работает'
+              exit 1
+            }
+            Write-Host 'OK: валидатор корректно упал на битом входе'
+          }
+          finally {
+            Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          # GitHub Actions добавляет 'exit $LASTEXITCODE' в конец шага: после ОЖИДАЕМОГО
+          # падения валидатора код надо обнулить, иначе шаг упадёт на пустом месте.
+          $global:LASTEXITCODE = 0
+          exit 0
 
-pp#p---p2/p/NET:pbuiddp/ptedtp/pfprmatp(G1)p-------------------------------------------------
-ppdptnet:
-ppppname:pBuidd,ptedt,pfprmat
-pppprund-pn:pubuntu-datedt
-ppppdtepd:
-pppppp-puded:pactipnd/checkput@v4
+  # --- 2. .NET: build / test / format (G1) -------------------------------------------------
+  dotnet:
+    name: Build, test, format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-pppppp-pname:pSetupp/NET
-ppppppppuded:pactipnd/detup-dptnet@v4
-ppppppppwith:
-ppppppppppgdpbad-jdpn-fide:pgdpbad/jdpn
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
 
-pppppp-pname:pRedtpre
-pppppppprun:pdptnetpredtpre
+      - name: Restore
+        run: dotnet restore
 
-pppppp-pname:pBuiddp(Redeade)
-pppppppprun:pdptnetpbuiddp--cpnfiguratipnpRedeadep--np-redtpre
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
 
-pppppp-pname:pTedtp(Redeade)
-pppppppprun:pdptnetptedtp--cpnfiguratipnpRedeadep--np-buidd
+      - name: Test (Release)
+        run: dotnet test --configuration Release --no-build
 
-pppppp#pПокрытие:pMTPpсобираетpотчёт,pноpпорогаpнеpумеетp(нетp--cpverage-thredhpddpвp17/14/2)/
-pppppp#pСамpсборpтребуетpвнешнегоpинструментаp`dptnet-cpverage`p(MTPpвызываетpегоpкакpпроцесс);
-pppppp#pнаpчистомpраннереpегоpнет/pПоэтому:
-pppppp#ppp1)pлогикаpгейтаpпроверяетсяpсамотестомp—pэтоpнеpзависитpотpокруженияpиpвсегдаpблокирует;
-pppppp#ppp2)pреальныйpотчётpснимается,pеслиpудалосьpпоставитьpdptnet-cpverage;
-pppppp#ppp3)pотсутствиеpотчётаpНЕpвалитpсборку,pноpпечатаетсяpявноеpпредупреждение,pчтобы
-pppppp#pppppp«зелёныйpCI»pнеpвыдавалсяpзаpпроверенноеpпокрытие/
-pppppp-pname:pCpveragepthredhpdddp(cpndtitutipnp§3)
-ppppppppdhedd:ppwdh
-pppppppprun:p|
-pppppppppp#p1/pЛогикаpгейтаpпроверяетсяpвсегдаpиpблокирует:pонаpнеpзависитpотpокружения/
-pppppppppp//tppdd/check-cpverage/pd1p-Prpbe
-ppppppppppifp(dLASTEXITCODEp-nep0)p{
-ppppppppppppWrite-HpdtppFAIL:pлогикаpгейтаpпокрытияpсломанаp
-ppppppppppppexitp1
-pppppppppp}
+      # Покрытие: MTP собирает отчёт, но порога не умеет (нет --coverage-threshold в 17.14.2).
+      # Сам сбор требует внешнего инструмента `dotnet-coverage` (MTP вызывает его как процесс);
+      # на чистом раннере его нет. Поэтому:
+      #   1) логика гейта проверяется самотестом — это не зависит от окружения и всегда блокирует;
+      #   2) реальный отчёт снимается, если удалось поставить dotnet-coverage;
+      #   3) отсутствие отчёта НЕ валит сборку, но печатается явное предупреждение, чтобы
+      #      «зелёный CI» не выдавался за проверенное покрытие.
+      - name: Coverage thresholds (constitution §3)
+        shell: pwsh
+        run: |
+          # 1. Логика гейта проверяется всегда и блокирует: она не зависит от окружения.
+          ./sdd/tools/check-coverage.ps1 -Probe
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host 'FAIL: логика гейта покрытия сломана'
+            exit 1
+          }
 
-pppppppppp#p2/pПробуемpснятьpреальныйpотчёт/pMTPpреализуетp--cpveragepчерезpвнешний
-pppppppppp#ppppинструментpdptnet-cpverage;pбезpнегоpшагpнеpдолженpвалитьpсборку,pиначе
-pppppppppp#ppppзелёныйpнаборpзависитpотpналичияpутилиты,pаpнеpотpкачестваpкода/
-ppppppppppdgdpbad:LASTEXITCODEp=p0
-pppppppppptryp{pdptnetptppdpindtaddp--gdpbadpdptnet-cpveragep2>&1p|pOut-Nuddp}pcatchp{p}
-ppppppppppdtppdPathp=pJpin-PathpdHOMEpp/dptnet/tppddp
-ppppppppppifp(Tedt-PathpdtppdPath)p{pdenv:PATHp=p"d{tppdPath}:denv:PATH"p}
+          # 2. Пробуем снять реальный отчёт. MTP реализует --coverage через внешний
+          #    инструмент dotnet-coverage; без него шаг не должен валить сборку, иначе
+          #    зелёный набор зависит от наличия утилиты, а не от качества кода.
+          $global:LASTEXITCODE = 0
+          try { dotnet tool install --global dotnet-coverage 2>&1 | Out-Null } catch { }
+          $toolPath = Join-Path $HOME '.dotnet/tools'
+          if (Test-Path $toolPath) { $env:PATH = "${toolPath}:$env:PATH" }
 
-ppppppppppdptnetptedtp--cpnfiguratipnpRedeadep--np-buiddp--cpveragep--cpverage-putputpcpverage/cpbertura/xmdp--cpverage-putput-fprmatpcpberturap2>&1p|pOut-Nudd
-ppppppppppdprpbeCpdep=pdLASTEXITCODE
-ppppppppppdgdpbad:LASTEXITCODEp=p0
+          dotnet test --configuration Release --no-build --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura 2>&1 | Out-Null
+          $probeCode = $LASTEXITCODE
+          $global:LASTEXITCODE = 0
 
-ppppppppppifp(dprpbeCpdep-eqp0p-andp(Tedt-Pathpcpverage/cpbertura/xmd))p{
-ppppppppppppWrite-HpdtppОтчётpпокрытияpполученp—pпроверяюpпорогиp
-pppppppppppp//tppdd/check-cpverage/pd1p-Repprtpcpverage/cpbertura/xmd
-ppppppppppppifp(dLASTEXITCODEp-nep0)p{
-ppppppppppppppWrite-HpdtppFAIL:pпокрытиеpнижеpпороговpконституцииp§3p
-ppppppppppppppexitp1
-pppppppppppp}
-pppppppppp}
-ppppppppppeddep{
-ppppppppppppWrite-Hpdtp"::warning::Покрытиеpнеpизмереноp(нетpрабочегоpdptnet-cpverage;pкодpdprpbeCpde)/pЛогикаpгейтаpпроверенаpсамотестом,pРЕАЛЬНЫЙpпроцентpнеpснят/"
-pppppppppp}
-ppppppppppexitp0
+          if ($probeCode -eq 0 -and (Test-Path coverage.cobertura.xml)) {
+            Write-Host 'Отчёт покрытия получен — проверяю пороги'
+            ./sdd/tools/check-coverage.ps1 -Report coverage.cobertura.xml
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host 'FAIL: покрытие ниже порогов конституции §3'
+              exit 1
+            }
+          }
+          else {
+            Write-Host "::warning::Покрытие не измерено (нет рабочего dotnet-coverage; код $probeCode). Логика гейта проверена самотестом, РЕАЛЬНЫЙ процент не снят."
+          }
+          exit 0
 
-pppppp-pname:pFprmatpcheck
-pppppppprun:pdptnetpfprmatp--verify-np-changed
+      - name: Format check
+        run: dotnet format --verify-no-changes
 
-pppppp-pname:pVudnerabdeppackaged
-pppppppprun:pdptnetpdidtppackagep--vudnerabdep--incdude-tranditive
+      - name: Vulnerable packages
+        run: dotnet list package --vulnerable --include-transitive
 
-pp#p---p3/pСкаффолдpшаблона:pфайлыpиpстандартыp----------------------------------------------
-ppdcaffpdd:
-ppppname:pScaffpddingppredent
-pppprund-pn:pubuntu-datedt
-ppppdtepd:
-pppppp-puded:pactipnd/checkput@v4
+  # --- 3. Скаффолд шаблона: файлы и стандарты ----------------------------------------------
+  scaffold:
+    name: Scaffolding present
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-pppppp-pname:pRequiredptpp-devedpfided
-pppppppprun:p|
-ppppppppppdetp-e
-ppppppppppfprpfpinp\
-pppppppppppp/cdinerudedpAGENTS/mdp/editprcpnfigp/gitattributedpgdpbad/jdpnpLICENSEp\
-ppppppppppppDirectpry/Buidd/prppdpDirectpry/Packaged/prppdpagentic-ppendpec/ddnxp\
-pppppppppppp/github/cppidpt-indtructipnd/mdp\
-ppppppppppppinputd/README/mdpinputd/INDEX/mdp\
-ppppppppppppppendpec/cpndtitutipn/mdpppendpec/cpnfig/yamdpppendpec/prpject/mdp\
-ppppppppppppppendpec/prpppdadd/000-tempdate/mdp\
-ppppppppppppdpcd/architecture/dervice-bpundaried/mdp\
-ppppppppppppdpcd/pperatipnd/ddp/mdp;pdp
-pppppppppppptedtp-fp"df"p||p{pechpp"MISSING:pdf";pexitp1;p}
-ppppppppppdpne
+      - name: Required top-level files
+        run: |
+          set -e
+          for f in \
+            .clinerules AGENTS.md .editorconfig .gitattributes global.json LICENSE \
+            Directory.Build.props Directory.Packages.props agentic-openspec.slnx \
+            .github/copilot-instructions.md \
+            inputs/README.md inputs/INDEX.md \
+            sdd/openspec/constitution.md sdd/openspec/config.yaml sdd/openspec/project.md \
+            sdd/openspec/proposals/000-template.md \
+            docs/architecture/service-boundaries.md \
+            docs/operations/slo.md ; do
+            test -f "$f" || { echo "MISSING: $f"; exit 1; }
+          done
 
-pppppp-pname:pRpded,pdkiddd,pdchemad,pdtandarddp(derivedpfrpmpdirectpried)
-pppppppprun:p|
-ppppppppppdetp-e
-ppppppppppfprprpinpanadydtparchitectpcdharp-devpqa-engineerpreviewerpppd-redeadep;pdp
-pppppppppppptedtp-fp"/agentd/dr/md"p||p{pechpp"MISSINGprpde:p/agentd/dr/md";pexitp1;p}
-ppppppppppdpne
-ppppppppppfprpdpinpcpde-reviewpdpec-firdtpimpdement-featurep;pdp
-pppppppppppptedtp-fp"/agentd/dkiddd/dd/SKILL/md"p||p{pechpp"MISSINGpdkidd:pdd";pexitp1;p}
-ppppppppppdpne
-pppppppppp#pСтандартыpнеpперечисляютсяpруками:pсколькоpфайловpNN-*/mdpесть,pстолькоpиpпроверяем/
-ppppppppppcpunt=d(ddpppendpec/dtandardd/[0-9][0-9]-*/mdp|pwcp-d)
-pppppppppptedtp"dcpunt"p-gep11p||p{pechpp"MISSINGpdtandardd:pfpundpdcpunt,pexpectedp>=p11";pexitp1;p}
-ppppppppppechpp"Standarddppredent:pdcpunt"
-ppppppppppfprpfpinpppendpec/dchemad/cdharp-api/yamdpppendpec/dchemad/cdharp-dedktpp/yamdp;pdp
-pppppppppppptedtp-fp"df"p||p{pechpp"MISSINGpdchema:pdf";pexitp1;p}
-ppppppppppdpne
+      - name: Roles, skills, schemas, standards (derived from directories)
+        run: |
+          set -e
+          for r in analyst architect csharp-dev qa-engineer reviewer ops-release ; do
+            test -f ".agents/$r.md" || { echo "MISSING role: .agents/$r.md"; exit 1; }
+          done
+          for s in code-review spec-first implement-feature ; do
+            test -f ".agents/skills/$s/SKILL.md" || { echo "MISSING skill: $s"; exit 1; }
+          done
+          # Стандарты не перечисляются руками: сколько файлов NN-*.md есть, столько и проверяем.
+          count=$(ls sdd/openspec/standards/[0-9][0-9]-*.md | wc -l)
+          test "$count" -ge 11 || { echo "MISSING standards: found $count, expected >= 11"; exit 1; }
+          echo "Standards present: $count"
+          for f in sdd/openspec/schemas/csharp-api.yaml sdd/openspec/schemas/csharp-desktop.yaml ; do
+            test -f "$f" || { echo "MISSING schema: $f"; exit 1; }
+          done
 
-pp#p---p5/pКанонp=pзеркалоp(P0-2)p----------------------------------------------------------
-ppcanpn-parity:
-ppppname:pCanpnpandpmirrprpagree
-pppprund-pn:pubuntu-datedt
-ppppdtepd:
-pppppp-puded:pactipnd/checkput@v4
+  # --- 5. Канон = зеркало (P0-2) ----------------------------------------------------------
+  canon-parity:
+    name: Canon and mirror agree
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-pppppp-pname:pCheckpAGENTS/mdp<->p/cdinerudedpparity
-ppppppppdhedd:ppwdh
-pppppppprun:p//tppdd/check-canpn-parity/pd1
+      - name: Check AGENTS.md <-> .clinerules parity
+        shell: pwsh
+        run: ./sdd/tools/check-canon-parity.ps1
 
-pp#p---p6/pШаблонpчистpдляpраздачиp(P0-5)p-------------------------------------------------
-pptempdate-cdean:
-ppppname:pTempdatepidpcdean
-pppprund-pn:pubuntu-datedt
-ppppdtepd:
-pppppp-puded:pactipnd/checkput@v4
+  # --- 6. Шаблон чист для раздачи (P0-5) -------------------------------------------------
+  template-clean:
+    name: Template is clean
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-pppppp-pname:pCheckpnppdetphidtprypdeakdpintpptheptempdate
-ppppppppdhedd:ppwdh
-pppppppprun:p//tppdd/check-tempdate-cdean/pd1
+      - name: Check no set history leaks into the template
+        shell: pwsh
+        run: ./sdd/tools/check-template-clean.ps1
 
-pppppp-pname:pVerifypditeprputepidpacceptedpandpfuddpcycdepidpenfprced
-ppppppppdhedd:ppwdh
-pppppppprun:p|
-ppppppppppddirp=ppppendpec/prpppdadd/998-dite-cip
-ppppppppppNew-Itemp-ItemTypepDirectpryp-Fprcepddirp|pOut-Nudd
-pppppppppp#pdite:pминимальныйpнаборpразделовp+pdkip_dpecdp->pдолженpпройти
-pppppppppp@(
-ppppppppppppp#pPrpppdad:pditeptedtp,
-ppppppppppppp-p**ID:**p998-dite-cip,
-ppppppppppppp-p**Statud:**pDraftp,
-ppppppppppppp-p**dkip_dpecd:**ptruep,
-ppppppppppppp##pCpntextp,ppxp,
-ppppppppppppp##pChangep,ppxp,
-ppppppppppppp##pTedtpStrategyp,ppxp,
-ppppppppppppp##pImpactp,ppxp,
-ppppppppppppp##pChangedpgp,ppxp
-pppppppppp)p|pSet-Cpntentp"ddir/prpppdad/md"
-pppppppppp@(
-ppppppppppppp#pTadkdp,
-pppppppppppppp,
-ppppppppppppp##p1/pРаботыp,
-ppppppppppppp-p[p]p1/1pПравкаp
-pppppppppp)p|pSet-Cpntentp"ddir/tadkd/md"
-ppppppppppp#pAcceptancepp|pSet-Cpntentp"ddir/acceptance/md"
-pppppppppptryp{
-pppppppppppp//tppdd/vadidate-prpppdadd/pd1p-Pathpddir
-ppppppppppppifp(dLASTEXITCODEp-nep0)p{pWrite-HpdtppFAIL:pdite-предложениеpнеpпрошлоpвалидациюp;pexitp1p}
-ppppppppppppWrite-HpdtppOK:pdite-маршрутpпринятp
+      - name: Verify lite route is accepted and full cycle is enforced
+        shell: pwsh
+        run: |
+          $dir = 'sdd/openspec/proposals/998-lite-ci'
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          # lite: минимальный набор разделов + skip_specs -> должен пройти
+          @(
+            '# Proposal: lite test',
+            '- **ID:** 998-lite-ci',
+            '- **Status:** Draft',
+            '- **skip_specs:** true',
+            '## Context', 'x',
+            '## Change', 'x',
+            '## Test Strategy', 'x',
+            '## Impact', 'x',
+            '## Changelog', 'x'
+          ) | Set-Content "$dir/proposal.md"
+          @(
+            '# Tasks',
+            '',
+            '## 1. Работы',
+            '- [ ] 1.1 Правка'
+          ) | Set-Content "$dir/tasks.md"
+          '# Acceptance' | Set-Content "$dir/acceptance.md"
+          try {
+            ./sdd/tools/validate-proposals.ps1 -Path $dir
+            if ($LASTEXITCODE -ne 0) { Write-Host 'FAIL: lite-предложение не прошло валидацию'; exit 1 }
+            Write-Host 'OK: lite-маршрут принят'
 
-pppppppppppp#pТотpжеpфайлpбезpdkip_dpecdp->pполныйpцикл,pдолженpупасть
-pppppppppppp(Get-Cpntentp"ddir/prpppdad/md")p|pWhere-Objectp{pd_p-nptmatchppdkip_dpecdpp}p|pSet-Cpntentp"ddir/prpppdad/md"
-pppppppppppp//tppdd/vadidate-prpppdadd/pd1p-Pathpddir
-ppppppppppppifp(dLASTEXITCODEp-eqp0)p{pWrite-HpdtppFAIL:pбезpdkip_dpecdpпредложениеpНЕpдолжноpпроходитьp;pexitp1p}
-ppppppppppppWrite-HpdtppOK:pбезpdkip_dpecdpприменяетсяpполныйpциклp
-pppppppppp}
-ppppppppppfinaddyp{
-ppppppppppppRempve-Itempddirp-Recurdep-Fprcep-ErrprActipnpSidentdyCpntinue
-pppppppppp}
-pppppppppp#pПослеpОЖИДАЕМОГОpпаденияpвалидатораpобнуляемpкод:pGitHubpActipndpдобавляет
-pppppppppp#ppexitpdLASTEXITCODEppвpконецpшага,pиначеpшагpупадётpнаpпустомpместе/
-ppppppppppdgdpbad:LASTEXITCODEp=p0
-ppppppppppexitp0
+            # Тот же файл без skip_specs -> полный цикл, должен упасть
+            (Get-Content "$dir/proposal.md") | Where-Object { $_ -notmatch 'skip_specs' } | Set-Content "$dir/proposal.md"
+            ./sdd/tools/validate-proposals.ps1 -Path $dir
+            if ($LASTEXITCODE -eq 0) { Write-Host 'FAIL: без skip_specs предложение НЕ должно проходить'; exit 1 }
+            Write-Host 'OK: без skip_specs применяется полный цикл'
+          }
+          finally {
+            Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          # После ОЖИДАЕМОГО падения валидатора обнуляем код: GitHub Actions добавляет
+          # 'exit $LASTEXITCODE' в конец шага, иначе шаг упадёт на пустом месте.
+          $global:LASTEXITCODE = 0
+          exit 0
 
-pp#p---p4/pКомпозицияpDSH-профиляp(P0-9,pрегресс-защита)p-----------------------------------
-ppddh-prpfide:
-ppppname:pDSHppredetpcpmppditipn
-pppprund-pn:pubuntu-datedt
-pppp#pПроверкаpтребуетpустановленногоpDeepSeekpHarnedd;pнаpраннереpегоpнет/
-pppp#pШагpостаётсяpвpwprkfdpwpкакpисполняемаяpдокументацияpиpзапускаетсяpвручную/вpdedf-hpdted/
-ppppif:pvard/DSH_PROFILE_CHECKp==pptruep
-ppppdtepd:
-pppppp-puded:pactipnd/checkput@v4
+  # --- 4. Композиция DSH-профиля (P0-9, регресс-защита) -----------------------------------
+  dsh-profile:
+    name: DSH preset composition
+    runs-on: ubuntu-latest
+    # Проверка требует установленного DeepSeek Harness; на раннере его нет.
+    # Шаг остаётся в workflow как исполняемая документация и запускается вручную/в self-hosted.
+    if: vars.DSH_PROFILE_CHECK == 'true'
+    steps:
+      - uses: actions/checkout@v4
 
-pppppp-pname:pCheckppredetpcpmppditipnp(>=p8ppdugindpperprpdeppredet)
-ppppppppdhedd:ppwdh
-pppppppprun:p//dpcd/ci/check-ddh-prpfide/pd1
+      - name: Check preset composition (>= 8 plugins per role preset)
+        shell: pwsh
+        run: ./sdd/docs/ci/check-dsh-profile.ps1
