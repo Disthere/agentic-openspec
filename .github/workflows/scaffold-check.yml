@@ -117,23 +117,36 @@ jobs:
       - name: Coverage thresholds (constitution §3)
         shell: pwsh
         run: |
+          # 1. Логика гейта проверяется всегда и блокирует: она не зависит от окружения.
           ./tools/check-coverage.ps1 -Probe
           if ($LASTEXITCODE -ne 0) {
             Write-Host 'FAIL: логика гейта покрытия сломана'
             exit 1
           }
 
-          dotnet tool install --global dotnet-coverage 2>&1 | Out-Null
+          # 2. Пробуем снять реальный отчёт. MTP реализует --coverage через внешний
+          #    инструмент dotnet-coverage; без него шаг не должен валить сборку, иначе
+          #    зелёный набор зависит от наличия утилиты, а не от качества кода.
+          $global:LASTEXITCODE = 0
+          try { dotnet tool install --global dotnet-coverage 2>&1 | Out-Null } catch { }
           $toolPath = Join-Path $HOME '.dotnet/tools'
-          $env:PATH = "$toolPath:$env:PATH"
+          if (Test-Path $toolPath) { $env:PATH = "${toolPath}:$env:PATH" }
 
-          dotnet test --configuration Release --no-build --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
-          if ($LASTEXITCODE -eq 0 -and (Test-Path coverage.cobertura.xml)) {
+          dotnet test --configuration Release --no-build --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura 2>&1 | Out-Null
+          $probeCode = $LASTEXITCODE
+          $global:LASTEXITCODE = 0
+
+          if ($probeCode -eq 0 -and (Test-Path coverage.cobertura.xml)) {
+            Write-Host 'Отчёт покрытия получен — проверяю пороги'
             ./tools/check-coverage.ps1 -Report coverage.cobertura.xml
-            exit $LASTEXITCODE
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host 'FAIL: покрытие ниже порогов конституции §3'
+              exit 1
+            }
           }
-
-          Write-Host '::warning::Покрытие не измерено: в окружении нет рабочего dotnet-coverage. Гейт покрытия проверен самотестом, но РЕАЛЬНЫЙ процент не снят.'
+          else {
+            Write-Host "::warning::Покрытие не измерено (нет рабочего dotnet-coverage; код $probeCode). Логика гейта проверена самотестом, РЕАЛЬНЫЙ процент не снят."
+          }
           exit 0
 
       - name: Format check
