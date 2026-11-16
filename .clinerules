@@ -47,9 +47,13 @@
 
 ## Guardrails
 
-- Не коммить секреты; `ROUTERAI_API_KEY` — только из окружения.
-- Не трогать `openspec/proposals/archive/**`, кроме добавления.
-- Новые NuGet-зависимости — только через раздел «C# Implementation Plan» предложения.
-- Материалы заказчика — только в `inputs/`; требование без источника не существует.
+Краткая форма; нормативная — [`AGENTS.md`](./AGENTS.md) §5 «Ограничения (guardrails)».
+
+- **Не коммить секреты**; `ROUTERAI_API_KEY` — только из окружения ([`AGENTS.md`](./AGENTS.md) §5).
+- **Не трогать `openspec/proposals/archive/**`**, кроме добавления ([`AGENTS.md`](./AGENTS.md) §5).
+- **Новые NuGet-зависимости** — только через раздел «C# Implementation Plan» предложения
+  ([`AGENTS.md`](./AGENTS.md) §5).
+- **Материалы заказчика — только в `inputs/`**; требование без источника не существует
+  ([`AGENTS.md`](./AGENTS.md) §5, [`inputs/README.md`](./inputs/README.md)).
 
 Полный текст правил, структура репозитория и рабочий протокол — в [`AGENTS.md`](./AGENTS.md).
