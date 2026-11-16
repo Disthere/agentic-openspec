@@ -16,7 +16,7 @@
 | [`DECISIONS.md`](./DECISIONS.md) | журнал решений (`D-NNN`) |
 | [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) | открытые вопросы (`OQ-N`) |
 | [`CHANGELOG.md`](./CHANGELOG.md) | история изменений |
-| [`METRICS.md`](./METRICS.md) | метрики процесса (генерируется) |
+| `METRICS.md` | метрики процесса — **генерируются** `tools/collect-metrics.ps1`, в git не хранятся |
 
 ## Чего здесь НЕТ — и почему
 
