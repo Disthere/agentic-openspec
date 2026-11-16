@@ -169,7 +169,7 @@ jobs:
             .clinerules AGENTS.md .editorconfig .gitattributes global.json LICENSE \
             Directory.Build.props Directory.Packages.props agentic-openspec.slnx \
             .github/copilot-instructions.md \
-            inputs/README.md inputs/INDEX.md \
+            sdd/inputs/README.md sdd/inputs/INDEX.md \
             sdd/openspec/constitution.md sdd/openspec/config.yaml sdd/openspec/project.md \
             sdd/openspec/proposals/000-template.md \
             docs/architecture/service-boundaries.md \
