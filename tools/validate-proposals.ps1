@@ -51,7 +51,13 @@ param(
     [switch]$Archived,
 
     # Проверка ссылок доступна в любом режиме (в т.ч. на шаблоне без активных предложений).
-    [switch]$CheckLinks
+    [switch]$CheckLinks,
+
+    # Проверка шаблонов 000-*: их ссылки обязаны быть верны ПОСЛЕ копирования в <NNN-slug>/.
+    # В обычном -All шаблоны исключены (это не предложения), но именно они — первый файл,
+    # который трогает новый пользователь, поэтому проверяются отдельным режимом и в CI.
+    [Parameter(ParameterSetName = 'Templates', Mandatory = $true)]
+    [switch]$Templates
 )
 
 Set-StrictMode -Version Latest
@@ -259,10 +265,16 @@ function Test-LinkScopeExcluded {
     # на ubuntu: там legacy-история не исключилась бы, и гейт упал бы на её устаревших ссылках.
     $p = $FullName -replace '\\', '/'
 
+    # Шаблоны 000-*.md исключены намеренно: их ссылки написаны для места КОПИРОВАНИЯ
+    # (<NNN-slug>/), поэтому «на месте» они выглядят битыми. Их проверяет отдельный режим
+    # `-Templates`, который симулирует копию — см. Test-ProposalTemplates.
+    $isTemplate = ($p -match '/openspec/proposals/000-[^/]+\.md$')
+
     return ($p -match '/docs/legacy/' -or
             $p -match '/openspec/proposals/archive/' -or
             $p -match '/docs/session/' -or
-            $p -match '/artifacts/|/\.git/|/node_modules/')
+            $p -match '/artifacts/|/\.git/|/node_modules/' -or
+            $isTemplate)
 }
 
 # --- Схема активного профиля ---------------------------------------------------------------
@@ -795,9 +807,50 @@ function Test-RepositoryLinks {
     Write-Verbose "ссылки: проверено файлов $checked, ссылок $links"
 }
 
+# --- Проверка шаблонов 000-* ---------------------------------------------------------------
+# Шаблон — файл, который КОПИРУЮТ в <NNN-slug>/. Значит, относительные ссылки в нём обязаны
+# быть верны на один уровень глубже, чем он лежит. Раньше они были верны «на своём месте»,
+# и после копирования 13 ссылок указывали в пустоту: первый же шаг нового пользователя
+# давал 11 FAIL на ссылках, которые он не ломал. Обычный -All шаблоны не проверяет
+# (он исключает ^000-), поэтому дефект жил незамеченным.
+function Test-ProposalTemplates {
+    $templates = @(Get-ChildItem -LiteralPath $proposalsRoot -Filter '000-*.md' -File)
+    if ($templates.Count -eq 0) {
+        Add-Error 'templates' 'в openspec/proposals/ нет ни одного шаблона 000-*.md'
+        return
+    }
+
+    # Симуляция места копирования: <proposals>/000-probe-copy/
+    $copyDir = Join-Path $proposalsRoot '000-probe-copy'
+    foreach ($tpl in $templates) {
+        $where = "templates/$($tpl.Name)"
+        $links = @(Get-MarkdownLinks -Text (Read-Text $tpl.FullName))
+        if ($links.Count -eq 0) {
+            Add-Warning $where 'шаблон не содержит ни одной ссылки — проверять нечего'
+            continue
+        }
+
+        foreach ($m in $links) {
+            $link = $m.Link
+            if ($link -match '^(https?:|mailto:|#)') { continue }
+            $target = ($link -split '#')[0]
+            if ([string]::IsNullOrWhiteSpace($target)) { continue }
+            if ($target -match '[\x00-\x1f<>|"?*]') { continue }
+
+            # Ссылка разрешается от каталога, КУДА шаблон скопируют.
+            $resolved = Join-Path $copyDir $target
+            if (-not (Test-Path -LiteralPath $resolved)) {
+                Add-Error $where "V6-шаблон: ссылка '$link' не резолвится после копирования в <NNN-slug>/ (искали: $resolved)"
+            }
+        }
+    }
+}
+
 # --- Точка входа --------------------------------------------------------------------------
-if ($PSCmdlet.ParameterSetName -eq 'One') {
-    $resolved = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $repoRoot $Path }
+if ($PSCmdlet.ParameterSetName -eq 'Templates') {
+    Test-ProposalTemplates
+}
+elseif ($PSCmdlet.ParameterSetName -eq 'One') {    $resolved = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $repoRoot $Path }
     if (-not (Test-Path -LiteralPath $resolved)) {
         Write-Host "FAIL: путь не найден: $resolved" -ForegroundColor Red
         exit 1

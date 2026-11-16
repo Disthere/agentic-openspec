@@ -2,7 +2,7 @@
 
 > Скопируйте в папку предложения как `performance.md`. Заполняется для изменений, влияющих на
 > производительность. Без этого файла утверждать SLO или «оптимизировано» **нельзя**
-> (см. [`../standards/11-performance.md`](../standards/11-performance.md)).
+> (см. [`../standards/11-performance.md`](../../standards/11-performance.md)).
 
 ## Профиль запросов
 
@@ -50,7 +50,7 @@
 
 ## Наблюдаемые показатели
 
-- Ссылки на метрики/трейсы/дашборды (см. [`../standards/10-observability.md`](../standards/10-observability.md)).
+- Ссылки на метрики/трейсы/дашборды (см. [`../standards/10-observability.md`](../../standards/10-observability.md)).
 
 ## ВЫВОД
 

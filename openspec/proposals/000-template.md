@@ -7,7 +7,7 @@
 - **Owner:** <github handle / role>
 - **Date:** <YYYY-MM-DD>
 - **Profile:** csharp-api (see `openspec/config.yaml`)
-- **Constitution:** [`openspec/constitution.md`](../constitution.md) (highest priority — read first)
+- **Constitution:** [`openspec/constitution.md`](../../constitution.md) (highest priority — read first)
 
 > Copy this file into `openspec/proposals/<NNN>-<slug>/proposal.md` and fill every section.
 > Delete guidance comments as you go. A proposal is approved only when a human flips `Status`
@@ -21,8 +21,8 @@ capability(s) in `openspec/specs/` this touches.
 
 ## Sources
 
-Input materials from the customer ([`inputs/`](../../inputs/README.md)), with `IN-NNN` ids from
-[`inputs/INDEX.md`](../../inputs/INDEX.md). List only what this change actually uses; anything unresolved
+Input materials from the customer ([`inputs/`](../../../inputs/README.md)), with `IN-NNN` ids from
+[`inputs/INDEX.md`](../../../inputs/INDEX.md). List only what this change actually uses; anything unresolved
 becomes an Open Question.
 
 - `IN-001` — <what it defines> — `inputs/briefs/IN-001-<slug>.pdf`.
@@ -86,7 +86,7 @@ State clearly if this is a breaking change and the migration path. Write "None" 
 - [ ] <question> — _recommended default:_ <default>.
 
 Resolved items move to `OPEN_QUESTIONS.md` and `DECISIONS.md`
-(see [`../standards/04-documentation.md`](../standards/04-documentation.md) §4.7–4.8).
+(see [`../standards/04-documentation.md`](../../standards/04-documentation.md) §4.7–4.8).
 
 ## Performance & SLO
 
@@ -96,13 +96,13 @@ Resolved items move to `OPEN_QUESTIONS.md` and `DECISIONS.md`
 > unless this section explicitly declines them — that is why the "None" line above is here.
 > If the change is **not** perf-neutral: replace that line with real targets and add `performance.md`
 > (request profile, targets, environment, baseline vs candidate). **No SLO claim without a
-> reproducible load test.** See [`../standards/11-performance.md`](../standards/11-performance.md).
+> reproducible load test.** See [`../standards/11-performance.md`](../../standards/11-performance.md).
 
 ## Contracts
 
 For changes touching HTTP/gRPC/event contracts, add them under `contracts/`
 (OpenAPI, `*.proto`, event schemas) with version and compatibility notes.
-See [`../standards/06-api.md`](../standards/06-api.md) and [`../standards/08-messaging.md`](../standards/08-messaging.md).
+See [`../standards/06-api.md`](../../standards/06-api.md) and [`../standards/08-messaging.md`](../../standards/08-messaging.md).
 
 ## Acceptance
 
@@ -110,16 +110,16 @@ Fill `acceptance.md`: a requirement → test → result matrix with explicitly m
 
 ## Changelog
 
-This change requires an entry in [`CHANGELOG.md`](../../CHANGELOG.md) under `[Unreleased]`:
+This change requires an entry in [`CHANGELOG.md`](../../../CHANGELOG.md) under `[Unreleased]`:
 
 - header `## [X.Y.Z] — YYYY-MM-DD · <summary> (<ID>)`, where `(<ID>)` is this proposal's id;
 - version bump per SemVer: **MINOR** — new behaviour, **PATCH** — fix, **MAJOR** — breaking change;
-- sections per [`../standards/04-documentation.md`](../standards/04-documentation.md) §4.6, including
+- sections per [`../standards/04-documentation.md`](../../standards/04-documentation.md) §4.6, including
   `Не изменилось` when the default behaviour is preserved and `Миграция` for breaking changes;
 - add a task for the changelog entry to `tasks.md`.
 
 Every proposal plans its changelog entry; the release DoD requires it
-([`../standards/05-definition-of-done.md`](../standards/05-definition-of-done.md) §5.4).
+([`../standards/05-definition-of-done.md`](../../standards/05-definition-of-done.md) §5.4).
 
 ## Tasks
 

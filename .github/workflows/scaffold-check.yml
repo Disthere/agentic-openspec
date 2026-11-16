@@ -30,6 +30,36 @@ jobs:
         shell: pwsh
         run: ./tools/validate-proposals.ps1 -Archived
 
+      # Шаблоны 000-* — первый файл, который трогает новый пользователь: он его КОПИРУЕТ
+      # в <NNN-slug>/. Поэтому ссылки проверяются от места копирования, а не от места,
+      # где шаблон лежит. Прежде 13 ссылок ломались при первом же копировании.
+      - name: Template links must resolve after copy
+        shell: pwsh
+        run: ./tools/validate-proposals.ps1 -Templates
+
+      - name: Negative test — broken template link must FAIL
+        shell: pwsh
+        run: |
+          $tpl = 'openspec/proposals/000-template.md'
+          $orig = Get-Content $tpl -Raw -Encoding UTF8
+          try {
+            # Сдвигаем любую ссылку на уровень выше — так ломался шаблон до исправления.
+            $broken = $orig -replace '\]\(\.\./', '](../', 1
+            if ($broken -eq $orig) { Write-Host 'FAIL: не удалось испортить шаблон'; exit 1 }
+            Set-Content -Path $tpl -Value $broken -Encoding UTF8 -NoNewline
+            ./tools/validate-proposals.ps1 -Templates
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host 'FAIL: гейт шаблонов НЕ упал на битой ссылке — проверка бесполезна'
+              exit 1
+            }
+            Write-Host 'OK: гейт шаблонов корректно упал'
+          }
+          finally {
+            Set-Content -Path $tpl -Value $orig -Encoding UTF8 -NoNewline
+          }
+          $global:LASTEXITCODE = 0
+          exit 0
+
       # Негативный тест самого гейта: если валидатор перестал падать на битом входе,
       # он ничего не проверяет. Без этого шага «зелёный» CI ничего не доказывает.
       - name: Negative test — broken proposal must FAIL
@@ -74,6 +104,20 @@ jobs:
 
       - name: Test (Release)
         run: dotnet test --configuration Release --no-build
+
+      # Покрытие: MTP собирает отчёт, но порога не умеет (нет --coverage-threshold в 17.14.2).
+      # Без этого шага требование конституции §3 (80% / Domain 90%) невозможно было провалить.
+      - name: Coverage thresholds (constitution §3)
+        shell: pwsh
+        run: |
+          ./tools/check-coverage.ps1 -Probe
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          dotnet test --configuration Release --no-build --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host 'FAIL: тесты с покрытием завершились ошибкой'
+            exit 1
+          }
+          ./tools/check-coverage.ps1 -Report coverage.cobertura.xml
 
       - name: Format check
         run: dotnet format --verify-no-changes

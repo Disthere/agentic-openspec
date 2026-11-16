@@ -17,7 +17,7 @@
 - [ ] integration-тесты (`WebApplicationFactory<T>`)
 - [ ] contract-тесты
 - [ ] performance / нагрузочный тест (если применимо) — см. `performance.md`
-- [ ] security-ревью (если применимо) — см. [`../standards/09-security.md`](../standards/09-security.md)
+- [ ] security-ревью (если применимо) — см. [`../standards/09-security.md`](../../standards/09-security.md)
 
 ## Непроверенные условия
 
