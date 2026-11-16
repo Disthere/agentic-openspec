@@ -2,14 +2,14 @@
 
 Здесь хранятся **роли** и **скиллы**, которые главная сессия DeepSeek Harness использует в режиме
 Оркестратора. Роль — это не просто описание: она владеет **артефактом** и закрывает **гейт**; роль без
-артефакта и гейта не добавляется (правило допуска — [`openspec/constitution.md`](../sdd/openspec/constitution.md) §7).
+артефакта и гейта не добавляется (правило допуска — [`sdd/openspec/constitution.md`](../sdd/openspec/constitution.md) §7).
 
 ## Роли
 
 | Файл | Роль | Фаза | Отвечает за | Никогда не делает |
 | - | - | - | - | - |
-| [`analyst.md`](../.agents/analyst.md) | Продуктовый аналитик | Discovery | `inputs/` и реестр `IN-NNN`, ценность и измеримый критерий успеха, `OQ-N` | Не пишет спецификаций и кода; не выдумывает требования |
-| [`architect.md`](../.agents/architect.md) | Архитектор | Spec, Design | Требования, диаграммы C4/Mermaid, `openspec/proposals/*` | Не пишет реализационный код |
+| [`analyst.md`](../.agents/analyst.md) | Продуктовый аналитик | Discovery | `sdd/inputs/` и реестр `IN-NNN`, ценность и измеримый критерий успеха, `OQ-N` | Не пишет спецификаций и кода; не выдумывает требования |
+| [`architect.md`](../.agents/architect.md) | Архитектор | Spec, Design | Требования, диаграммы C4/Mermaid, `sdd/openspec/proposals/*` | Не пишет реализационный код |
 | [`csharp-dev.md`](../.agents/csharp-dev.md) | Разработчик C# | Build | Реализацию по `tasks.md` + `dotnet build`/`dotnet test` | Не меняет спецификацию в одностороннем порядке |
 | [`qa-engineer.md`](../.agents/qa-engineer.md) | Инженер верификации | Verify | `acceptance.md`, `performance.md`, воспроизводимые улики | Не правит код, который проверяет; не подтверждает непроверенное |
 | [`reviewer.md`](../.agents/reviewer.md) | Ревьюер | Review | Двухосевой вердикт (Standards / Spec), находки с ID и диспозициями | Не правит код, который проверяет |
@@ -42,8 +42,8 @@
    │
    ▼
 Главная сессия DSH (Оркестратор, пресет `standard` — нейтральный, D-018)
-   ├─ subagent agentPreset=sdd + «ты аналитик»      → inputs/, INDEX.md (IN-NNN) ─────┐ Discovery gate
-   ├─ subagent agentPreset=sdd + «ты архитектор»    → openspec/proposals/<NNN-slug>/ ─┤ (человек утверждает)
+   ├─ subagent agentPreset=sdd + «ты аналитик»      → sdd/inputs/, INDEX.md (IN-NNN) ─┐ Discovery gate
+   ├─ subagent agentPreset=sdd + «ты архитектор»    → sdd/openspec/proposals/<NNN-slug>/ ─┤ (человек утверждает)
    ├─ subagent agentPreset=sdd + «ты разработчик»   → src/ + tests/ (dotnet) ─────────┤ Build + Test gate
    ├─ subagent agentPreset=sdd + «ты QA»            → acceptance.md ────────────────┤ Verification gate
    ├─ subagent agentPreset=sdd + «ты ревьюер»       → VERDICT: Pass / Fail ─────────┤ Review gate
@@ -68,8 +68,8 @@
 
 - Промпт субагента = **`agentPreset=sdd` + имя роли + файл роли + конкретная задача + путь к спецификации**.
   Роль уточняется промптом; персона `sdd` перечисляет `.agents/<роль>.md`, `AGENTS.md`,
-  `openspec/constitution.md` §7 и `openspec/standards/`, поэтому правила доходят до субагента.
-- Правила живут в `.agents/*` и `openspec/`; персона пресета их **не дублирует**.
+  `sdd/openspec/constitution.md` §7 и `sdd/openspec/standards/`, поэтому правила доходят до субагента.
+- Правила живут в `.agents/*` и `sdd/openspec/`; персона пресета их **не дублирует**.
 - Проси у каждого субагента **краткий отчёт** (затронутые пути, ключевые решения, статус), чтобы основной
   контекст оставался чистым.
 - Ревьюер независим от Разработчика и Инженера верификации; процедура двухосевая (Standards / Spec) по

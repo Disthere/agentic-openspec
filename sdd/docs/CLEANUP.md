@@ -50,7 +50,7 @@
 
 - [ ] `dsh/presets-bundle/cordis.patch.yml` — пресет `sdd` уже нейтрален по роли; поменяйте только
       модель и `description`, если нужно.
-- [ ] Установить профиль: `powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1`.
+- [ ] Установить профиль: `powershell -ExecutionPolicy Bypass -File .\sdd\dsh\install.ps1`.
 - [ ] Дефолтный пресет — `standard` (D-018); роль выбирается пресетом `sdd` в UI.
 
 ## 7. Проверка «шаблон чист»

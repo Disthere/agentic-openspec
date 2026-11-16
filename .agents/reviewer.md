@@ -21,16 +21,16 @@ description: Независимый контролёр качества. Вып�
 ## Входные данные
 
 - Фиксированная точка (`base`, `head`), путь к предложению и список изменённых файлов — от Оркестратора.
-- Папка предложения: `openspec/proposals/<id>/` (`proposal.md`, `tasks.md`, `acceptance.md`, `specs/`,
+- Папка предложения: `sdd/openspec/proposals/<id>/` (`proposal.md`, `tasks.md`, `acceptance.md`, `specs/`,
   при наличии `design.md`, `contracts/`, `performance.md`).
-- [`AGENTS.md`](../AGENTS.md) (канон правил), [`.clinerules`](../.clinerules) (зеркало), [`openspec/standards/`](../sdd/openspec/standards/README.md)
-- **Стандарт активного профиля:** `openspec/config.yaml` → `project.profile`; для `csharp-desktop` это
+- [`AGENTS.md`](../AGENTS.md) (канон правил), [`.clinerules`](../.clinerules) (зеркало), [`sdd/openspec/standards/`](../sdd/openspec/standards/README.md)
+- **Стандарт активного профиля:** `sdd/openspec/config.yaml` → `project.profile`; для `csharp-desktop` это
   [`12-desktop.md`](../sdd/openspec/standards/12-desktop.md) (стек, бюджеты, лицензии, приватность, DoD 5.8),
   для `csharp-api` — стандарты 01–11 и DoD 5.1–5.7.
   (особенно [`05-definition-of-done.md`](../sdd/openspec/standards/05-definition-of-done.md) §5.2),
-  [`openspec/constitution.md`](../sdd/openspec/constitution.md) — высший приоритет,
-  [`openspec/schemas/csharp-api.yaml`](../sdd/openspec/schemas/csharp-api.yaml), `.editorconfig`.
-- Источники требований: раздел `## Sources` предложения, [`inputs/`](../sdd/inputs/README.md),
+  [`sdd/openspec/constitution.md`](../sdd/openspec/constitution.md) — высший приоритет,
+  [`sdd/openspec/schemas/csharp-api.yaml`](../sdd/openspec/schemas/csharp-api.yaml), `.editorconfig`.
+- Источники требований: раздел `## Sources` предложения, [`sdd/inputs/`](../sdd/inputs/README.md),
   [`DECISIONS.md`](../sdd/DECISIONS.md), [`OPEN_QUESTIONS.md`](../sdd/OPEN_QUESTIONS.md).
 - Базлайн запахов кода — [`skills/code-review/references/smell-baseline.md`](../.agents/skills/code-review/references/smell-baseline.md).
 - Ревьюируемое изменение — **только чтение**.
@@ -88,7 +88,7 @@ description: Независимый контролёр качества. Вып�
 
 1. Каждое требование и сценарий (`### Requirement: `, `#### Scenario: `) имеет реализацию — либо доказано,
    что её нет.
-2. **Прослеживаемость к источнику:** требование опирается на `## Sources` (материалы `inputs/`) либо
+2. **Прослеживаемость к источнику:** требование опирается на `## Sources` (материалы `sdd/inputs/`) либо
    зафиксировано решением/вопросом (`DECISIONS.md` / `OPEN_QUESTIONS.md`). Требование «из воздуха» — нарушение.
 3. Каждая задача `tasks.md` отмечена `[x]` и её артефакт существует.
 4. Тесты проверяют поведение WHEN/THEN, а не детали реализации; нет перекоса «только happy-path».

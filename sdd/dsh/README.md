@@ -37,7 +37,7 @@ $dsh = Join-Path $env:LOCALAPPDATA 'Programs\DeepSeek Harness\resources\runtime\
 
 ```powershell
 # 1) Установить наш профиль (шесть ролей: аналитик, архитектор, разработчик, QA, ревьюер, Ops/Release)
-powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1
+powershell -ExecutionPolicy Bypass -File .\sdd\dsh\install.ps1
 
 # 2) Проверить композицию (обязательный шаг, см. ниже)
 & $dsh --profile agentic-openspec --dump-config

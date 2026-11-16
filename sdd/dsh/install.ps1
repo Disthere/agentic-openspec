@@ -1,5 +1,5 @@
 # Installs the "agentic-openspec" DSH profile into $DSH_HOME/profiles/<name>.
-# Run:  powershell -ExecutionPolicy Bypass -File .\dsh\install.ps1
+# Run:  powershell -ExecutionPolicy Bypass -File .\sdd\dsh\install.ps1
 #
 # NOTE: keep this file pure ASCII. Windows PowerShell 5.1 reads a .ps1 file as ANSI
 # when it has no BOM, and non-ASCII characters inside strings break the parser.

@@ -29,5 +29,5 @@
 
 ## Ссылки
 
-- Предложение SDD: `openspec/proposals/<NNN-slug>/`
-- Спецификация: `openspec/specs/<capability>/spec.md`
+- Предложение SDD: `sdd/openspec/proposals/<NNN-slug>/`
+- Спецификация: `sdd/openspec/specs/<capability>/spec.md`

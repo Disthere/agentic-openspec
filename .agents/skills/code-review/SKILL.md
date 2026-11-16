@@ -43,11 +43,11 @@ description: Двухосевое независимое ревью измене
 
 Для этого репозитория источник фиксирован — папка предложения:
 
-1. `openspec/proposals/<id>/proposal.md` — требования (`### Requirement:` + `#### Scenario:` WHEN/THEN).
-2. `openspec/proposals/<id>/specs/<capability>/spec.md` — дельты требований.
-3. `openspec/proposals/<id>/tasks.md` — что было заявлено к выполнению.
-4. `openspec/proposals/<id>/acceptance.md` и `performance.md` — заявления о проверках.
-5. `openspec/proposals/<id>/contracts/` — контракты изменения.
+1. `sdd/openspec/proposals/<id>/proposal.md` — требования (`### Requirement:` + `#### Scenario:` WHEN/THEN).
+2. `sdd/openspec/proposals/<id>/specs/<capability>/spec.md` — дельты требований.
+3. `sdd/openspec/proposals/<id>/tasks.md` — что было заявлено к выполнению.
+4. `sdd/openspec/proposals/<id>/acceptance.md` и `performance.md` — заявления о проверках.
+5. `sdd/openspec/proposals/<id>/contracts/` — контракты изменения.
 6. `## Sources` предложения, `DECISIONS.md`, `OPEN_QUESTIONS.md` — откуда взято требование.
 
 Если предложение не найдено — сообщи об этом как о неполной границе ревью и проверяй только сохранение
@@ -58,13 +58,13 @@ description: Двухосевое независимое ревью измене
 Прочитай и передай оси Standards список источников целиком:
 
 - [`.clinerules`](../../../.clinerules) — правила C# и процесса (совместимое зеркало [`AGENTS.md`](../../../AGENTS.md));
-- **стандарт активного профиля** — `openspec/config.yaml` → `project.profile`: для `csharp-desktop` это
-  [`openspec/standards/12-desktop.md`](../../../sdd/openspec/standards/12-desktop.md) (стек, бюджеты ресурсов,
+- **стандарт активного профиля** — `sdd/openspec/config.yaml` → `project.profile`: для `csharp-desktop` это
+  [`sdd/openspec/standards/12-desktop.md`](../../../sdd/openspec/standards/12-desktop.md) (стек, бюджеты ресурсов,
   лицензионный инвентарь, доказуемость приватности, DoD 5.8), для `csharp-api` — стандарты 01–11;
-- [`openspec/constitution.md`](../../../sdd/openspec/constitution.md) — высший приоритет;
-- [`openspec/standards/01-code-style.md`](../../../sdd/openspec/standards/01-code-style.md) … `11-performance.md`;
-- [`openspec/standards/05-definition-of-done.md`](../../../sdd/openspec/standards/05-definition-of-done.md) §5.2 — чек-лист приёмки;
-- [`openspec/schemas/csharp-api.yaml`](../../../sdd/openspec/schemas/csharp-api.yaml) — машиночитаемые гейты;
+- [`sdd/openspec/constitution.md`](../../../sdd/openspec/constitution.md) — высший приоритет;
+- [`sdd/openspec/standards/01-code-style.md`](../../../sdd/openspec/standards/01-code-style.md) … `11-performance.md`;
+- [`sdd/openspec/standards/05-definition-of-done.md`](../../../sdd/openspec/standards/05-definition-of-done.md) §5.2 — чек-лист приёмки;
+- [`sdd/openspec/schemas/csharp-api.yaml`](../../../sdd/openspec/schemas/csharp-api.yaml) — машиночитаемые гейты;
 - `.editorconfig`, `Directory.Build.props`, `Directory.Packages.props`, `global.json`;
 - базлайн запахов — [`references/smell-baseline.md`](./references/smell-baseline.md) — **передай его
   в промпт дословно**: у оси нет другого доступа к каталогу.
