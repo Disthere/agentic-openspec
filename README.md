@@ -17,27 +17,27 @@
 
 ## Что внутри
 
-- **Как развернуть в проекте** — [`docs/ADOPTION.md`](./docs/ADOPTION.md): два сценария (новый проект и
+- **Как развернуть в проекте** — [`docs/ADOPTION.md`](./sdd/docs/ADOPTION.md): два сценария (новый проект и
   существующий без SDD) готовыми промптами; единственное ручное действие — скопировать одну папку, корень
   набора `agentic-openspec`.
-- **Правила агента** — [`AGENTS.md`](./AGENTS.md) (канон для DSH) и [`openspec/`](./openspec);
+- **Правила агента** — [`AGENTS.md`](./AGENTS.md) (канон для DSH) и [`openspec/`](./sdd/openspec);
   [`.clinerules`](./.clinerules) — совместимое зеркало для других инструментов, краткие указатели в
   [`.github/instructions/`](./.github/instructions).
 - **Роли субагентов** — [`.agents/`](./.agents): шесть ролей цикла (продуктовый аналитик → архитектор →
-  разработчик → инженер верификации → ревьюер → Ops/Release) + скиллы; пресет роли `sdd` — в [`dsh/presets-bundle/`](./dsh/presets-bundle).
-- **Конституция проекта** — [`openspec/constitution.md`](./openspec/constitution.md) (высший приоритет).
-- **Инженерные стандарты 01–12** — [`openspec/standards/`](./openspec/standards): Code Style, Architecture,
+  разработчик → инженер верификации → ревьюер → Ops/Release) + скиллы; пресет роли `sdd` — в [`dsh/presets-bundle/`](./sdd/dsh/presets-bundle).
+- **Конституция проекта** — [`openspec/constitution.md`](./sdd/openspec/constitution.md) (высший приоритет).
+- **Инженерные стандарты 01–12** — [`openspec/standards/`](./sdd/openspec/standards): Code Style, Architecture,
   Handoffs, Documentation, DoD, API, Persistence, Messaging, Security, Observability, Performance,
   Desktop (`12-desktop.md` — профиль `csharp-desktop`).
-- **SDD-процесс** — [`openspec/`](./openspec): конфиг, схемы валидации, шаблоны предложений.
+- **SDD-процесс** — [`openspec/`](./sdd/openspec): конфиг, схемы валидации, шаблоны предложений.
 - **Документация эксплуатации** — [`docs/`](./docs): границы сервисов, ADR, SLO, capacity, runbooks.
 - **Документация до SDD** — `docs/legacy/` (шаблон набора): реестр документов `LEG-NNN`, карта соответствий
   «их документ → наш артефакт», замороженная история изменений; для проектов, у которых документация уже
-  есть и устроена иначе. Правила — [`openspec/standards/04-documentation.md` §4.10](./openspec/standards/04-documentation.md),
-  промпты — [`docs/ADOPTION.md`](./docs/ADOPTION.md) §3 (B1a, B5) и §7 (B6).
-- **История изменений** — [`CHANGELOG.md`](./CHANGELOG.md) (Keep a Changelog + SemVer, привязка к задачам).
-- **Открытые вопросы и решения** — [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) (OQ-N) и [`DECISIONS.md`](./DECISIONS.md) (D-NNN).
-- **Входные материалы заказчика** — [`inputs/`](./inputs/README.md): ТЗ, концепции, макеты, образцы данных + реестр [`INDEX.md`](./inputs/INDEX.md).
+  есть и устроена иначе. Правила — [`openspec/standards/04-documentation.md` §4.10](./sdd/openspec/standards/04-documentation.md),
+  промпты — [`docs/ADOPTION.md`](./sdd/docs/ADOPTION.md) §3 (B1a, B5) и §7 (B6).
+- **История изменений** — [`CHANGELOG.md`](./sdd/CHANGELOG.md) (Keep a Changelog + SemVer, привязка к задачам).
+- **Открытые вопросы и решения** — [`OPEN_QUESTIONS.md`](./sdd/OPEN_QUESTIONS.md) (OQ-N) и [`DECISIONS.md`](./sdd/DECISIONS.md) (D-NNN).
+- **Входные материалы заказчика** — [`inputs/`](./sdd/inputs/README.md): ТЗ, концепции, макеты, образцы данных + реестр [`INDEX.md`](./sdd/inputs/INDEX.md).
 - **Настройки сборки .NET** — [`global.json`](./global.json), [`Directory.Build.props`](./Directory.Build.props),
   [`Directory.Packages.props`](./Directory.Packages.props), [`.editorconfig`](./.editorconfig).
 
@@ -45,7 +45,7 @@
 
 - **.NET SDK 10** (см. [`global.json`](./global.json)) — либо поправьте версию под свой SDK.
 - **Node.js 18+** и npm — чтобы запускать DeepSeek Harness командой `npx @deepseek-ai/dsh`.
-- **DeepSeek Harness** (`dsh`) — рабочая среда; профиль с ролями и моделями ставится из [`dsh/`](./dsh/README.md).
+- **DeepSeek Harness** (`dsh`) — рабочая среда; профиль с ролями и моделями ставится из [`dsh/`](./sdd/dsh/README.md).
 
 ## Структура
 
@@ -99,7 +99,7 @@ agentic-openspec/
 
 2. **Адаптируйте шаблон** (пара минут):
    - [`global.json`](./global.json) — версия .NET SDK;
-   - [`openspec/project.md`](./openspec/project.md) — стек, конвенции, архитектурная диаграмма;
+   - [`openspec/project.md`](./sdd/openspec/project.md) — стек, конвенции, архитектурная диаграмма;
    - [`README.md`](./README.md) — заголовок и описание вашего проекта;
    - [`Directory.Packages.props`](./Directory.Packages.props) — нужные зависимости (лишнее уберите);
    - `src/` и `tests/` — в шаблоне уже есть рабочая пара `Smoke` / `Smoke.Tests`;
@@ -119,7 +119,7 @@ agentic-openspec/
    [`Directory.Packages.props`](./Directory.Packages.props), inline `Version=` не пишите.
 
 3. **Убедитесь, что DSH видит правила**: откройте корень репозитория как workspace —
-   канон для DSH — [`AGENTS.md`](./AGENTS.md) и [`openspec/`](./openspec); скиллы подхватываются из
+   канон для DSH — [`AGENTS.md`](./AGENTS.md) и [`openspec/`](./sdd/openspec); скиллы подхватываются из
    [`.agents/skills/`](./.agents/skills) автоматически.
 
 4. **Первая спецификация (Spec First)** — попросите Оркестратора:
@@ -182,9 +182,9 @@ Copy-Item "$template\.github\copilot-instructions.md" "$target\.github" -Force
 
 ### Что ещё адаптировать под существующий проект
 
-- [`openspec/project.md`](./openspec/project.md) — реальный стек, конвенции и границы сервисов.
+- [`openspec/project.md`](./sdd/openspec/project.md) — реальный стек, конвенции и границы сервисов.
 - [`docs/architecture/service-boundaries.md`](./docs/architecture/service-boundaries.md) — ваши сервисы.
-- [`openspec/standards/07-persistence.md`](./openspec/standards/07-persistence.md) и др. — под ваши БД/брокеры.
+- [`openspec/standards/07-persistence.md`](./sdd/openspec/standards/07-persistence.md) и др. — под ваши БД/брокеры.
 - Если в проекте уже есть свой `.clinerules` — **дополните** его ссылкой на `openspec/standards/` и
   `openspec/constitution.md`, а не заменяйте.
 
@@ -199,8 +199,8 @@ Explore → Propose → (человек утверждает) → Apply → Revi
             └── openspec/proposals/<NNN>-<slug>/
 ```
 
-**Spec First**: код не пишется, пока нет утверждённой спецификации в [`openspec/proposals/`](./openspec/proposals).
-Предложения валидируются по [`openspec/schemas/csharp-api.yaml`](./openspec/schemas/csharp-api.yaml).
+**Spec First**: код не пишется, пока нет утверждённой спецификации в [`openspec/proposals/`](./sdd/openspec/proposals).
+Предложения валидируются по [`openspec/schemas/csharp-api.yaml`](./sdd/openspec/schemas/csharp-api.yaml).
 
 ### Роли (мультиагентность)
 
@@ -214,7 +214,7 @@ Explore → Propose → (человек утверждает) → Apply → Revi
 | Ревьюер | [`.agents/reviewer.md`](./.agents/reviewer.md) | Review | вердикт `VERDICT: Pass/Fail` по двум осям |
 | Ops / Release | [`.agents/ops-release.md`](./.agents/ops-release.md) | Release, Operate | changelog и версия, откат, SLO/capacity/runbook, поддержка |
 
-Роль доставляется ОДНИМ пресетом `sdd` в [`dsh/presets-bundle/cordis.patch.yml`](./dsh/presets-bundle/cordis.patch.yml) (решение `D-016`): субагент
+Роль доставляется ОДНИМ пресетом `sdd` в [`dsh/presets-bundle/cordis.patch.yml`](./sdd/dsh/presets-bundle/cordis.patch.yml) (решение `D-016`): субагент
 получает свою композицию и модель. Отдельного агента-оркестратора нет — оркестратор это главная сессия.
 
 ### Гейт проверки

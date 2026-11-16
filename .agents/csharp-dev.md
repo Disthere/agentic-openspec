@@ -16,7 +16,7 @@ description: Senior-разработчик C#/.NET по утверждённом
 ## Входные данные
 
 - Папка **утверждённого** предложения: `proposal.md`, `tasks.md`, при наличии `design.md`.
-- Материалы заказчика, на которые ссылается спецификация: [`inputs/`](../inputs/README.md)
+- Материалы заказчика, на которые ссылается спецификация: [`inputs/`](../sdd/inputs/README.md)
   (см. раздел `## Sources` в `proposal.md`).
 
 ## Предусловия (откажись, если не выполнены)
@@ -32,8 +32,8 @@ description: Senior-разработчик C#/.NET по утверждённом
 - Если нужно отклониться от спецификации — остановись и доложи; не меняй спецификацию сам.
 - Соблюдай стандарты C# из [`AGENTS.md`](../AGENTS.md) и [`.clinerules`](../.clinerules): C# 12+, nullable включён, async на всём пути,
   file-scoped namespaces, primary constructors, records для неизменяемых данных.
-- Полный свод инженерных стандартов — [`openspec/standards/`](../openspec/standards/README.md). Перед сдачей
-  пройди DoD кода ([`05-definition-of-done.md`](../openspec/standards/05-definition-of-done.md), раздел 5.2):
+- Полный свод инженерных стандартов — [`openspec/standards/`](../sdd/openspec/standards/README.md). Перед сдачей
+  пройди DoD кода ([`05-definition-of-done.md`](../sdd/openspec/standards/05-definition-of-done.md), раздел 5.2):
   покрытие, анализаторы, трассируемость (`spec-id`), устойчивость внешних вызовов, гигиена горячих путей.
 - Заполни `acceptance.md` (матрица проверок; не запущенные проверки укажи отдельно) и, для perf-изменений,
   `performance.md` (воспроизводимый сценарий + сравнение). SLO без нагрузочного теста не заявляй.

@@ -1,0 +1,194 @@
+﻿#requires -Version 5.1
+<#
+.SYNOPSIS
+    Проверка «шаблон чист» — PLAN.md, задача 5.8 / P0-5.
+
+.DESCRIPTION
+    Ловит историю разработки самого набора, которая не должна уезжать в проект-получатель:
+      * `PLAN.md` / `ASSESSMENT.md` в корне (журнал работы над набором);
+      * `docs/baseline/` с отчётами батчей;
+      * активные предложения `00[1-6]-*` (примеры должны быть в archive/);
+      * живые спецификации набора (`independent-review`, `delivery-roles`, `product-lifecycle`);
+      * реестры, не приведённые к шаблонам (эвристика: наличие `D-0NN`, `OQ-N` про сам набор).
+
+    Скрипт осознанно НЕ требует удаления `src/Smoke` и `tests/Smoke.Tests`: они доказывают, что
+    шаблон собирается (см. docs/CLEANUP.md §4).
+
+.PARAMETER SkipBaseline
+    Не считать `docs/baseline/` нарушением (полезно при работе над самим набором).
+
+.EXAMPLE
+    ./tools/check-template-clean.ps1
+
+.EXAMPLE
+    ./tools/check-template-clean.ps1 -SkipBaseline
+#>
+[CmdletBinding()]
+param(
+    [switch]$SkipBaseline
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+
+# --- Запуск дочернего скрипта тем же хостом PowerShell (Windows: powershell, Linux: pwsh) ----
+# Жёсткий вызов `powershell` падает на Linux-раннере (нет такого исполняемого файла).
+function Invoke-PwshScript {
+    param([string]$ScriptPath, [string[]]$Arguments = @())
+    $hostExe = if ($PSVersionTable.PSEdition -eq 'Core') {
+        Join-Path $PSHOME 'pwsh'
+    } else {
+        Join-Path $PSHOME 'powershell.exe'
+    }
+    if (-not (Test-Path -LiteralPath $hostExe)) { $hostExe = 'pwsh' }
+    & $hostExe -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Arguments
+}
+# Раскладка: всё SDD живёт в `sdd/`, в корне проекта — только то, что инструменты
+# ищут строго там (AGENTS.md, .clinerules, .agents/skills, global.json, Directory.*.props).
+# Поэтому корней два: $sddRoot — каталог набора, $repoRoot — корень проекта.
+$sddRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = Split-Path -Parent $sddRoot
+$errors = [System.Collections.Generic.List[string]]::new()
+$warnings = [System.Collections.Generic.List[string]]::new()
+
+function Add-Error { param([string]$m) $errors.Add($m) }
+function Add-Warning { param([string]$m) $warnings.Add($m) }
+
+# --- 1. Журнал работы над набором в корне -------------------------------------------------
+foreach ($f in @('PLAN.md', 'ASSESSMENT.md')) {
+    $p = Join-Path $repoRoot $f
+    if (Test-Path -LiteralPath $p) {
+        Add-Error "$f остался в корне — это журнал работы над набором, удалите его (docs/CLEANUP.md §5)"
+    }
+}
+
+# --- 2. Baseline с отчётами батчей ---------------------------------------------------------
+$baseline = Join-Path $sddRoot 'docs/baseline'
+if ((Test-Path -LiteralPath $baseline) -and -not $SkipBaseline) {
+    $files = @(Get-ChildItem -LiteralPath $baseline -File -ErrorAction SilentlyContinue)
+    if ($files.Count -gt 0) {
+        Add-Error "docs/baseline/ содержит $($files.Count) файл(ов) — отчёты работы над набором (docs/CLEANUP.md §5). Используйте -SkipBaseline, если это осознанно"
+    }
+}
+
+# --- 3. Активные предложения-примеры ------------------------------------------------------
+$proposals = Join-Path $sddRoot 'openspec/proposals'
+if (Test-Path -LiteralPath $proposals) {
+    foreach ($dir in @(Get-ChildItem -LiteralPath $proposals -Directory -ErrorAction SilentlyContinue)) {
+        if ($dir.Name -match '^00[1-6]-' -and $dir.Name -ne 'archive') {
+            Add-Error "активное предложение-пример '$($dir.Name)' — перенесите в archive/ или удалите (docs/CLEANUP.md §3)"
+        }
+    }
+}
+
+# --- 4. Живые спецификации набора ---------------------------------------------------------
+$specs = Join-Path $sddRoot 'openspec/specs'
+$setOwnSpecs = @('independent-review', 'delivery-roles', 'product-lifecycle')
+foreach ($cap in $setOwnSpecs) {
+    $p = Join-Path $specs $cap
+    if (Test-Path -LiteralPath $p) {
+        Add-Error "спецификация набора 'openspec/specs/$cap/' осталась — это не спецификация вашего продукта (docs/CLEANUP.md §3)"
+    }
+}
+
+# --- 5. Реестры приведены к шаблонам ------------------------------------------------------
+# После сброса DECISIONS.md содержит только шапку и шаблон — нет записей вида "| D-0".
+$decisionsPath = Join-Path $sddRoot 'DECISIONS.md'
+if (Test-Path -LiteralPath $decisionsPath) {
+    $decisions = Get-Content -LiteralPath $decisionsPath -Raw -Encoding UTF8
+    # Реальные записи отличаются от строк-заполнителей шаблона (`<...>`) наличием содержательного текста.
+    # Примеры вида "| D-001 | YYYY-MM-DD | <одна фраза…> |" — это шаблон, а не история набора.
+    $setDecisions = @(
+        [regex]::Matches($decisions, '(?m)^\|\s*D-0\d\d\s*\|[^\r\n]*$') |
+            Where-Object { $_.Value -notmatch '<[^>]*>' -and $_.Value -notmatch 'YYYY-MM-DD' }
+    )
+    if ($setDecisions.Count -gt 0) {
+        Add-Error "DECISIONS.md содержит $($setDecisions.Count) реальных записей D-0NN набора — замените на docs/DECISIONS-TEMPLATE.md (docs/CLEANUP.md §2)"
+    }
+}
+
+$oqPath = Join-Path $sddRoot 'OPEN_QUESTIONS.md'
+if (Test-Path -LiteralPath $oqPath) {
+    $oq = Get-Content -LiteralPath $oqPath -Raw -Encoding UTF8
+    $setOq = @(
+        [regex]::Matches($oq, '(?m)^\|\s*OQ-\d+\s*\|[^\r\n]*$') |
+            Where-Object { $_.Value -notmatch '<[^>]*>' }
+    )
+    if ($setOq.Count -gt 0) {
+        Add-Warning "OPEN_QUESTIONS.md содержит $($setOq.Count) записей OQ-N — проверьте, что они про ваш проект, а не про набор (docs/CLEANUP.md §2)"
+    }
+}
+
+# --- 6. Что обязано остаться --------------------------------------------------------------
+# Обязательные файлы. Раскладка: SDD-содержимое — в `sdd/`, в корне проекта — только то,
+# что инструменты ищут строго там. Поэтому пути делятся на две группы: корневые (проверяются
+# от $repoRoot) и наборные (от $sddRoot).
+$mustKeepRoot = @(
+    'AGENTS.md'
+    '.clinerules'
+    'LICENSE'
+    'THIRD-PARTY.md'
+    'global.json'
+    'Directory.Build.props'
+    'Directory.Packages.props'
+    '.agents/analyst.md'
+    '.agents/architect.md'
+    '.agents/csharp-dev.md'
+    '.agents/qa-engineer.md'
+    '.agents/reviewer.md'
+    '.agents/ops-release.md'
+    '.github/workflows/scaffold-check.yml'
+)
+$mustKeepSdd = @(
+    'openspec/constitution.md'
+    'openspec/config.yaml'
+    'openspec/standards/01-code-style.md'
+    'tools/validate-proposals.ps1'
+    'docs/CLEANUP.md'
+)
+$mustKeep = @()
+foreach ($rel in $mustKeepRoot) { $mustKeep += @{ Base = $repoRoot; Rel = $rel } }
+foreach ($rel in $mustKeepSdd)  { $mustKeep += @{ Base = $sddRoot;  Rel = $rel } }
+foreach ($item in $mustKeep) {
+    $p = Join-Path $item.Base $item.Rel
+    if (-not (Test-Path -LiteralPath $p)) {
+        Add-Error "обязательный файл шаблона отсутствует: $($item.Rel)"
+    }
+}
+
+# --- 7. Ссылки резолвятся (шаблон без битых путей) ----------------------------------------
+# Вызываем валидатор в режиме проверки ссылок: на чистом шаблоне активных предложений нет,
+# но относительные ссылки в документации обязаны работать (это ловило ../openspec из корня).
+$validator = Join-Path $PSScriptRoot 'validate-proposals.ps1'
+if (Test-Path -LiteralPath $validator) {
+    $linkCheck = Invoke-PwshScript -ScriptPath $validator -Arguments @('-CheckLinks') 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        Add-Error 'битые относительные ссылки в репозитории — запустите tools/validate-proposals.ps1 -CheckLinks для деталей'
+    }
+}
+
+# --- 8. Материалы в inputs/ зарегистрированы ----------------------------------------------
+# Материал без записи в реестре для процесса не существует: Архитектор не может на него
+# сослаться, Discovery-гейт не закрывается. Проверяем автоматически, а не «на глаз».
+$registrar = Join-Path $PSScriptRoot 'register-inputs.ps1'
+if (Test-Path -LiteralPath $registrar) {
+    $regCheck = Invoke-PwshScript -ScriptPath $registrar -Arguments @('-Check') 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        Add-Error 'в inputs/ есть незарегистрированные материалы — запустите tools/register-inputs.ps1 -Apply'
+    }
+}
+
+# --- Вывод --------------------------------------------------------------------------------
+foreach ($w in $warnings) { Write-Host "WARN  $w" -ForegroundColor Yellow }
+foreach ($e in $errors) { Write-Host "FAIL  $e" -ForegroundColor Red }
+
+Write-Host ''
+if ($errors.Count -gt 0) {
+    Write-Host "ИТОГ: ПРОВАЛ — шаблон не чист, нарушений: $($errors.Count)" -ForegroundColor Red
+    Write-Host 'Прогоните docs/CLEANUP.md и запустите снова.'
+    exit 1
+}
+
+Write-Host "ИТОГ: УСПЕХ — шаблон чист (предупреждений: $($warnings.Count))" -ForegroundColor Green
+exit 0

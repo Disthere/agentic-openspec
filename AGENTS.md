@@ -5,38 +5,38 @@
 инструментов: при расхождении действует **этот файл**.
 
 > ⏸ **Режим старта:** ничего не делать до явной команды пользователя (ни разведки, ни правок, ни коммитов).
-> Порядок развёртывания набора — [`docs/ADOPTION.md`](./docs/ADOPTION.md).
-> Состояние конкретной сессии — в `docs/session/` (не коммитится; шаблон — [`docs/SESSION-START-TEMPLATE.md`](./docs/SESSION-START-TEMPLATE.md)).
+> Порядок развёртывания набора — [`docs/ADOPTION.md`](./sdd/docs/ADOPTION.md).
+> Состояние конкретной сессии — в `docs/session/` (не коммитится; шаблон — [`docs/SESSION-START-TEMPLATE.md`](./sdd/docs/SESSION-START-TEMPLATE.md)).
 
 ## Что это за репозиторий
 
 **Агентное рабочее пространство Spec-Driven Development (SDD)** для проекта на **C# / .NET**.
 Главная сессия **DeepSeek Harness** выступает Оркестратором и делегирует работу субагентам с
 `agentPreset` из [`.agents/`](./.agents) — по фазам жизненного цикла
-([`openspec/constitution.md`](./openspec/constitution.md) §7).
+([`openspec/constitution.md`](./sdd/openspec/constitution.md) §7).
 
 ## 0. Золотое правило — Spec First
 
-**Никакого продакшн-кода, пока в [`openspec/proposals/`](./openspec/proposals) нет утверждённой
+**Никакого продакшн-кода, пока в [`openspec/proposals/`](./sdd/openspec/proposals) нет утверждённой
 спецификации** (`Status: Approved`, поля `Approved by:` / `Approved at:` заполнены). Нарушение этого
 правила — дефект процесса, а не «быстрый путь».
 
-Исключения — только через §5 конституции с записью `D-NNN` в [`DECISIONS.md`](./DECISIONS.md).
+Исключения — только через §5 конституции с записью `D-NNN` в [`DECISIONS.md`](./sdd/DECISIONS.md).
 
 > **Граница действия.** Spec First относится к **продукту**: код, контракты, поведение системы.
 > Правки **самого набора** (канон, стандарты, схемы, роли, пресет DSH, `tools/`) идут иначе:
-> **запись в [`docs/legacy/set-history/`](./docs/legacy/set-history) + осмысленное сообщение коммита**,
+> **запись в [`docs/legacy/set-history/`](./sdd/docs/legacy/set-history) + осмысленное сообщение коммита**,
 > без фиктивной спецификации. Реестры `DECISIONS.md` и `OPEN_QUESTIONS.md` — часть **шаблона**,
 > поэтому история набора в них не пишется: она уехала бы в чужой проект. Норма и таблица
-> «что меняется → как оформляется» — [`openspec/constitution.md`](./openspec/constitution.md) §1 п. 7.
+> «что меняется → как оформляется» — [`openspec/constitution.md`](./sdd/openspec/constitution.md) §1 п. 7.
 > Требовать полный цикл для правки документации значило бы выдумывать требования, что запрещено
 > §1 п. 5. Сами решения набора (начиная с `D-015`) лежат в
-> [`docs/legacy/DECISIONS-FROZEN.md`](./docs/legacy/DECISIONS-FROZEN.md) — см.
-> [`DECISIONS.md`](./DECISIONS.md).
+> [`docs/legacy/DECISIONS-FROZEN.md`](./sdd/docs/legacy/DECISIONS-FROZEN.md) — см.
+> [`DECISIONS.md`](./sdd/DECISIONS.md).
 
 ## 1. Стандарты C# / .NET
 
-- **Платформа:** **.NET 10** (`net10.0`), **C# 14**. Решение [`D-015`](./DECISIONS.md); `.NET 8`/`9` — EOL
+- **Платформа:** **.NET 10** (`net10.0`), **C# 14**. Решение [`D-015`](./sdd/DECISIONS.md); `.NET 8`/`9` — EOL
   с 2026-11-10. SDK зафиксирован в [`global.json`](./global.json) (`10.0.401`).
 - **Настройки проектов:** `<Nullable>enable</Nullable>`, `<ImplicitUsings>enable</ImplicitUsings>`,
   `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<LangVersion>latest</LangVersion>`, анализаторы.
@@ -84,13 +84,13 @@ dotnet format --verify-no-changes
 dotnet new sln / dotnet sln add <proj>
 ```
 
-Единственный источник команд гейта — [`openspec/config.yaml`](./openspec/config.yaml) → `commands:`.
+Единственный источник команд гейта — [`openspec/config.yaml`](./sdd/openspec/config.yaml) → `commands:`.
 Другие документы ссылаются туда, а не переписывают команды.
 
 ## 2. Процесс SDD
 
 Каждое изменение проходит фазы жизненного цикла. **Единственный источник полной карты фаз**
-(артефакт · гейт · владелец) — [`openspec/constitution.md`](./openspec/constitution.md) §7 и
+(артефакт · гейт · владелец) — [`openspec/constitution.md`](./sdd/openspec/constitution.md) §7 и
 `openspec/config.yaml` → `lifecycle` (10 фаз, включая `archive`).
 
 Короткая карта: **Explore** (прочитай `specs/` и код, правок нет) → **Propose** (`proposals/<NNN-slug>/`:
@@ -102,7 +102,7 @@ dotnet new sln / dotnet sln add <proj>
 ломает схему валидации.
 
 **Проверка = команда, а не суждение.** Валидатор предложений:
-`tools/validate-proposals.ps1 -Path <предложение>` (или `-All`, `-Archived`, `-CheckLinks`).
+`sdd/tools/validate-proposals.ps1 -Path <предложение>` (или `-All`, `-Archived`, `-CheckLinks`).
 
 ### Лёгкий маршрут `lite` (D-020)
 
@@ -115,15 +115,15 @@ dotnet new sln / dotnet sln add <proj>
 
 В `lite` в `proposal.md` достаточно разделов `Context`, `Change`, `Test Strategy`, `Impact`,
 `Changelog`; дельты `specs/` и `Requirements` не требуются (в шапке ставится `skip_specs: true`).
-Схема — [`openspec/schemas/lite.yaml`](./openspec/schemas/lite.yaml).
+Схема — [`openspec/schemas/lite.yaml`](./sdd/openspec/schemas/lite.yaml).
 
 **Обязательно даже в `lite`:** запись в `CHANGELOG.md` с привязкой `(<ID>)`, тесты для изменённой
 логики, проверка командами. Если хотя бы одно условие нарушено — полный цикл, без обсуждения.
 
 ## 3. Делегирование субагентам
 
-Главная сессия DSH — **Оркестратор** (пресет `standard`, нейтральный — решение [`D-018`](./DECISIONS.md)).
-Роль доставляется **одним** пресетом **`sdd`** (решение [`D-016`](./DECISIONS.md)): он несёт полную
+Главная сессия DSH — **Оркестратор** (пресет `standard`, нейтральный — решение [`D-018`](./sdd/DECISIONS.md)).
+Роль доставляется **одним** пресетом **`sdd`** (решение [`D-016`](./sdd/DECISIONS.md)): он несёт полную
 композицию `preset-standard` (22 плагина) и SDD-персону. Отдельных пресетов на роль нет — роль
 указывается **в тексте задачи**.
 
@@ -158,25 +158,35 @@ dotnet new sln / dotnet sln add <proj>
 
 ```text
 agentic-openspec/
-├── AGENTS.md              # канон правил для агентов (DSH читает этот файл)
-├── .clinerules            # совместимое зеркало правил для других инструментов
-├── CHANGELOG.md           # история изменений (Keep a Changelog + SemVer)
-├── OPEN_QUESTIONS.md      # открытые вопросы (OQ-N)
-├── DECISIONS.md           # журнал решений (D-NNN)
-├── .editorconfig          # стиль C#
-├── global.json            # пин SDK
+├── AGENTS.md              # канон правил для агентов (DSH читает этот файл) — ОБЯЗАН быть в корне
+├── .clinerules            # совместимое зеркало правил — ОБЯЗАНО быть в корне
+├── .agents/               # роли и скиллы — DSH ищет строго в <корень>/.agents/skills
+├── .github/               # CI: workflows/, instructions/
+├── .editorconfig          # стиль C# — инструменты читают только от корня
+├── global.json            # пин SDK — MSBuild ищет только в корне
 ├── Directory.Build.props / Directory.Packages.props
-├── .github/               # copilot-instructions, instructions/, workflows/
-├── .agents/               # роли и скиллы субагентов
-├── dsh/                   # обвязка DeepSeek Harness (бандл пресета sdd + install.ps1)
-├── docs/                  # архитектура, эксплуатация, шаблоны, baseline
-├── docs/legacy/           # документация проекта до SDD (LEG-NNN); правила — 04-documentation.md §4.10
-├── inputs/                # материалы заказчика (ТЗ, концепции, макеты) + INDEX.md
-├── openspec/              # артефакты SDD (constitution, standards 01..12, proposals, schemas, specs)
-├── src/                   # исходники решений
-├── tests/                 # тесты
-└── tools/                 # машинные гейты (validate-proposals.ps1)
+├── LICENSE / THIRD-PARTY.md / README.md
+├── agentic-openspec.slnx  # решение (переименуйте под проект)
+├── src/                   # исходники продукта
+├── tests/                 # тесты продукта
+├── docs/                  # документация ПРОДУКТА: architecture/, operations/
+└── sdd/                   # ★ ВСЁ SDD — ОДНОЙ ПАПКОЙ, переносится целиком
+    ├── openspec/          # конституция, стандарты 01..12, предложения, схемы, specs
+    ├── tools/             # машинные гейты (validate-proposals, check-coverage, ...)
+    ├── dsh/               # обвязка DeepSeek Harness: бандл пресета sdd + install.ps1
+    ├── inputs/            # материалы заказчика + реестр IN-NNN
+    ├── docs/              # ADOPTION, SDD-OVERVIEW, SET-AUDIT, CLEANUP, шаблоны, legacy
+    ├── STATUS.md          # сводка «где мы сейчас»
+    ├── DECISIONS.md       # журнал решений (D-NNN)
+    ├── OPEN_QUESTIONS.md  # открытые вопросы (OQ-N)
+    ├── CHANGELOG.md       # история изменений
+    └── METRICS.md         # метрики процесса (генерируется)
 ```
+
+> **Почему часть файлов остаётся в корне.** Это не небрежность: `.agents/skills` DSH ищет строго
+> в корне проекта (ближайший предок с `.git`), `AGENTS.md` и `.clinerules` — точки входа агентных
+> инструментов, `global.json`/`Directory.*.props`/`.editorconfig` MSBuild и редакторы читают только
+> от корня. Остальное SDD-содержимое собрано в `sdd/`, чтобы его можно было перенести одной папкой.
 
 ## 5. Ограничения (guardrails)
 
@@ -186,40 +196,40 @@ agentic-openspec/
 - Держи диффы маленькими: одно предложение ≈ одно цельное изменение.
 - **Материалы заказчика — только в `inputs/`.** Требования не выдумывай: черпай из `inputs/`
   (и фиксируй в `## Sources`) либо из `OPEN_QUESTIONS.md`/`DECISIONS.md`. Источник требования обязателен.
-  **Регистрация материалов — машинная работа, не ручная:** `tools/register-inputs.ps1 -Apply`
+  **Регистрация материалов — машинная работа, не ручная:** `sdd/tools/register-inputs.ps1 -Apply`
   проставляет `IN-NNN`, путь, тип, дату и «что задаёт», убирая плейсхолдер «пока пусто».
   Не проси владельца заполнять таблицу реестра руками — предложи запустить скрипт.
-  Проверка автоматическая: `tools/register-inputs.ps1 -Check` (входит в `check-template-clean.ps1`).
+  Проверка автоматическая: `sdd/tools/register-inputs.ps1 -Check` (входит в `check-template-clean.ps1`).
 - **Не вводи новых ролей, стандартов и профилей** без отдельного предложения SDD.
 
 ## 6. Инженерные стандарты (обязательно к прочтению)
 
-Полный свод — [`openspec/standards/`](./openspec/standards). Читай **перед** написанием спецификации или кода:
+Полный свод — [`openspec/standards/`](./sdd/openspec/standards). Читай **перед** написанием спецификации или кода:
 
-- [`01-code-style.md`](./openspec/standards/01-code-style.md) — соглашения C#, горячие пути, линтинг.
-- [`02-architecture.md`](./openspec/standards/02-architecture.md) — Clean Architecture + DDD, SOLID, high-load.
-- [`03-handoffs.md`](./openspec/standards/03-handoffs.md) — handoffs между этапами и сервисами.
-- [`04-documentation.md`](./openspec/standards/04-documentation.md) — XML-док, ADR, runbook, changelog, legacy.
-- [`05-definition-of-done.md`](./openspec/standards/05-definition-of-done.md) — DoD (Ревьюер использует как чек-лист).
-- [`06-api.md`](./openspec/standards/06-api.md) · [`07-persistence.md`](./openspec/standards/07-persistence.md) ·
-  [`08-messaging.md`](./openspec/standards/08-messaging.md) · [`09-security.md`](./openspec/standards/09-security.md) ·
-  [`10-observability.md`](./openspec/standards/10-observability.md) · [`11-performance.md`](./openspec/standards/11-performance.md) ·
-  [`12-desktop.md`](./openspec/standards/12-desktop.md) — десктопный профиль (`csharp-desktop`).
+- [`01-code-style.md`](./sdd/openspec/standards/01-code-style.md) — соглашения C#, горячие пути, линтинг.
+- [`02-architecture.md`](./sdd/openspec/standards/02-architecture.md) — Clean Architecture + DDD, SOLID, high-load.
+- [`03-handoffs.md`](./sdd/openspec/standards/03-handoffs.md) — handoffs между этапами и сервисами.
+- [`04-documentation.md`](./sdd/openspec/standards/04-documentation.md) — XML-док, ADR, runbook, changelog, legacy.
+- [`05-definition-of-done.md`](./sdd/openspec/standards/05-definition-of-done.md) — DoD (Ревьюер использует как чек-лист).
+- [`06-api.md`](./sdd/openspec/standards/06-api.md) · [`07-persistence.md`](./sdd/openspec/standards/07-persistence.md) ·
+  [`08-messaging.md`](./sdd/openspec/standards/08-messaging.md) · [`09-security.md`](./sdd/openspec/standards/09-security.md) ·
+  [`10-observability.md`](./sdd/openspec/standards/10-observability.md) · [`11-performance.md`](./sdd/openspec/standards/11-performance.md) ·
+  [`12-desktop.md`](./sdd/openspec/standards/12-desktop.md) — десктопный профиль (`csharp-desktop`).
 
 ## 7. Рабочий протокол агента
 
-1. **Прочитай канон и конституцию** — этот файл и [`openspec/constitution.md`](./openspec/constitution.md)
+1. **Прочитай канон и конституцию** — этот файл и [`openspec/constitution.md`](./sdd/openspec/constitution.md)
    (высший приоритет) — до любых действий.
-2. **Осмотрись**: [`STATUS.md`](./STATUS.md), `git status`, `openspec/specs/`, существующий код.
+2. **Осмотрись**: [`STATUS.md`](./sdd/STATUS.md), `git status`, `openspec/specs/`, существующий код.
    Правок на этой фазе нет.
 3. **Проверь предложение**: есть ли утверждённая спецификация? Нет — вернись к фазе Propose.
 4. **Работай по `tasks.md`**, отмечая `- [x]` по ходу; не расширяй объём самовольно.
 5. **Проверяй командами** (`config.yaml` → `commands:`), а не рассуждением.
-6. **Фиксируй нерешённое** в [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) как `OQ-N` с рекомендуемым дефолтом.
+6. **Фиксируй нерешённое** в [`OPEN_QUESTIONS.md`](./sdd/OPEN_QUESTIONS.md) как `OQ-N` с рекомендуемым дефолтом.
    **Спрашивай вариантами, а не открытым вопросом** — см. §7.1 ниже.
-7. **Обновляй** [`CHANGELOG.md`](./CHANGELOG.md) под `[Unreleased]` с привязкой к ID.
+7. **Обновляй** [`CHANGELOG.md`](./sdd/CHANGELOG.md) под `[Unreleased]` с привязкой к ID.
 8. **Не коммить без команды владельца.** Правило набора: коммит — только по явному указанию.
-9. **Веди [`STATUS.md`](./STATUS.md)** — единственную сводку «где мы сейчас»:
+9. **Веди [`STATUS.md`](./sdd/STATUS.md)** — единственную сводку «где мы сейчас»:
    - при **старте** работы сверь таблицу активных предложений с `openspec/proposals/`;
    - при **смене фазы** предложения — обнови его строку (фаза, счётчики задач, блокер);
    - при **закрытии гейта** — отметь в разделе готовности;
@@ -227,7 +237,7 @@ agentic-openspec/
    Файл коммитится и должен быть верен после каждого гейта. Не превращай его в прозу:
    детали живут в `proposal.md`/`tasks.md`/`acceptance.md`.
 10. **Метрики процесса не ведутся руками.** Перед закрытием сессии или батча выполни
-    `tools/collect-metrics.ps1 -WithGates -OutFile METRICS.md` — скрипт сам считает требования,
+    `sdd/tools/collect-metrics.ps1 -WithGates -OutFile sdd/METRICS.md` — скрипт сам считает требования,
     задачи, заполненность приёмки, вердикты, трассировку и результаты гейтов из артефактов.
     Не проси владельца «записывать метрики»: это машинная работа, а не его.
 
@@ -257,12 +267,12 @@ agentic-openspec/
 
 ### Как это связано с `OQ-N`
 
-Вопрос пользователю и запись в [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) — **не одно и то же**:
+Вопрос пользователю и запись в [`OPEN_QUESTIONS.md`](./sdd/OPEN_QUESTIONS.md) — **не одно и то же**:
 
 - **`OQ-N`** — фиксация нерешённого в артефакте, чтобы оно не потерялось. Запись остаётся, даже когда
   ответ получен (статус меняется на `✅ закрыт (D-NNN)`).
 - **Диалог с вариантами** — способ *получить* ответ. Задав вопрос вариантами, зафиксируй результат:
-  ответ → запись `D-NNN` в [`DECISIONS.md`](./DECISIONS.md), а `OQ-N` помечается закрытым.
+  ответ → запись `D-NNN` в [`DECISIONS.md`](./sdd/DECISIONS.md), а `OQ-N` помечается закрытым.
 
 То есть: **сначала спросил вариантами → потом записал.** Не наоборот: не «выношу в OQ и жду»,
 оставляя человека разбираться в пустом вопросе.
@@ -280,28 +290,28 @@ agentic-openspec/
 | - | - |
 | `AGENTS.md` | **Канон правил** для агентов (DSH читает этот файл) |
 | `.clinerules` | Совместимое зеркало правил для других инструментов (DSH его не читает) |
-| `dsh/presets-bundle/` | **Единственный источник** пресета `sdd`, персоны и модели (D-016, D-017) |
-| `dsh/install.ps1` | Установка профиля в `$DSH_HOME/profiles/agentic-openspec` |
-| `dsh/profile/` | Тонкая обёртка профиля (scaffolding, без копий персон) |
+| `sdd/dsh/presets-bundle/` | **Единственный источник** пресета `sdd`, персоны и модели (D-016, D-017) |
+| `sdd/dsh/install.ps1` | Установка профиля в `$DSH_HOME/profiles/agentic-openspec` |
+| `sdd/dsh/profile/` | Тонкая обёртка профиля (scaffolding, без копий персон) |
 | `.agents/*.md` | Шесть ролей жизненного цикла |
 | `.agents/skills/` | Переиспользуемые скиллы агентов (`<name>/SKILL.md`) |
-| `openspec/constitution.md` | Конституция проекта (высший приоритет) |
-| `openspec/config.yaml` | Профиль проекта, активные схемы, `lifecycle`, `commands` (единый источник команд) |
-| `openspec/project.md` | Контекст проекта для агентов |
-| `openspec/specs/` | Живые спецификации |
-| `openspec/proposals/` | Предложения (`<NNN-slug>/`) и `archive/` |
-| `openspec/standards/` | Инженерные стандарты 01–12 |
-| `openspec/schemas/` | Машиночитаемые схемы валидации |
-| `tools/validate-proposals.ps1` | Валидатор предложений (машинный гейт) |
-| `tools/collect-metrics.ps1` | Метрики процесса: требования, задачи, приёмка, вердикты, гейты — без ручного учёта |
-| `STATUS.md` | **Сводка «где мы сейчас»**: активные предложения, фазы, прогресс, блокеры. Коммитится |
-| `CHANGELOG.md` | История изменений (Keep a Changelog + SemVer) |
-| `OPEN_QUESTIONS.md` / `DECISIONS.md` | Открытые вопросы (`OQ-N`) и журнал решений (`D-NNN`) |
-| `inputs/` | Входные материалы заказчика + реестр `INDEX.md` |
-| `docs/` | Архитектура, эксплуатация, шаблоны, `docs/baseline/` |
-| `docs/ADOPTION.md` | Инструкция по развёртыванию набора |
-| `docs/SET-AUDIT.md` | Протокол сессии аудита самого набора (не продукта) |
-| `docs/legacy/` | Реестр `LEG-NNN`, карта соответствий, замороженная история |
+| `sdd/openspec/constitution.md` | Конституция проекта (высший приоритет) |
+| `sdd/openspec/config.yaml` | Профиль проекта, активные схемы, `lifecycle`, `commands` (единый источник команд) |
+| `sdd/openspec/project.md` | Контекст проекта для агентов |
+| `sdd/openspec/specs/` | Живые спецификации |
+| `sdd/openspec/proposals/` | Предложения (`<NNN-slug>/`) и `archive/` |
+| `sdd/openspec/standards/` | Инженерные стандарты 01–12 |
+| `sdd/openspec/schemas/` | Машиночитаемые схемы валидации |
+| `sdd/tools/validate-proposals.ps1` | Валидатор предложений (машинный гейт) |
+| `sdd/tools/collect-metrics.ps1` | Метрики процесса: требования, задачи, приёмка, вердикты, гейты — без ручного учёта |
+| `sdd/STATUS.md` | **Сводка «где мы сейчас»**: активные предложения, фазы, прогресс, блокеры. Коммитится |
+| `sdd/CHANGELOG.md` | История изменений (Keep a Changelog + SemVer) |
+| `sdd/OPEN_QUESTIONS.md` / `sdd/DECISIONS.md` | Открытые вопросы (`OQ-N`) и журнал решений (`D-NNN`) |
+| `sdd/inputs/` | Входные материалы заказчика + реестр `INDEX.md` |
+| `docs/` | Документация ПРОДУКТА: `architecture/`, `operations/` |
+| `sdd/docs/ADOPTION.md` | Инструкция по развёртыванию набора |
+| `sdd/docs/SET-AUDIT.md` | Протокол сессии аудита самого набора (не продукта) |
+| `sdd/docs/legacy/` | Реестр `LEG-NNN`, карта соответствий, замороженная история |
 | `.github/` | `copilot-instructions.md`, `instructions/`, `workflows/` (CI) |
 | `Directory.Build.props` / `Directory.Packages.props` | Общие настройки сборки и централизованные версии |
 | `.editorconfig` | Стиль C# — авто-формат и линт |

@@ -59,12 +59,12 @@ description: Двухосевое независимое ревью измене
 
 - [`.clinerules`](../../../.clinerules) — правила C# и процесса (совместимое зеркало [`AGENTS.md`](../../../AGENTS.md));
 - **стандарт активного профиля** — `openspec/config.yaml` → `project.profile`: для `csharp-desktop` это
-  [`openspec/standards/12-desktop.md`](../../../openspec/standards/12-desktop.md) (стек, бюджеты ресурсов,
+  [`openspec/standards/12-desktop.md`](../../../sdd/openspec/standards/12-desktop.md) (стек, бюджеты ресурсов,
   лицензионный инвентарь, доказуемость приватности, DoD 5.8), для `csharp-api` — стандарты 01–11;
-- [`openspec/constitution.md`](../../../openspec/constitution.md) — высший приоритет;
-- [`openspec/standards/01-code-style.md`](../../../openspec/standards/01-code-style.md) … `11-performance.md`;
-- [`openspec/standards/05-definition-of-done.md`](../../../openspec/standards/05-definition-of-done.md) §5.2 — чек-лист приёмки;
-- [`openspec/schemas/csharp-api.yaml`](../../../openspec/schemas/csharp-api.yaml) — машиночитаемые гейты;
+- [`openspec/constitution.md`](../../../sdd/openspec/constitution.md) — высший приоритет;
+- [`openspec/standards/01-code-style.md`](../../../sdd/openspec/standards/01-code-style.md) … `11-performance.md`;
+- [`openspec/standards/05-definition-of-done.md`](../../../sdd/openspec/standards/05-definition-of-done.md) §5.2 — чек-лист приёмки;
+- [`openspec/schemas/csharp-api.yaml`](../../../sdd/openspec/schemas/csharp-api.yaml) — машиночитаемые гейты;
 - `.editorconfig`, `Directory.Build.props`, `Directory.Packages.props`, `global.json`;
 - базлайн запахов — [`references/smell-baseline.md`](./references/smell-baseline.md) — **передай его
   в промпт дословно**: у оси нет другого доступа к каталогу.

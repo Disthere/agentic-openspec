@@ -13,7 +13,7 @@
 | Материал | Где в наборе | Лицензия | Что сделано |
 | - | - | - | - |
 | **OpenSpec** (спецификационный формат: `proposal`/`specs`, `ADDED/MODIFIED Requirements`, `WHEN/THEN`) | структура `openspec/`, схемы, шаблоны предложений | **MIT** | Идея формата и конвенции ключевых слов; текст лицензии — ниже |
-| ~~Wikipedia:Signs of AI writing~~ | — | — | **Удалено** вместе со скиллом `ai-writing-tells` (решение набора, [`DECISIONS-FROZEN.md`](./docs/legacy/DECISIONS-FROZEN.md)). Обязательств по CC BY-SA больше нет |
+| ~~Wikipedia:Signs of AI writing~~ | — | — | **Удалено** вместе со скиллом `ai-writing-tells` (решение набора, [`DECISIONS-FROZEN.md`](./sdd/docs/legacy/DECISIONS-FROZEN.md)). Обязательств по CC BY-SA больше нет |
 
 > **Важно:** материалы из Wikipedia — производная работа под **CC BY-SA 4.0**. Если вы распространяете
 > набор, условие «share-alike» относится к этим файлам. Источник и авторы указаны в самих файлах
@@ -51,4 +51,4 @@ SOFTWARE.
 2. **`THIRD-PARTY.md`** — **сохраните**: обязательства перед OpenSpec (MIT) и Wikipedia (CC BY-SA)
    остаются, пока материалы остаются в наборе.
 3. Если материалы Wikipedia вам не нужны — удалите `.agents/skills/ai-writing-tells/` целиком и
-   строку про Wikipedia из этого файла (см. [`docs/CLEANUP.md`](./docs/CLEANUP.md)).
+   строку про Wikipedia из этого файла (см. [`docs/CLEANUP.md`](./sdd/docs/CLEANUP.md)).

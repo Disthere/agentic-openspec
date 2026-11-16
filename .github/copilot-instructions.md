@@ -1,6 +1,6 @@
 # Copilot Instructions — agentic-openspec
 
-Короткая точка входа. **Канонические правила — в [`AGENTS.md`](../AGENTS.md) и [`openspec/`](../openspec)**;
+Короткая точка входа. **Канонические правила — в [`AGENTS.md`](../AGENTS.md) и [`openspec/`](../sdd/openspec)**;
 этот файл их не дублирует.
 
 ## Порядок работы
@@ -28,6 +28,6 @@ dotnet format --verify-no-changes
 ## Ссылки
 
 - Правила: [`AGENTS.md`](../AGENTS.md) (канон), [`.clinerules`](../.clinerules) (зеркало)
-- Конституция: [`openspec/constitution.md`](../openspec/constitution.md)
-- Стандарты: [`openspec/standards/`](../openspec/standards/)
+- Конституция: [`openspec/constitution.md`](../sdd/openspec/constitution.md)
+- Стандарты: [`openspec/standards/`](../sdd/openspec/standards)
 - Инструкции по темам: `.github/instructions/*.instructions.md`

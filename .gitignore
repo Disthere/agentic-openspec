@@ -34,9 +34,10 @@ Thumbs.db
 
 # Состояние конкретной сессии (не часть шаблона, см. docs/CLEANUP.md)
 docs/session/
+sdd/docs/session/
 *.binlog
 .vscode/
 BenchmarkDotNet.Artifacts/
 
-# Генерируемая сводка метрик (собирается tools/collect-metrics.ps1)
-METRICS.md
+# Генерируемая сводка метрик (собирается sdd/tools/collect-metrics.ps1)
+sdd/METRICS.md

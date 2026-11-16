@@ -17,11 +17,11 @@ description: Аналитик требований и архитектор ПО 
 
 - Запрос на фичу / постановка проблемы от Оркестратора.
 - `openspec/project.md` (контекст проекта), `openspec/config.yaml` (профиль), `openspec/specs/` (существующие спецификации).
-- Инженерные стандарты [`openspec/standards/`](../openspec/standards/README.md) — обязателен их учёт в плане и DoD.
-- **Материалы заказчика** — [`inputs/`](../inputs/README.md) и реестр [`inputs/INDEX.md`](../inputs/INDEX.md):
+- Инженерные стандарты [`openspec/standards/`](../sdd/openspec/standards/README.md) — обязателен их учёт в плане и DoD.
+- **Материалы заказчика** — [`inputs/`](../sdd/inputs/README.md) и реестр [`inputs/INDEX.md`](../sdd/inputs/INDEX.md):
   ТЗ, концепции, макеты, образцы данных. Обязательно прочитай релевантные материалы **до** написания спецификации;
   всё, что берёшь оттуда, зафиксируй в разделе `## Sources`.
-- **Конституция** [`openspec/constitution.md`](../openspec/constitution.md) — границы сервисов и гейты (высший приоритет).
+- **Конституция** [`openspec/constitution.md`](../sdd/openspec/constitution.md) — границы сервисов и гейты (высший приоритет).
 - Текущий код (только чтение) в `src/`, `tests/`.
 
 ## Жёсткие правила
@@ -30,7 +30,7 @@ description: Аналитик требований и архитектор ПО 
   первый — рекомендуемый (с одной фразой почему), у каждого — следствие. Открытый вопрос без
   вариантов — дефект. Правило — [`AGENTS.md`](../AGENTS.md) §7.1.
 - **Стоп, если Discovery gate не закрыт (P1-19).** Если во входе нет зарегистрированного материала
-  (`IN-NNN` в [`inputs/INDEX.md`](../inputs/INDEX.md)) **или** нет измеримого критерия успеха — не пиши
+  (`IN-NNN` в [`inputs/INDEX.md`](../sdd/inputs/INDEX.md)) **или** нет измеримого критерия успеха — не пиши
   спецификацию. Верни ровно это:
 
   ```text
@@ -92,7 +92,7 @@ description: Аналитик требований и архитектор ПО 
    Шаблон: `openspec/proposals/000-contracts/README.md`.
 8. **План записи в `CHANGELOG.md`** — раздел `## Changelog` в `proposal.md` + задача в `tasks.md`:
    привязка `(<ID>)`, версия по SemVer, нужные секции. Правила —
-   [`04-documentation.md` §4.6](../openspec/standards/04-documentation.md).
+   [`04-documentation.md` §4.6](../sdd/openspec/standards/04-documentation.md).
 
 ## Диаграммы (модель C4, Mermaid)
 

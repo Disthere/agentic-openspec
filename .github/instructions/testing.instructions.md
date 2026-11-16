@@ -5,7 +5,7 @@ applyTo: '**/tests/**/*.cs'
 
 # Тестирование — краткая выжимка
 
-Полные правила: [`../../openspec/standards/05-definition-of-done.md`](../../openspec/standards/05-definition-of-done.md), [`../../openspec/standards/01-code-style.md`](../../openspec/standards/01-code-style.md).
+Полные правила: [`../../openspec/standards/05-definition-of-done.md`](../../sdd/openspec/standards/05-definition-of-done.md), [`../../openspec/standards/01-code-style.md`](../../sdd/openspec/standards/01-code-style.md).
 
 - Фреймворк: **xUnit**; ассерты — **FluentAssertions 7.x** (8.x — платная лицензия).
 - Именование: `Method_Scenario_ExpectedResult` или `Should_...`; один сценарий на тест.

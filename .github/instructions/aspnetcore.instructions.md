@@ -5,7 +5,7 @@ applyTo: '**/*.cs'
 
 # ASP.NET Core — краткая выжимка
 
-Полные правила: [`../../openspec/standards/06-api.md`](../../openspec/standards/06-api.md), [`../../openspec/standards/02-architecture.md`](../../openspec/standards/02-architecture.md).
+Полные правила: [`../../openspec/standards/06-api.md`](../../sdd/openspec/standards/06-api.md), [`../../openspec/standards/02-architecture.md`](../../sdd/openspec/standards/02-architecture.md).
 
 - Minimal APIs для новых эндпоинтов; корректные коды состояния и `TypedResults`.
 - Ошибки — единый `ProblemDetails` (**RFC 9457**); без «утечек» stack trace.
