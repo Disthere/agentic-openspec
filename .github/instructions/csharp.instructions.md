@@ -5,7 +5,7 @@ applyTo: '**/*.cs'
 
 # C# — краткая выжимка
 
-Полные правила: [`../../openspec/standards/01-code-style.md`](../../sdd/openspec/standards/01-code-style.md) и корневой `.editorconfig`.
+Полные правила: [`../../sdd/openspec/standards/01-code-style.md`](../../sdd/openspec/standards/01-code-style.md) и корневой `.editorconfig`.
 
 - C# 12+ (`LangVersion=latest`), `<Nullable>enable</Nullable>`, warnings-as-errors.
 - Именование: `PascalCase` — типы/члены; `_camelCase` — приватные поля; `s_` — статические; `I` — интерфейсы; `T` — дженерики; суффикс `Async`.

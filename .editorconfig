@@ -1,7 +1,7 @@
 # .editorconfig — agentic-openspec
 # Высоконагруженные ASP.NET-приложения и микросервисы.
 # Основа: .editorconfig из dotnet/runtime + github/awesome-copilot (csharp.instructions.md).
-# Пояснения к правилам — в openspec/standards/01-code-style.md.
+# Пояснения к правилам — в sdd/openspec/standards/01-code-style.md.
 
 root = true
 

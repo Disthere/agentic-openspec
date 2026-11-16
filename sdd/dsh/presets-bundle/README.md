@@ -20,13 +20,13 @@ Electron-приложению, приложение перезаписывает
 
 ```text
 ~/.dsh/profiles/desktop/node_modules/@local/dsh-openspec-presets
-  → (junction) → C:\Projects\agentic-openspec\dsh\presets-bundle
+  → (junction) → C:\Projects\agentic-openspec\sdd\dsh\presets-bundle
 ```
 
 Если связь потеряна:
 
 ```
-plugin_manager  action=install_bundle  target=C:\Projects\agentic-openspec\dsh\presets-bundle
+plugin_manager  action=install_bundle  target=C:\Projects\agentic-openspec\sdd\dsh\presets-bundle
 ```
 
 ## Как выбрать роль
@@ -57,7 +57,7 @@ plugin_manager  action=list_plugins     # строка preset-sdd
 Машинная проверка композиции (≥ 8 плагинов, дефолт `standard`, `allowedAgentPresets`):
 
 ```powershell
-./docs/ci/check-dsh-profile.ps1
+./sdd/docs/ci/check-dsh-profile.ps1
 ```
 
 ## Удаление

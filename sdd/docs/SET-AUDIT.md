@@ -100,7 +100,7 @@
 
 | Что меняется в наборе | Как оформляется |
 | - | - |
-| Канон, стандарты, документация процесса | запись в `docs/legacy/set-history/` + сообщение коммита |
+| Канон, стандарты, документация процесса | запись в `sdd/docs/legacy/set-history/` + сообщение коммита |
 | Пресет DSH, роли, конфигурация | то же + `docs/ci/check-dsh-profile.ps1` зелёный |
 | Инструменты `sdd/tools/*.ps1` | то же + прогон инструмента и **негативный тест** |
 | Схемы, шаблоны предложений | то же + `sdd/tools/validate-proposals.ps1 -All -Archived` |
@@ -108,39 +108,59 @@
 Обязательны всегда: **проверка командой, негативный тест гейта, осмысленный коммит**.
 Фиктивная спецификация вместо этого — нарушение, а не «строгость».
 
-> **Почему записи идут в `docs/legacy/set-history/`, а не в `DECISIONS.md`.** Реестры — часть шаблона,
+> **Почему записи идут в `sdd/docs/legacy/set-history/`, а не в `DECISIONS.md`.** Реестры — часть шаблона,
 > при раздаче они сброшены к пустым формам. История набора в них уедет в чужой проект.
+
+### Второе ключевое правило: решения — диалогом, а не таблицей в отчёте
+
+Аудит почти всегда находит пункты, где выбор принадлежит владельцу: оставить долг или закрыть,
+менять поведение гейта или нет, какой из профилей активный. **Эти пункты задаются диалогом
+с вариантами** ([`AGENTS.md`](../../AGENTS.md) §7.1, конституция §1 п. 6), а не таблицей
+«вариант → следствие» в конце отчёта.
+
+| Правильно | Неправильно |
+| - | - |
+| Отчёт с находками → отдельный диалог на каждое решение (2–4 опции, первая — рекомендуемая) | Отчёт → «вот варианты A/B/C, скажите какой» в прозе |
+| Решение зафиксировано: ответ → `D-NNN`/запись в `set-history`, `OQ-N` закрыт | Решение осталось в переписке сессии |
+| Развилка, не блокирующая работу → `OQ-N` с дефолтом, работа продолжается | Остановка работы ради вопроса, у которого есть безопасный дефолт |
+
+**Почему это записано отдельным пунктом.** На аудите 2026-11-16 два решения владельца были
+предложены таблицей в тексте отчёта: формально «варианты были», фактически диалога не произошло —
+владельцу пришлось отвечать вручную и указать на дефект. Формулировка правила соблюдалась
+буквально и нарушалась по сути.
 
 ---
 
 ## Гейты, которые должны быть зелёными в конце
 
 ```powershell
-.\tools\validate-proposals.ps1 -All -CheckLinks
-.\tools\validate-proposals.ps1 -Archived
-.\tools\validate-proposals.ps1 -Templates      # шаблон 000-* верен ПОСЛЕ копирования
-.\tools\check-canon-parity.ps1
-.\tools\check-template-clean.ps1
-.\tools\register-inputs.ps1 -Check
-.\docs\ci\check-dsh-profile.ps1
+.\sdd\tools\validate-proposals.ps1 -All -CheckLinks
+.\sdd\tools\validate-proposals.ps1 -Archived
+.\sdd\tools\validate-proposals.ps1 -Templates      # шаблон 000-* верен ПОСЛЕ копирования
+.\sdd\tools\check-canon-parity.ps1
+.\sdd\tools\check-template-clean.ps1
+.\sdd\tools\register-inputs.ps1 -Check
+.\sdd\docs\ci\check-dsh-profile.ps1
 dotnet build --configuration Release --no-restore
 dotnet format --verify-no-changes
 ```
 
 > **Если Windows отвечает `is not digitally signed` или `AuthorizationManager check failed`.**
-> Это ограничение **вашей машины/политики**, а не дефект набора: скрипты лежат локально и не имеют
-> метки «из интернета», поэтому `RemoteSigned` их пропускает. Если всё же блокирует — запускайте
-> через `-ExecutionPolicy Bypass`, это штатный обход и он не требует прав администратора:
+> Это ограничение **вашей машины/политики**, а не дефект набора. Проверено на машине аудита
+> (`Get-ExecutionPolicy -List` → `CurrentUser = RemoteSigned`): при такой политике скрипты набора
+> **не запускаются** — `RemoteSigned` пропускает локальные файлы без метки «из интернета» только
+> в теории, на практике `.ps1` без подписи отклоняется с `UnauthorizedAccessException`.
+> Поэтому запускайте через `-ExecutionPolicy Bypass`, это штатный обход без прав администратора:
 >
 > ```powershell
-> powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-proposals.ps1 -All -CheckLinks
+> powershell -NoProfile -ExecutionPolicy Bypass -File .\sdd\tools\validate-proposals.ps1 -All -CheckLinks
 > ```
 >
 > Тот же приём используют сами гейты, когда вызывают друг друга
 > (`check-template-clean.ps1`, `collect-metrics.ps1`, `check-dsh-profile.ps1`), и `sdd/dsh/install.ps1`
 > в инструкции установки. В CI на ubuntu ограничения нет.
 
-Плюс собрать метрики: `.\tools\collect-metrics.ps1 -WithGates -OutFile METRICS.md`.
+Плюс собрать метрики: `.\sdd\tools\collect-metrics.ps1 -WithGates -OutFile sdd/METRICS.md`.
 
 ---
 
@@ -155,7 +175,7 @@ dotnet format --verify-no-changes
 | Правило §7.1 (вопросы вариантами) не проверяется машиной | Это форма общения, а не файл; `check-canon-parity` следит лишь за наличием правила |
 | `preset-sdd` собирается вручную из `standard` | Три ошибки в батче 3 показали риск; генератор — кандидат в отдельное предложение |
 | Стейте-кэш DSH: приложение читает бандл при старте | Ловится предупреждением в `check-dsh-profile.ps1`, лечится перезапуском |
-| `docs/session/` не коммитится | Осознанно: состояние сессии не часть шаблона |
+| `sdd/docs/session/` не коммитится | Осознанно: состояние сессии не часть шаблона |
 
 ---
 

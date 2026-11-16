@@ -2,6 +2,9 @@
 # Applied to proposals built from openspec/proposals/000-template.md when project.profile = csharp-desktop.
 # Server projects keep using openspec/schemas/csharp-api.yaml.
 
+# ВАЖНО (раскладка): все пути в этом файле — от папки набора `sdd/`, а не от корня проекта.
+# Пример: 'openspec/standards' = sdd/openspec/standards. Ключи applies_to/docs_dir/constitution/
+# definition_of_done сейчас НЕ исполняются скриптами — это описательные метаданные профиля.
 schema: csharp-desktop
 version: 1
 profile: csharp-desktop

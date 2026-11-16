@@ -1,7 +1,7 @@
 # SLO (цели уровня сервиса)
 
 Определяют, что значит «сервис работает». SLO не заявляется без нагрузочного теста в описанном окружении
-(см. [`../../openspec/standards/11-performance.md`](../../sdd/openspec/standards/11-performance.md)).
+(см. [`../../sdd/openspec/standards/11-performance.md`](../../sdd/openspec/standards/11-performance.md)).
 
 ## SLI и целевые значения
 
@@ -21,7 +21,7 @@
 
 ## Что подтверждает SLO
 
-- Метрики: latency (p50/p95/p99), коды ошибок, throughput, saturation — см. [`../../openspec/standards/10-observability.md`](../../sdd/openspec/standards/10-observability.md).
+- Метрики: latency (p50/p95/p99), коды ошибок, throughput, saturation — см. [`../../sdd/openspec/standards/10-observability.md`](../../sdd/openspec/standards/10-observability.md).
 - Трассы и структурные логи с корреляцией.
 - Health-checks `/health/live`, `/health/ready`.
 

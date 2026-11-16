@@ -2,6 +2,9 @@
 # Applied to proposals built from openspec/proposals/000-template.md.
 # Agents use this to self-validate before hand-off; CI can parse it too.
 
+# ВАЖНО (раскладка): все пути в этом файле — от папки набора `sdd/`, а не от корня проекта.
+# Пример: 'openspec/standards' = sdd/openspec/standards. Ключи applies_to/docs_dir/constitution/
+# definition_of_done сейчас НЕ исполняются скриптами — это описательные метаданные профиля.
 schema: csharp-api
 version: 1
 profile: csharp-api
@@ -57,7 +60,7 @@ tasks:
 # Enforced across C# code + tests.
 code_standards:
   language_version: "14"
-  target_framework: "net10.0"      # D-015 (гейт D-01(A))
+  target_framework: "net10.0"      # D-015 (РіРµР№С‚ D-01(A))
   nullable: enable
   treat_warnings_as_errors: true
   async: "no .Result / .Wait()"
@@ -106,7 +109,7 @@ standards:
     - 05-definition-of-done.md
   definition_of_done: openspec/standards/05-definition-of-done.md
 
-# Highest-priority document — read before anything else.
+# Highest-priority document вЂ” read before anything else.
 constitution: openspec/constitution.md
 
 # Performance/SLO evidence (required for perf-sensitive changes).
@@ -127,7 +130,7 @@ contracts:
   versioning_required: true
   breaking_change_requires_constitution_exception: true
 
-# Verification gate — must be declared and run before review.
+# Verification gate вЂ” must be declared and run before review.
 verification:
   commands:
     - dotnet restore

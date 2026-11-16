@@ -20,8 +20,8 @@
 - [ ] [`CHANGELOG.md`](../CHANGELOG.md) — заменить на [`docs/CHANGELOG-TEMPLATE.md`](./CHANGELOG-TEMPLATE.md).
 - [ ] [`OPEN_QUESTIONS.md`](../OPEN_QUESTIONS.md) — заменить на [`docs/OPEN_QUESTIONS-TEMPLATE.md`](./OPEN_QUESTIONS-TEMPLATE.md).
 - [ ] [`DECISIONS.md`](../DECISIONS.md) — заменить на [`docs/DECISIONS-TEMPLATE.md`](./DECISIONS-TEMPLATE.md).
-- [ ] `docs/session/SESSION-START.md` — заменить на [`docs/SESSION-START-TEMPLATE.md`](./SESSION-START-TEMPLATE.md)
-      (или удалить `docs/session/`).
+- [ ] `sdd/docs/session/SESSION-START.md` — заменить на [`sdd/docs/SESSION-START-TEMPLATE.md`](./SESSION-START-TEMPLATE.md)
+      (или удалить `sdd/docs/session/`).
 
 ## 3. Предложения и спецификации (2 мин)
 
@@ -41,10 +41,10 @@
 
 ## 5. Документация набора (2 мин)
 
-- [x] `docs/baseline/` — **уже перенесена** в `docs/legacy/set-history/baseline/`.
-- [ ] `docs/legacy/` — оставить шаблоны, убрать примеры документов другого проекта.
+- [x] `sdd/docs/baseline/` — **уже перенесена** в `sdd/docs/legacy/set-history/baseline/`.
+- [ ] `sdd/docs/legacy/` — оставить шаблоны, убрать примеры документов другого проекта.
 - [ ] `README.md`, `AGENTS.md`, `.clinerules` — заменить название проекта и описание.
-- [x] `PLAN.md`, `ASSESSMENT.md` — **уже перенесены** в `docs/legacy/set-history/`.
+- [x] `PLAN.md`, `ASSESSMENT.md` — **уже перенесены** в `sdd/docs/legacy/set-history/`.
 
 ## 6. DSH-профиль (1 мин)
 
@@ -64,16 +64,16 @@ dotnet build --configuration Release --no-restore
 & .\artifacts\bin\Smoke.Tests\release\Smoke.Tests.exe
 
 # 2. Совместимость машинных гейтов
-.\tools\validate-proposals.ps1 -All -CheckLinks
-.\tools\validate-proposals.ps1 -Templates
-.\tools\check-canon-parity.ps1
-.\tools\check-coverage.ps1 -Probe
+.\sdd\tools\validate-proposals.ps1 -All -CheckLinks
+.\sdd\tools\validate-proposals.ps1 -Templates
+.\sdd\tools\check-canon-parity.ps1
+.\sdd\tools\check-coverage.ps1 -Probe
 
 # 3. В шаблоне не осталось истории набора
-.\tools\check-template-clean.ps1
+.\sdd\tools\check-template-clean.ps1
 ```
 
-Все четыре команды должны завершиться с кодом **0**.
+Все пять команд должны завершиться с кодом **0**.
 
 ## Что НЕ удалять никогда
 

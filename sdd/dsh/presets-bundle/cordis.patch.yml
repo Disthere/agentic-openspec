@@ -52,8 +52,8 @@
 
                   - AGENTS.md                        — канон правил воркспейса
                   - .agents/<роль>.md                 — твоя роль, артефакты, критерии готовности
-                  - openspec/constitution.md          — конституция (высший приоритет), §7 — фазы
-                  - openspec/standards/               — инженерные стандарты
+                  - sdd/openspec/constitution.md      — конституция (высший приоритет), §7 — фазы
+                  - sdd/openspec/standards/           — инженерные стандарты
                   - .agents/skills/<скилл>/SKILL.md   — скиллы (code-review, spec-first, implement-feature)
 
                 Роли: analyst (Discovery), architect (Spec/Design), csharp-dev (Build),

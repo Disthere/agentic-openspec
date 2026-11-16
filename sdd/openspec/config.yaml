@@ -124,10 +124,10 @@ commands:
   build: dotnet build --configuration Release --no-restore
   # Покрытие — через MTP (задача 1.5): MTP собирает отчёт, но ПОРОГА НЕ УМЕЕТ
   # (флага --coverage-threshold в Microsoft.Testing.Extensions.CodeCoverage 17.14.2 нет).
-  # Поэтому порог проверяет отдельный гейт: tools/check-coverage.ps1 (конституция §3).
+  # Поэтому порог проверяет отдельный гейт: sdd/tools/check-coverage.ps1 (конституция §3).
   test: dotnet test --configuration Release --no-build
   test_coverage: dotnet test --configuration Release --no-build --coverage --coverage-output cobertura.xml --coverage-output-format cobertura
-  coverage_check: tools/check-coverage.ps1 -Report cobertura.xml
+  coverage_check: sdd/tools/check-coverage.ps1 -Report cobertura.xml
   coverage_settings: tests/coverlet.runsettings
   format_check: dotnet format --verify-no-changes
   vulnerable: dotnet list package --vulnerable --include-transitive

@@ -3,14 +3,14 @@
   <!--
     Общие настройки сборки для всех проектов (подход dotnet/eShop).
     Версии пакетов — централизованно в Directory.Packages.props.
-    Правила стиля — в .editorconfig; пояснения — в openspec/standards/01-code-style.md.
+    Правила стиля — в .editorconfig; пояснения — в sdd/openspec/standards/01-code-style.md.
   -->
   <PropertyGroup>
     <!--
       Политика LangVersion (задача 1.4 плана): `latest` — осознанный выбор, а не недосмотр.
       На SDK 10.0.401 `latest` = C# 14, что совпадает с линией проекта (D-015). Языковую версию
       НЕ пинуем: это позволяло бы коду незаметно отставать от заявленной. Стандарт фиксирует
-      правило — openspec/standards/01-code-style.md.
+      правило — sdd/openspec/standards/01-code-style.md.
     -->
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>

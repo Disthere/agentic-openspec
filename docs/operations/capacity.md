@@ -21,8 +21,8 @@
 ## Масштабирование
 
 - Горизонтальное (stateless): `kubectl scale` / HPA по метрикам (RPS, CPU, длина очереди).
-- Вертикальное — только после замера (см. [`../../openspec/standards/11-performance.md`](../../sdd/openspec/standards/11-performance.md)).
-- Правила backpressure при деградации (см. [`../../openspec/standards/02-architecture.md`](../../sdd/openspec/standards/02-architecture.md)).
+- Вертикальное — только после замера (см. [`../../sdd/openspec/standards/11-performance.md`](../../sdd/openspec/standards/11-performance.md)).
+- Правила backpressure при деградации (см. [`../../sdd/openspec/standards/02-architecture.md`](../../sdd/openspec/standards/02-architecture.md)).
 
 ## Пороговые значения и алерты
 

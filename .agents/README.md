@@ -56,7 +56,7 @@
 пресетов-ролей больше нет: у каждого в `config.plugins` была ровно одна персона, и агент роли
 не имел ни `read`, ни `pwsh`, ни `skill` — это был дефект P0-9.
 
-Делегирование настраивается в `presets-bundle/cordis.patch.yml`:
+Делегирование настраивается в `sdd/dsh/presets-bundle/cordis.patch.yml`:
 
 ```yaml
 - id: tool-subagent-control

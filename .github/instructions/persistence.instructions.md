@@ -5,7 +5,7 @@ applyTo: '**/*.cs'
 
 # Персистентность — краткая выжимка
 
-Полные правила: [`../../openspec/standards/07-persistence.md`](../../sdd/openspec/standards/07-persistence.md).
+Полные правила: [`../../sdd/openspec/standards/07-persistence.md`](../../sdd/openspec/standards/07-persistence.md).
 
 - Database-per-service; прямой доступ к чужой БД запрещён.
 - Чтение — `AsNoTracking()` + проекции (`Select`); никакого N+1.

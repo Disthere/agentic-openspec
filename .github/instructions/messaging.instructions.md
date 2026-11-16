@@ -5,7 +5,7 @@ applyTo: '**/*.cs'
 
 # Обмен сообщениями — краткая выжимка
 
-Полные правила: [`../../openspec/standards/08-messaging.md`](../../sdd/openspec/standards/08-messaging.md).
+Полные правила: [`../../sdd/openspec/standards/08-messaging.md`](../../sdd/openspec/standards/08-messaging.md).
 
 - Доставка по умолчанию — at-least-once → обработчик **идемпотентен** (dedup по `MessageId`).
 - Публикация событий согласована с записью в БД (**transactional outbox**); на входе — inbox.
