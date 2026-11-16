@@ -4,7 +4,7 @@
 **не более 10 минут**. После него в репозитории не остаётся истории набора, чужих примеров и
 «активной» документации, которая к вашему продукту не относится.
 
-> Правило: **ничего не удаляйте из `openspec/proposals/archive/`**, если хотите сохранить примеры
+> Правило: **ничего не удаляйте из `sdd/openspec/proposals/archive/`**, если хотите сохранить примеры
 > реальных спецификаций. Перенос в архив — безопаснее удаления.
 
 ## 1. Лицензия и сторонние материалы (2 мин)
@@ -25,10 +25,10 @@
 
 ## 3. Предложения и спецификации (2 мин)
 
-- [ ] Активные предложения `openspec/proposals/00[1-6]-*` — **уже перенесены** в `archive/` (батч 2)
+- [ ] Активные предложения `sdd/openspec/proposals/00[1-6]-*` — **уже перенесены** в `archive/` (батч 2)
       либо перенесите сами.
-- [ ] Если примеры не нужны — удалить `openspec/proposals/archive/2026-11-*`.
-- [ ] `openspec/specs/` — удалить `independent-review/`, `delivery-roles/`, `product-lifecycle/`
+- [ ] Если примеры не нужны — удалить `sdd/openspec/proposals/archive/2026-11-*`.
+- [ ] `sdd/openspec/specs/` — удалить `independent-review/`, `delivery-roles/`, `product-lifecycle/`
       (это спецификации **набора**, а не вашего продукта), оставив `README.md`.
 - [ ] Освободить номер: первое предложение — **первый свободный** номер, не обязательно `001`
       (см. [`docs/ADOPTION.md`](./ADOPTION.md) §5).
@@ -48,7 +48,7 @@
 
 ## 6. DSH-профиль (1 мин)
 
-- [ ] `dsh/presets-bundle/cordis.patch.yml` — пресет `sdd` уже нейтрален по роли; поменяйте только
+- [ ] `sdd/dsh/presets-bundle/cordis.patch.yml` — пресет `sdd` уже нейтрален по роли; поменяйте только
       модель и `description`, если нужно.
 - [ ] Установить профиль: `powershell -ExecutionPolicy Bypass -File .\sdd\dsh\install.ps1`.
 - [ ] Дефолтный пресет — `standard` (D-018); роль выбирается пресетом `sdd` в UI.
@@ -80,11 +80,11 @@ dotnet build --configuration Release --no-restore
 | Путь | Почему |
 | - | - |
 | `AGENTS.md` | Канон правил — DSH читает его |
-| `openspec/constitution.md` | Высший приоритет; гейты и фазы |
-| `openspec/standards/` | Инженерные стандарты 01–12 |
+| `sdd/openspec/constitution.md` | Высший приоритет; гейты и фазы |
+| `sdd/openspec/standards/` | Инженерные стандарты 01–12 |
 | `.agents/*.md` | Шесть ролей цикла |
-| `openspec/config.yaml` | Единственный источник команд гейта |
-| `tools/validate-proposals.ps1` | Машинный гейт предложений |
+| `sdd/openspec/config.yaml` | Единственный источник команд гейта |
+| `sdd/tools/validate-proposals.ps1` | Машинный гейт предложений |
 | `Directory.Build.props` / `Directory.Packages.props` | Сборка и CPM |
 | `global.json` | Пин SDK |
 | `THIRD-PARTY.md` | Лицензионные обязательства |

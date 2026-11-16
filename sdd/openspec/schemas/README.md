@@ -1,7 +1,7 @@
 # Schemas
 
 Machine-readable validation schemas that define what a valid proposal/spec looks like for a given
-project profile. `openspec/config.yaml` selects which schemas are active.
+project profile. `sdd/openspec/config.yaml` selects which schemas are active.
 
 ## Files
 
@@ -29,7 +29,7 @@ project profile. `openspec/config.yaml` selects which schemas are active.
 
 ## Adding a profile
 
-1. Create `openspec/schemas/<profile>.yaml` following `csharp-api.yaml`.
+1. Create `sdd/openspec/schemas/<profile>.yaml` following `csharp-api.yaml`.
 2. Add it to `schemas.active` in [`../config.yaml`](../config.yaml).
 3. Reference the profile from a proposal's `Profile:` header.
 

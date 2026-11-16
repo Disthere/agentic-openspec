@@ -1,13 +1,13 @@
 # OPEN_QUESTIONS — универсальный шаблон
 
 > Скопируйте этот файл в корень проекта как `OPEN_QUESTIONS.md` и ведите по правилам
-> [`openspec/standards/04-documentation.md` §4.7](../openspec/standards/04-documentation.md).
+> [`sdd/openspec/standards/04-documentation.md` §4.7](../openspec/standards/04-documentation.md).
 
 ---
 
 # OPEN_QUESTIONS — открытые пункты проекта
 
-Источник: раздел `## Open Questions` в `openspec/proposals/<NNN-slug>/proposal.md` и обсуждения с заказчиком.
+Источник: раздел `## Open Questions` в `sdd/openspec/proposals/<NNN-slug>/proposal.md` и обсуждения с заказчиком.
 Решения фиксируются в `DECISIONS.md`; изменения поведения — в `CHANGELOG.md`.
 
 Статусы: `✅ закрыт (D-NNN)` · `⏳ открыт` · `❌ отклонён (D-NNN)`.

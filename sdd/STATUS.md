@@ -21,7 +21,7 @@
 | - | - | - | - | - | - |
 | — | — | — | — | — | _нет активных_ |
 
-**Как читать:** фаза — из [`openspec/config.yaml`](../sdd/openspec/config.yaml) → `lifecycle`;
+**Как читать:** фаза — из [`sdd/openspec/config.yaml`](../sdd/openspec/config.yaml) → `lifecycle`;
 задачи вида `закрыто/всего` — счёт `- [x]` и `- [ ]` в `tasks.md`; требования — `### Requirement:`
 в `proposal.md`.
 
@@ -33,8 +33,8 @@
 
 | # | Что нужно | Почему блокирует | Где |
 | - | - | - | - |
-| 1 | **Выбрать первый продукт и завести предложение** | Все примеры заархивированы; новых нет. До этого машина работает «на холостом ходу» | `openspec/proposals/` |
-| 2 | **Гейт Discovery** — материалы заказчика в `inputs/` + измеримый критерий успеха | Без `IN-NNN` архитектор вернёт `BLOCKED: Discovery gate not closed` | [`inputs/INDEX.md`](../sdd/inputs/INDEX.md) |
+| 1 | **Выбрать первый продукт и завести предложение** | Все примеры заархивированы; новых нет. До этого машина работает «на холостом ходу» | `sdd/openspec/proposals/` |
+| 2 | **Гейт Discovery** — материалы заказчика в `sdd/inputs/` + измеримый критерий успеха | Без `IN-NNN` архитектор вернёт `BLOCKED: Discovery gate not closed` | [`sdd/inputs/INDEX.md`](../sdd/inputs/INDEX.md) |
 | 3 | **Юридический вопрос (D-022)** — если `findings.md` будет переноситься в продукт | Решение принято владельцем; при переиспользовании перепроверить | [`DECISIONS.md`](../sdd/DECISIONS.md) |
 
 ---
@@ -46,9 +46,9 @@
 | `.NET` собирается с первого клона | ✅ | `dotnet build -c Release` |
 | Тесты на xUnit v3 (MTP) | ✅ 1/1 | `artifacts/bin/Smoke.Tests/release/Smoke.Tests.exe` |
 | Форматирование | ✅ | `dotnet format --verify-no-changes` |
-| Валидатор предложений | ✅ | `tools/validate-proposals.ps1 -All -CheckLinks` |
-| Канон = зеркало | ✅ | `tools/check-canon-parity.ps1` |
-| Шаблон чист (без истории набора) | ✅ | `tools/check-template-clean.ps1` |
+| Валидатор предложений | ✅ | `sdd/tools/validate-proposals.ps1 -All -CheckLinks` |
+| Канон = зеркало | ✅ | `sdd/tools/check-canon-parity.ps1` |
+| Шаблон чист (без истории набора) | ✅ | `sdd/tools/check-template-clean.ps1` |
 | DSH-пресет `sdd` с инструментами | ✅ 22 плагина | `docs/ci/check-dsh-profile.ps1` |
 | CI на GitHub | ✅ зелёный | `.github/workflows/scaffold-check.yml` |
 
@@ -65,7 +65,7 @@
 | `005-adoption-guide` | 2026-11-10 | 5 | 8/8 |
 | `006-legacy-docs-alignment` | 2026-11-10 | 7 | 15/15 |
 
-Живые спецификации: [`openspec/specs/`](../sdd/openspec/specs) **пуст** — это норма для чистого шаблона.
+Живые спецификации: [`sdd/openspec/specs/`](../sdd/openspec/specs) **пуст** — это норма для чистого шаблона.
 Спецификации набора (8 возможностей) перенесены в
 [`docs/legacy/set-history/specs/`](../sdd/docs/legacy/set-history/specs); каталог наполнится
 спецификациями вашего продукта при первом архивном предложении.
@@ -76,7 +76,7 @@
 
 **Агентом** (по [`AGENTS.md`](../AGENTS.md) §7, шаг 9):
 
-- в начале работы — проверить, что таблица §2 соответствует `openspec/proposals/`;
+- в начале работы — проверить, что таблица §2 соответствует `sdd/openspec/proposals/`;
 - при смене фазы предложения — обновить строку;
 - при закрытии гейта — отметить в §4;
 - при появлении блокера — добавить в §3.

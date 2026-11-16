@@ -1,7 +1,7 @@
 # Как устроена эта SDD-модель — краткий обзор
 
 Документ для человека: что это за модель, из чего она состоит, кто что делает и в каком порядке.
-Детали — в [`openspec/constitution.md`](../openspec/constitution.md) (высший приоритет) и
+Детали — в [`sdd/openspec/constitution.md`](../openspec/constitution.md) (высший приоритет) и
 [`AGENTS.md`](../../AGENTS.md) (канон правил для агентов).
 
 ---
@@ -23,15 +23,15 @@
 
 | Слой | Где | Зачем |
 | - | - | - |
-| **Конституция** | [`openspec/constitution.md`](../openspec/constitution.md) | Высший приоритет. Границы сервисов, гейты, фазы |
+| **Конституция** | [`sdd/openspec/constitution.md`](../openspec/constitution.md) | Высший приоритет. Границы сервисов, гейты, фазы |
 | **Канон правил** | [`AGENTS.md`](../../AGENTS.md) | Что агент обязан соблюдать: C#, тесты, процесс, guardrails |
-| **Стандарты** | [`openspec/standards/`](../openspec/standards) | 12 документов: стиль кода, архитектура, API, безопасность, производительность… |
+| **Стандарты** | [`sdd/openspec/standards/`](../openspec/standards) | 12 документов: стиль кода, архитектура, API, безопасность, производительность… |
 | **Роли** | [`.agents/*.md`](../../.agents) | Шесть ролей: миссия, входы, артефакты, критерии готовности |
 | **Скиллы** | [`.agents/skills/`](../../.agents/skills) | Переиспользуемые процедуры: `spec-first`, `code-review`, `implement-feature` |
-| **Профиль проекта** | [`openspec/config.yaml`](../openspec/config.yaml) | Стек, активная схема, 10 фаз, **команды гейта** |
-| **Спецификации** | [`openspec/specs/`](../openspec/specs) | Живые требования: что система должна делать сейчас |
-| **Предложения** | [`openspec/proposals/`](../openspec/proposals) | Изменения «в полёте» и архив завершённых |
-| **Машинные гейты** | [`tools/`](../tools) | Скрипты, которые проверяют вместо человека |
+| **Профиль проекта** | [`sdd/openspec/config.yaml`](../openspec/config.yaml) | Стек, активная схема, 10 фаз, **команды гейта** |
+| **Спецификации** | [`sdd/openspec/specs/`](../openspec/specs) | Живые требования: что система должна делать сейчас |
+| **Предложения** | [`sdd/openspec/proposals/`](../openspec/proposals) | Изменения «в полёте» и архив завершённых |
+| **Машинные гейты** | [`sdd/tools/`](../tools) | Скрипты, которые проверяют вместо человека |
 
 Ключевая мысль: **у каждого правила один источник**. Команды сборки — только в `config.yaml`,
 фазы — только в конституции. Остальные документы ссылаются, а не переписывают.
@@ -44,7 +44,7 @@
 
 | Роль | Фаза | Что делает | Чего НЕ делает |
 | - | - | - | - |
-| **Аналитик** | Discovery | Разбирает материалы в `inputs/`, регистрирует их как `IN-NNN`, формулирует проблему, ценность и **измеримый** критерий успеха | Не пишет спецификации и код |
+| **Аналитик** | Discovery | Разбирает материалы в `sdd/inputs/`, регистрирует их как `IN-NNN`, формулирует проблему, ценность и **измеримый** критерий успеха | Не пишет спецификации и код |
 | **Архитектор** | Spec, Design | Превращает задачу в `proposal.md` с требованиями и сценариями, рисует C4/Mermaid | Не пишет реализацию |
 | **Разработчик** | Build | Реализует **только** задачи из `tasks.md`, гоняет `dotnet build/test/format` | Не меняет требования |
 | **Инженер верификации (QA)** | Verify | Добывает **независимые** улики, заполняет `acceptance.md` | Не правит код; не подтверждает слова автора |
@@ -67,8 +67,8 @@ Discovery → Spec → Design → Build → Verify → Review → Release → Op
 
 | # | Фаза | Что появляется на диске | Гейт |
 | - | - | - | - |
-| 1 | **Discovery** | `inputs/INDEX.md` с записями `IN-NNN`, измеримый критерий успеха | Материал зарегистрирован, критерий измерим, нерешённое → `OQ-N` |
-| 2 | **Spec** | `openspec/proposals/<NNN-slug>/proposal.md` | **Человек поставил `Status: Approved`** |
+| 1 | **Discovery** | `sdd/inputs/INDEX.md` с записями `IN-NNN`, измеримый критерий успеха | Материал зарегистрирован, критерий измерим, нерешённое → `OQ-N` |
+| 2 | **Spec** | `sdd/openspec/proposals/<NNN-slug>/proposal.md` | **Человек поставил `Status: Approved`** |
 | 3 | **Design** | `design.md`, `contracts/`, ADR | Архитектурное решение зафиксировано |
 | 4 | **Build** | `src/`, `tests/` | `dotnet build` / `test` / `format` зелёные |
 | 5 | **Verify** | `acceptance.md`, `performance.md` | Улики воспроизводимы и добыты **не** автором кода |
@@ -132,9 +132,9 @@ Discovery → Spec → Design → Build → Verify → Review → Release → Op
 
 | Скрипт | Что ловит |
 | - | - |
-| [`tools/validate-proposals.ps1`](../tools/validate-proposals.ps1) | Структуру предложений: разделы, сценарии, паритет с `specs/`, битые ссылки, `lite` |
-| [`tools/check-canon-parity.ps1`](../tools/check-canon-parity.ps1) | Расхождение правил между `AGENTS.md` и зеркалом `.clinerules` |
-| [`tools/check-template-clean.ps1`](../tools/check-template-clean.ps1) | Что в шаблон не просочилась история самого набора |
+| [`sdd/tools/validate-proposals.ps1`](../tools/validate-proposals.ps1) | Структуру предложений: разделы, сценарии, паритет с `specs/`, битые ссылки, `lite` |
+| [`sdd/tools/check-canon-parity.ps1`](../tools/check-canon-parity.ps1) | Расхождение правил между `AGENTS.md` и зеркалом `.clinerules` |
+| [`sdd/tools/check-template-clean.ps1`](../tools/check-template-clean.ps1) | Что в шаблон не просочилась история самого набора |
 | [`docs/ci/check-dsh-profile.ps1`](./ci/check-dsh-profile.ps1) | Что пресет роли действительно имеет инструменты |
 | [`.github/workflows/scaffold-check.yml`](../../.github/workflows/scaffold-check.yml) | Всё вышеперечисленное + `dotnet build/test/format` в CI |
 
@@ -165,7 +165,7 @@ Discovery → Spec → Design → Build → Verify → Review → Release → Op
 1. **Spec First.** Пока нет утверждённой спецификации — кода не будет. Это не бюрократия:
    именно здесь отсекаются «сделал не то».
 2. **Один источник на правило.** Команды — в `config.yaml`, фазы — в конституции, стандарты —
-   в `openspec/standards/`. Если два документа противоречат — это дефект, а не «нюанс».
+   в `sdd/openspec/standards/`. Если два документа противоречат — это дефект, а не «нюанс».
 3. **Человек владеет решениями, агент — исполнением.** Утверждение спецификации, юридические и
    продуктовые вопросы, коммиты и релизы — за вами. Модель лишь требует, чтобы каждое решение было
    зафиксировано и проверяемо.
@@ -177,8 +177,8 @@ Discovery → Spec → Design → Build → Verify → Review → Release → Op
 | Хочу понять | Читать |
 | - | - |
 | Правила для агентов | [`AGENTS.md`](../../AGENTS.md) |
-| Границы и гейты | [`openspec/constitution.md`](../openspec/constitution.md) |
+| Границы и гейты | [`sdd/openspec/constitution.md`](../openspec/constitution.md) |
 | Роли подробно | [`.agents/README.md`](../../.agents/README.md) |
-| Инженерные стандарты | [`openspec/standards/README.md`](../openspec/standards/README.md) |
+| Инженерные стандарты | [`sdd/openspec/standards/README.md`](../openspec/standards/README.md) |
 | Как развернуть у себя | [`docs/ADOPTION.md`](./ADOPTION.md) |
 | Что срезать из шаблона | [`docs/CLEANUP.md`](./CLEANUP.md) |

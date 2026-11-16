@@ -41,7 +41,7 @@ plugin_manager  action=install_bundle  target=C:\Projects\agentic-openspec\dsh\p
 ## Что нужно, кроме бандла
 
 1. **Открыть в Desktop рабочее пространство с SDD-каркасом** — `C:\Projects\agentic-openspec`
-   (там `AGENTS.md`, `.agents/*.md`, `openspec/`). Персона `sdd` ссылается на эти файлы;
+   (там `AGENTS.md`, `.agents/*.md`, `sdd/openspec/`). Персона `sdd` ссылается на эти файлы;
    их отсутствие = агент не знает правил.
 2. **Провайдер и модель.** В `desktop` уже настроен `llm-pi-ai` (провайдер `routerai`) и
    `agent-default-model`, поэтому отдельно ничего задавать не нужно. Ключ `ROUTERAI_API_KEY`
@@ -71,7 +71,7 @@ plugin_manager  action=remove_bundle  target=@local/dsh-openspec-presets
 - **Роль — не песочница.** Персона задаёт контекст; права дают permission presets,
   а их для роли сейчас нет. Изоляция QA и Ревьюера — дисциплинарная плюс обязательная
   проверка `git status --porcelain` (см. [`.agents/reviewer.md`](../../../.agents/reviewer.md)).
-- **Ссылки на `openspec/` разрешаются относительно открытого воркспейса.** В другом
+- **Ссылки на `sdd/openspec/` разрешаются относительно открытого воркспейса.** В другом
   воркспейсе роль будет ссылаться на несуществующие файлы.
 - **Роль передаётся промптом**: пресет один, поэтому «роль по имени пресета» не работает.
   Это цена отказа от шести копий композиции (D-016).

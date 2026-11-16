@@ -1,7 +1,7 @@
 # CHANGELOG — универсальный шаблон
 
 > Скопируйте этот файл в корень проекта как `CHANGELOG.md` и ведите по правилам
-> [`openspec/standards/04-documentation.md` §4.6](../openspec/standards/04-documentation.md).
+> [`sdd/openspec/standards/04-documentation.md` §4.6](../openspec/standards/04-documentation.md).
 > Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версии: [SemVer](https://semver.org/lang/ru/).
 
 ---

@@ -7,16 +7,16 @@
 
 | Путь | Что внутри |
 | - | - |
-| [`openspec/`](./openspec) | конституция, стандарты 01–12, предложения, схемы валидации, живые спецификации |
-| [`tools/`](./tools) | машинные гейты: `validate-proposals.ps1`, `check-canon-parity.ps1`, `check-template-clean.ps1`, `check-coverage.ps1`, `register-inputs.ps1`, `collect-metrics.ps1` |
-| [`dsh/`](./dsh) | пресет `sdd` для DeepSeek Harness + `install.ps1` |
-| [`inputs/`](./inputs) | материалы заказчика (ТЗ, концепции, макеты) + реестр `IN-NNN` |
+| [`sdd/openspec/`](./openspec) | конституция, стандарты 01–12, предложения, схемы валидации, живые спецификации |
+| [`sdd/tools/`](./tools) | машинные гейты: `validate-proposals.ps1`, `check-canon-parity.ps1`, `check-template-clean.ps1`, `check-coverage.ps1`, `register-inputs.ps1`, `collect-metrics.ps1` |
+| [`sdd/dsh/`](./dsh) | пресет `sdd` для DeepSeek Harness + `install.ps1` |
+| [`sdd/inputs/`](./inputs) | материалы заказчика (ТЗ, концепции, макеты) + реестр `IN-NNN` |
 | [`docs/`](./docs) | инструкция развёртывания, обзор модели, протокол аудита, чек-лист очистки, шаблоны, замороженная история набора |
 | [`STATUS.md`](./STATUS.md) | где мы сейчас: активные предложения, фазы, блокеры |
 | [`DECISIONS.md`](./DECISIONS.md) | журнал решений (`D-NNN`) |
 | [`OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) | открытые вопросы (`OQ-N`) |
 | [`CHANGELOG.md`](./CHANGELOG.md) | история изменений |
-| `METRICS.md` | метрики процесса — **генерируются** `tools/collect-metrics.ps1`, в git не хранятся |
+| `METRICS.md` | метрики процесса — **генерируются** `sdd/tools/collect-metrics.ps1`, в git не хранятся |
 
 ## Чего здесь НЕТ — и почему
 

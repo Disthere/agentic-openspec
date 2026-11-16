@@ -23,7 +23,7 @@ ops/release) and every change is specified before it is implemented.
 
 ## Project profile
 
-One project selects **one** active profile in [`openspec/config.yaml`](./config.yaml) (`project.profile`).
+One project selects **one** active profile in [`sdd/openspec/config.yaml`](./config.yaml) (`project.profile`).
 Schema, standards and DoD sections follow that selection.
 
 | Profile | For | Schema | Standards | DoD |
@@ -57,13 +57,13 @@ C4Context
 | Rules for agents (DSH canon) | `AGENTS.md` (`.clinerules` is a compatibility mirror) |
 | Subagent roles | `.agents/*.md` |
 | Skills | `.agents/skills/*/SKILL.md` |
-| Specs & proposals | `openspec/` |
-| Constitution (highest priority) | `openspec/constitution.md` |
-| Engineering standards | `openspec/standards/` |
+| Specs & proposals | `sdd/openspec/` |
+| Constitution (highest priority) | `sdd/openspec/constitution.md` |
+| Engineering standards | `sdd/openspec/standards/` |
 | Architecture & operations docs | `docs/` |
 | Legacy documentation registry | `docs/legacy/` (registry `LEG-NNN`, correspondence map, frozen changelog) |
-| Customer input materials | `inputs/` (registry: `inputs/INDEX.md`) |
-| Config / profile | `openspec/config.yaml` |
+| Customer input materials | `sdd/inputs/` (registry: `sdd/inputs/INDEX.md`) |
+| Config / profile | `sdd/openspec/config.yaml` |
 
 ## Open decisions
 

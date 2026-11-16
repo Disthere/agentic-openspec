@@ -10,9 +10,9 @@
 
 ## Перед стартом
 
-- [ ] Прочитан [`AGENTS.md`](../../AGENTS.md) (канон) и [`openspec/constitution.md`](../openspec/constitution.md).
+- [ ] Прочитан [`AGENTS.md`](../../AGENTS.md) (канон) и [`sdd/openspec/constitution.md`](../openspec/constitution.md).
 - [ ] Выполнен `git status` — рабочее дерево понятно (что изменено, что не закоммичено).
-- [ ] Известно текущее предложение и его фаза (`openspec/proposals/<NNN-slug>/`).
+- [ ] Известно текущее предложение и его фаза (`sdd/openspec/proposals/<NNN-slug>/`).
 
 ## Состояние
 

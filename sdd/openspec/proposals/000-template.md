@@ -6,10 +6,10 @@
 - **Approved at:** <YYYY-MM-DD> <!-- дата утверждения человеком -->
 - **Owner:** <github handle / role>
 - **Date:** <YYYY-MM-DD>
-- **Profile:** csharp-api (see `openspec/config.yaml`)
-- **Constitution:** [`openspec/constitution.md`](../../constitution.md) (highest priority — read first)
+- **Profile:** csharp-api (see `sdd/openspec/config.yaml`)
+- **Constitution:** [`sdd/openspec/constitution.md`](../../constitution.md) (highest priority — read first)
 
-> Copy this file into `openspec/proposals/<NNN>-<slug>/proposal.md` and fill every section.
+> Copy this file into `sdd/openspec/proposals/<NNN>-<slug>/proposal.md` and fill every section.
 > Delete guidance comments as you go. A proposal is approved only when a human flips `Status`
 > **and** fills `Approved by:` / `Approved at:` — the validator (`V11`) rejects `Status: Approved`
 > without them, so the signature is machine-checked, not a courtesy.
@@ -17,15 +17,15 @@
 ## Context
 
 Why this change exists. Current behaviour, the problem, and the outcome we want. Reference the
-capability(s) in `openspec/specs/` this touches.
+capability(s) in `sdd/openspec/specs/` this touches.
 
 ## Sources
 
-Input materials from the customer ([`inputs/`](../../../inputs/README.md)), with `IN-NNN` ids from
-[`inputs/INDEX.md`](../../../inputs/INDEX.md). List only what this change actually uses; anything unresolved
+Input materials from the customer ([`sdd/inputs/`](../../../inputs/README.md)), with `IN-NNN` ids from
+[`sdd/inputs/INDEX.md`](../../../inputs/INDEX.md). List only what this change actually uses; anything unresolved
 becomes an Open Question.
 
-- `IN-001` — <what it defines> — `inputs/briefs/IN-001-<slug>.pdf`.
+- `IN-001` — <what it defines> — `sdd/inputs/briefs/IN-001-<slug>.pdf`.
 
 Write "None" when the change follows from the spec alone (no external input material).
 

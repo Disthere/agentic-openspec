@@ -1,4 +1,4 @@
-# `openspec/` — Spec-Driven Development artifacts
+# `sdd/openspec/` — Spec-Driven Development artifacts
 
 This folder holds every specification and SDD artifact for the project. Nothing in `src/` is written
 before its spec lands here (see [`AGENTS.md`](../../AGENTS.md) and [`.clinerules`](../../.clinerules), rule 0 — *Spec First*).
@@ -6,7 +6,7 @@ before its spec lands here (see [`AGENTS.md`](../../AGENTS.md) and [`.clinerules
 ## Layout
 
 ```text
-openspec/
+sdd/openspec/
 ├── config.yaml              # project profile + active schemas
 ├── project.md               # project context for agents (stack, conventions)
 ├── proposals/               # feature proposals
@@ -45,6 +45,6 @@ The system SHALL <behavior>.
 
 ## Relationship to the OpenSpec reference
 
-This mirrors the OpenSpec (Fission-AI) `openspec/` layout: per-change folders under a proposals area,
+This mirrors the OpenSpec (Fission-AI) `sdd/openspec/` layout: per-change folders under a proposals area,
 `ADDED/MODIFIED Requirements` deltas, and an `archive/` of completed changes whose deltas are folded
 into living `specs/`. The only rename is `changes/` → `proposals/`.

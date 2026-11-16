@@ -1,7 +1,7 @@
 # DECISIONS — универсальный шаблон
 
 > Скопируйте этот файл в корень проекта как `DECISIONS.md` и ведите по правилам
-> [`openspec/standards/04-documentation.md` §4.8](../sdd/openspec/standards/04-documentation.md).
+> [`sdd/openspec/standards/04-documentation.md` §4.8](../sdd/openspec/standards/04-documentation.md).
 
 ---
 
@@ -40,7 +40,7 @@
 Этот файл — часть **шаблона**: при развёртывании он заменяется на
 [`docs/DECISIONS-TEMPLATE.md`](../sdd/docs/DECISIONS-TEMPLATE.md), а записи проекта начинаются заново.
 Поэтому история решений о разработке **набора** (канон, стандарты, схемы, роли, пресет DSH,
-`tools/`) здесь **не ведётся** — она заморожена отдельно и остаётся доступной по ссылке:
+`sdd/tools/`) здесь **не ведётся** — она заморожена отдельно и остаётся доступной по ссылке:
 
 | Где | Что |
 | - | - |
@@ -48,7 +48,7 @@
 | [`docs/legacy/set-history/AUDIT-2026-11-12.md`](../sdd/docs/legacy/set-history/AUDIT-2026-11-12.md) | аудит набора и что по нему исправлено |
 | [`docs/legacy/set-history/PLAN.md`](../sdd/docs/legacy/set-history/PLAN.md) | план исправлений (5 батчей) |
 
-Норма, почему так, — [`openspec/constitution.md`](../sdd/openspec/constitution.md) §1 п. 7.
+Норма, почему так, — [`sdd/openspec/constitution.md`](../sdd/openspec/constitution.md) §1 п. 7.
 Ссылки вида `D-016` в документах набора указывают именно в замороженный реестр.
 
 ## Правила (кратко)

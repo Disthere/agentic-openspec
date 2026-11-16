@@ -16,7 +16,7 @@
 
 - правила — [`AGENTS.md`](../../AGENTS.md);
 - роли — [`.agents/*.md`](../../.agents) (их текст вшит в персоны пресетов);
-- спецификации и стандарты — [`openspec/`](../openspec);
+- спецификации и стандарты — [`sdd/openspec/`](../openspec);
 - скиллы — [`.agents/skills/`](../../.agents/skills) — **DSH подхватывает их автоматически**.
 
 ## Предпосылки
@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File .\sdd\dsh\install.ps1
 профиле `agentic-openspec`. Провайдер и модели задаются в Web UI (Settings → Models) либо в патче профиля.
 
 > Профиль живёт в `$DSH_HOME/profiles/<name>` (`$DSH_HOME` = `~/.dsh`, если не переопределён),
-> а **не** в репозитории. Поэтому `dsh/profile/` — это «исходник» профиля, который `install.ps1`
+> а **не** в репозитории. Поэтому `sdd/dsh/profile/` — это «исходник» профиля, который `install.ps1`
 > разворачивает в домашний каталог DSH.
 
 ## Проверка композиции
@@ -149,9 +149,9 @@ dsh: [...\cordis.patch.yml] patch: entry "preset-analyst" not found
 | `sdd` | 10 | `deepseek/deepseek-v4.1-flash` | **22** | все инструменты стандарта + SDD-персона |
 
 Роль **выбирается промптом**, а не отдельным пресетом: персоны `sdd` ссылается на `.agents/<роль>.md`,
-`openspec/constitution.md` §7 и `openspec/standards/`, поэтому агент сам берёт нужную роль из задачи.
+`sdd/openspec/constitution.md` §7 и `sdd/openspec/standards/`, поэтому агент сам берёт нужную роль из задачи.
 Роли цикла (аналитик → архитектор → разработчик → QA → ревьюер → Ops/Release), их владельцы и порядок
-фаз — [`openspec/constitution.md`](../openspec/constitution.md) §7.
+фаз — [`sdd/openspec/constitution.md`](../openspec/constitution.md) §7.
 
 Состав композиции = `preset-standard` один-в-один, изменена только `persona.prefix`. Пресет объявлен
 списком `insert` в [`presets-bundle/cordis.patch.yml`](./presets-bundle/cordis.patch.yml) — это
@@ -203,8 +203,8 @@ dsh: [...\cordis.patch.yml] patch: entry "preset-analyst" not found
 
 | Фаза | preset | В DSH |
 | - | - | - |
-| Discovery | `analyst` | разбор `inputs/`, регистрация `IN-NNN`, измеримый критерий успеха, `OQ-N` |
-| Explore / Spec | `architect` | читает `openspec/specs/` и код (Plan mode) → `openspec/proposals/<NNN-slug>/` |
+| Discovery | `analyst` | разбор `sdd/inputs/`, регистрация `IN-NNN`, измеримый критерий успеха, `OQ-N` |
+| Explore / Spec | `architect` | читает `sdd/openspec/specs/` и код (Plan mode) → `sdd/openspec/proposals/<NNN-slug>/` |
 | Approve | — | утверждение человеком (`Status: Approved`) |
 | Build | `csharp-dev` | код + гейт `dotnet build/test/format` |
 | Verify | `qa-engineer` | `acceptance.md`, `performance.md` — воспроизводимые улики |
@@ -213,8 +213,8 @@ dsh: [...\cordis.patch.yml] patch: entry "preset-analyst" not found
 | Operate / Feedback | `ops-release` | SLO, capacity, runbook; инцидент → `OQ-N` или предложение |
 | Archive | — | перенос в `proposals/archive/` + вливание дельт в `specs/` |
 
-Карта фаз с артефактами, гейтами и владельцами — [`openspec/constitution.md`](../openspec/constitution.md) §7;
-DoD фаз — [`openspec/standards/05-definition-of-done.md`](../openspec/standards/05-definition-of-done.md) §5.6–5.7.
+Карта фаз с артефактами, гейтами и владельцами — [`sdd/openspec/constitution.md`](../openspec/constitution.md) §7;
+DoD фаз — [`sdd/openspec/standards/05-definition-of-done.md`](../openspec/standards/05-definition-of-done.md) §5.6–5.7.
 
 Опоры DSH: **Plan mode** (фаза разведки), **approvals / permission presets** (подтверждение правок
 и команд), **subagents** с `agentPreset` (делегирование с собственной композицией и моделью),
@@ -239,7 +239,7 @@ DoD фаз — [`openspec/standards/05-definition-of-done.md`](../openspec/stand
    скилла (нормально); вложенные `**/SKILL.md` DSH намеренно не сканирует.
 4. **`argument-hint`** (из наших Claude-скиллов) не входит в список полей DSH. Обычно
    игнорируется; если скилл не появился — удалите это поле из фронтматтера.
-5. **`.clinerules` DSH не читает** — канон для DSH: `AGENTS.md` + `openspec/`.
+5. **`.clinerules` DSH не читает** — канон для DSH: `AGENTS.md` + `sdd/openspec/`.
 6. **Переустановить профиль**: `& $dsh --profile agentic-openspec --from-default-profile web`, затем снова
    `install.ps1`.
 7. **Управление плагинами профиля**: `& $dsh plugin --profile agentic-openspec <pnpm args>`.

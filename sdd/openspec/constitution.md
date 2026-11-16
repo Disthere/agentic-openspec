@@ -5,7 +5,7 @@
 
 ## 1. Принципы
 
-1. **Spec First.** Код не пишется и не меняется без спецификации в `openspec/proposals/`.
+1. **Spec First.** Код не пишется и не меняется без спецификации в `sdd/openspec/proposals/`.
 2. **Agree before you build.** Человек утверждает спецификацию до реализации.
 3. **Traceability.** Каждое изменение кода трассируется к требованию (`<spec-id>`); разрыв трассируемости — дефект.
 4. **Измеряй, не заявляй.** Утверждение «оптимизировано»/«выдержит нагрузку» без воспроизводимого замера недействительно.
@@ -17,14 +17,14 @@
    [`AGENTS.md`](../../AGENTS.md) §7.1.
 7. **Spec First покрывает продукт, а не сам набор.** Пункты 1–3 относятся к изменениям **продукта**:
    кода в `src/`, контрактов, поведения. Правки самого SDD-набора (канон, стандарты, схемы, роли,
-   пресет DSH, инструменты в `tools/`) идут **лёгким маршрутом** и не требуют полного предложения:
+   пресет DSH, инструменты в `sdd/tools/`) идут **лёгким маршрутом** и не требуют полного предложения:
 
    | Что меняется | Как оформляется |
    | - | - |
    | Канон, стандарты, документация процесса | Запись в [`docs/legacy/set-history/`](../docs/legacy/set-history) + осмысленное сообщение коммита |
    | Пресет DSH, персона, конфигурация ролей | то же + `docs/ci/check-dsh-profile.ps1` зелёный |
-   | Инструменты `tools/*.ps1` | то же + прогон самого инструмента и **негативный тест** |
-   | Схемы валидации, шаблоны предложений | то же + `tools/validate-proposals.ps1 -All -Archived` |
+   | Инструменты `sdd/tools/*.ps1` | то же + прогон самого инструмента и **негативный тест** |
+   | Схемы валидации, шаблоны предложений | то же + `sdd/tools/validate-proposals.ps1 -All -Archived` |
 
    > **Почему не `D-NNN`.** Реестры `DECISIONS.md` и `OPEN_QUESTIONS.md` — часть **шаблона**, и при
    > подготовке к раздаче они сброшены к пустым формам (батч 5). Записывать в них историю набора
@@ -33,7 +33,7 @@
    > (`DECISIONS-FROZEN.md`, `ASSESSMENT.md`, `PLAN.md`, отчёты батчей) и в git-истории.
 
    **Почему так.** Набор — мета-уровень: его правки не имеют продуктовых требований, у них нет
-   заказчика и критерия успеха в `inputs/`. Требовать для них полный цикл — значит выдумывать
+   заказчика и критерия успеха в `sdd/inputs/`. Требовать для них полный цикл — значит выдумывать
    требования, что прямо запрещено §1 п. 5. При этом **обязательны**: запись решения, проверка
    командой и негативный тест гейта — то есть проверяемость остаётся, а фиктивная спецификация нет.
 
@@ -67,7 +67,7 @@
 1. **Spec gate** — спецификация создана и утверждена человеком.
 2. **Build gate** — `dotnet build -c Release` без warnings.
 3. **Test gate** — `dotnet test -c Release` зелёный; покрытие **проверяется** по порогам
-   >80% (Domain >90%) командой `tools/check-coverage.ps1 -Report <cobertura.xml>`. Пороги берутся
+   >80% (Domain >90%) командой `sdd/tools/check-coverage.ps1 -Report <cobertura.xml>`. Пороги берутся
    из схемы активного профиля (`tests.coverage_min_percent`), а не из этого текста: конституция
    задаёт намерение, схема — числа, скрипт — факт.
 4. **Review gate** — независимое ревью (`Pass`) против спецификации, стандартов и DoD.
@@ -94,14 +94,14 @@
 
 | Тема | Где |
 | - | - |
-| Этот документ (высший приоритет) | `openspec/constitution.md` |
-| Правила для агентов (канон DSH) | [`AGENTS.md`](../../AGENTS.md) + [`openspec/`](./README.md); [`.clinerules`](../../.clinerules) — совместимое зеркало |
+| Этот документ (высший приоритет) | `sdd/openspec/constitution.md` |
+| Правила для агентов (канон DSH) | [`AGENTS.md`](../../AGENTS.md) + [`sdd/openspec/`](./README.md); [`.clinerules`](../../.clinerules) — совместимое зеркало |
 | Инженерные стандарты | [`standards/`](./standards) |
 | Границы сервисов | [`../docs/architecture/service-boundaries.md`](../../docs/architecture/service-boundaries.md) |
 | ADR | [`../docs/architecture/adr/`](../../docs/architecture/adr) |
 | SLO / ёмкость / runbook | [`../docs/operations/`](../../docs/operations) |
 | Схема валидации | [`schemas/csharp-api.yaml`](./schemas/csharp-api.yaml) |
-| Роли и пресеты среды (DSH) | [`.agents/`](../../.agents/README.md), [`dsh/presets-bundle/cordis.patch.yml`](../dsh/presets-bundle/cordis.patch.yml) |
+| Роли и пресеты среды (DSH) | [`.agents/`](../../.agents/README.md), [`sdd/dsh/presets-bundle/cordis.patch.yml`](../dsh/presets-bundle/cordis.patch.yml) |
 
 ## 7. Фазы жизненного цикла
 
@@ -110,8 +110,8 @@
 
 | Фаза | Артефакт | Гейт | Владелец |
 | - | - | - | - |
-| Discovery | `inputs/**` + [`inputs/INDEX.md`](../inputs/INDEX.md) (`IN-NNN`), измеримый критерий успеха | Discovery: материал зарегистрирован, критерий измерим, нерешённое → `OQ-N` | Продуктовый аналитик ([`.agents/analyst.md`](../../.agents/analyst.md)) |
-| Spec | `openspec/proposals/<id>/proposal.md`, дельты `specs/` | Spec: утверждение человеком (`Status: Approved`) | Архитектор ([`.agents/architect.md`](../../.agents/architect.md)) |
+| Discovery | `sdd/inputs/**` + [`sdd/inputs/INDEX.md`](../inputs/INDEX.md) (`IN-NNN`), измеримый критерий успеха | Discovery: материал зарегистрирован, критерий измерим, нерешённое → `OQ-N` | Продуктовый аналитик ([`.agents/analyst.md`](../../.agents/analyst.md)) |
+| Spec | `sdd/openspec/proposals/<id>/proposal.md`, дельты `specs/` | Spec: утверждение человеком (`Status: Approved`) | Архитектор ([`.agents/architect.md`](../../.agents/architect.md)) |
 | Design | `design.md`, `contracts/`, [`docs/architecture/adr/`](../../docs/architecture/adr) | ADR для архитектурного решения | Архитектор |
 | Build | `src/`, `tests/` | Build + Test: `dotnet build`/`test`/`format` зелёные | Разработчик ([`.agents/csharp-dev.md`](../../.agents/csharp-dev.md)) |
 | Verify | `acceptance.md`, `performance.md` | Verification: улики воспроизводимы и добыты не автором кода | Инженер верификации ([`.agents/qa-engineer.md`](../../.agents/qa-engineer.md)) |
@@ -119,7 +119,7 @@
 | Release | [`CHANGELOG.md`](../CHANGELOG.md), версия, миграции, план отката | Release (DoD 5.4) | Ops / Release ([`.agents/ops-release.md`](../../.agents/ops-release.md)) |
 | Operate | [`docs/operations/`](../../docs/operations) — SLO, capacity, runbooks | Support: health-checks, алерты и runbook готовы | Ops / Release |
 | Feedback | `OQ-N` либо новое предложение | Инцидент и запрос поддержки становятся отслеживаемым пунктом | Ops / Release → Продуктовый аналитик |
-| Archive | `openspec/specs/<capability>/spec.md` обновлён, предложение в [`openspec/proposals/archive/`](./proposals/archive) | Archive: чекбоксы закрыты, дельты влиты, `acceptance.md` заполнен, `Status: Done` | Оркестратор (главная сессия DSH) |
+| Archive | `sdd/openspec/specs/<capability>/spec.md` обновлён, предложение в [`sdd/openspec/proposals/archive/`](./proposals/archive) | Archive: чекбоксы закрыты, дельты влиты, `acceptance.md` заполнен, `Status: Done` | Оркестратор (главная сессия DSH) |
 
 Правила фаз:
 
@@ -132,5 +132,5 @@
 4. **Допуск роли:** новый агент появляется только тогда, когда владеет артефактом и закрывает гейт;
    в остальных случаях содержание уходит в стандарт, чек-лист DoD или скилл.
 5. **Среда исполнения ролей** — субагенты DeepSeek Harness с пресетами из
-   [`dsh/presets-bundle/cordis.patch.yml`](../dsh/presets-bundle/cordis.patch.yml); главная сессия DSH выступает
+   [`sdd/dsh/presets-bundle/cordis.patch.yml`](../dsh/presets-bundle/cordis.patch.yml); главная сессия DSH выступает
    Оркестратором. Отдельного агента-оркестратора не существует.

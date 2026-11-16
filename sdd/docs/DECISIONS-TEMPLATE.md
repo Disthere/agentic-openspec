@@ -1,7 +1,7 @@
 # DECISIONS — универсальный шаблон
 
 > Скопируйте этот файл в корень проекта как `DECISIONS.md` и ведите по правилам
-> [`openspec/standards/04-documentation.md` §4.8](../openspec/standards/04-documentation.md).
+> [`sdd/openspec/standards/04-documentation.md` §4.8](../openspec/standards/04-documentation.md).
 
 ---
 

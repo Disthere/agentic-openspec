@@ -125,9 +125,9 @@ agentic-openspec/
 4. **Первая спецификация (Spec First)** — попросите Оркестратора:
 
    ```text
-   Прочитай AGENTS.md, openspec/constitution.md и стандарты. Делегируй субагенту
+   Прочитай AGENTS.md, sdd/openspec/constitution.md и стандарты. Делегируй субагенту
    с пресетом `sdd` и промптом «Ты — Архитектор» (.agents/architect.md) и создай
-   предложение openspec/proposals/<первый-свободный-номер>-<slug>/
+   предложение sdd/openspec/proposals/<первый-свободный-номер>-<slug>/
    со всеми артефактами (proposal.md, tasks.md, contracts/, performance.md, acceptance.md).
    Код не пиши — верни спецификацию на утверждение.
    ```
@@ -196,7 +196,7 @@ Copy-Item "$template\.github\copilot-instructions.md" "$target\.github" -Force
 
 ```text
 Explore → Propose → (человек утверждает) → Apply → Review → Archive
-            └── openspec/proposals/<NNN>-<slug>/
+            └── openspec/proposals/<NNN>-<slug>/   (внутри sdd/)
 ```
 
 **Spec First**: код не пишется, пока нет утверждённой спецификации в [`sdd/openspec/proposals/`](./sdd/openspec/proposals).

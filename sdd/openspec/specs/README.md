@@ -31,9 +31,9 @@ The system SHALL <behavior>.
 
 ## How specs evolve
 
-- **Propose** — write deltas under `openspec/proposals/<id>/specs/<capability>/spec.md` using
+- **Propose** — write deltas under `sdd/openspec/proposals/<id>/specs/<capability>/spec.md` using
   `## ADDED Requirements` / `## MODIFIED Requirements` / `## REMOVED Requirements`.
 - **Archive** — when the proposal is Done, merge the deltas into the matching file here and keep the
-  proposal snapshot under `openspec/proposals/archive/`.
+  proposal snapshot under `sdd/openspec/proposals/archive/`.
 
 This folder starts empty on purpose — it fills up as proposals are archived.

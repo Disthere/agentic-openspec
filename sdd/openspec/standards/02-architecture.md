@@ -69,7 +69,7 @@ public sealed class Order
 ```csharp
 /// <summary>Создаёт платёж и публикует событие PaymentCreated.</summary>
 /// <spec-id>PAY-001</spec-id>
-/// <spec-ref>openspec/specs/payments/spec.md#create-payment</spec-ref>
+/// <spec-ref>sdd/openspec/specs/payments/spec.md#create-payment</spec-ref>
 public Task<PaymentId> CreateAsync(CreatePayment command, CancellationToken ct) { /* ... */ }
 ```
 
