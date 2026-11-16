@@ -96,6 +96,7 @@
 ```powershell
 .\tools\validate-proposals.ps1 -All -CheckLinks
 .\tools\validate-proposals.ps1 -Archived
+.\tools\validate-proposals.ps1 -Templates      # шаблон 000-* верен ПОСЛЕ копирования
 .\tools\check-canon-parity.ps1
 .\tools\check-template-clean.ps1
 .\tools\register-inputs.ps1 -Check
@@ -103,6 +104,19 @@
 dotnet build --configuration Release --no-restore
 dotnet format --verify-no-changes
 ```
+
+> **Если Windows отвечает `is not digitally signed` или `AuthorizationManager check failed`.**
+> Это ограничение **вашей машины/политики**, а не дефект набора: скрипты лежат локально и не имеют
+> метки «из интернета», поэтому `RemoteSigned` их пропускает. Если всё же блокирует — запускайте
+> через `-ExecutionPolicy Bypass`, это штатный обход и он не требует прав администратора:
+>
+> ```powershell
+> powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-proposals.ps1 -All -CheckLinks
+> ```
+>
+> Тот же приём используют сами гейты, когда вызывают друг друга
+> (`check-template-clean.ps1`, `collect-metrics.ps1`, `check-dsh-profile.ps1`), и `dsh/install.ps1`
+> в инструкции установки. В CI на ubuntu ограничения нет.
 
 Плюс собрать метрики: `.\tools\collect-metrics.ps1 -WithGates -OutFile METRICS.md`.
 

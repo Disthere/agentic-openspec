@@ -66,7 +66,10 @@
 
 1. **Spec gate** — спецификация создана и утверждена человеком.
 2. **Build gate** — `dotnet build -c Release` без warnings.
-3. **Test gate** — `dotnet test -c Release` зелёный; покрытие >80% (Domain >90%).
+3. **Test gate** — `dotnet test -c Release` зелёный; покрытие **проверяется** по порогам
+   >80% (Domain >90%) командой `tools/check-coverage.ps1 -Report <cobertura.xml>`. Пороги берутся
+   из схемы активного профиля (`tests.coverage_min_percent`), а не из этого текста: конституция
+   задаёт намерение, схема — числа, скрипт — факт.
 4. **Review gate** — независимое ревью (`Pass`) против спецификации, стандартов и DoD.
 5. **Perf gate** — для изменений, влияющих на производительность: воспроизводимый нагрузочный сценарий и сравнение (см. [`standards/11-performance.md`](./standards/11-performance.md)).
 

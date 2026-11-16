@@ -65,7 +65,9 @@ dotnet build --configuration Release --no-restore
 
 # 2. Совместимость машинных гейтов
 .\tools\validate-proposals.ps1 -All -CheckLinks
+.\tools\validate-proposals.ps1 -Templates
 .\tools\check-canon-parity.ps1
+.\tools\check-coverage.ps1 -Probe
 
 # 3. В шаблоне не осталось истории набора
 .\tools\check-template-clean.ps1
