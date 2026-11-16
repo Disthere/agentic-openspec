@@ -10,6 +10,20 @@
 
 ### Исправлено
 
+- **Повторный аудит набора: схемы исполняются, дельта спеки блокирует** (сессия 2026-11-16, отчёт —
+  [`docs/legacy/set-history/AUDIT-2026-11-12.md`](docs/legacy/set-history/AUDIT-2026-11-12.md) §4.3).
+  - **`tools/validate-proposals.ps1`** — добавлен минимальный YAML-ридер (модуля `powershell-yaml`
+    в наборе нет, а без чтения схем хардкод неизбежен) и резолверы `Get-ActiveSchema` /
+    `Get-LiteSchema` (N-6): профиль берётся из `config.yaml` → `project.profile` →
+    `openspec/schemas/<profile>.yaml`, маршрут lite — из `schemas.lite`.
+  - **`tools/validate-proposals.ps1`** — `V1` и `V7` больше не используют вшитые константы:
+    обязательные разделы читаются из `required_sections`, формат задач — из
+    `tasks.section_pattern` / `tasks.item_pattern`. Схемы перестали быть декоративными, десктопный
+    профиль больше не отклоняется из-за серверного раздела.
+  - **`tools/validate-proposals.ps1`** — `V5`: отсутствие дельты `specs/` при `Status: Approved`
+    стало ошибкой, для `Draft` остаётся предупреждением (N-7). Блокировка привязана к утверждению:
+    до него дельта может не существовать.
+
 - **Повторный аудит набора: гейты N-1 и N-2** (сессия 2026-11-16, отчёт —
   [`docs/legacy/set-history/AUDIT-2026-11-12.md`](docs/legacy/set-history/AUDIT-2026-11-12.md) §4.2).
   - **`tools/validate-proposals.ps1`** — валидатор ссылок видел только ссылки **до** первого
