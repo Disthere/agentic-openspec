@@ -63,7 +63,10 @@ function Get-CoverageThresholds {
     $m = [regex]::Match($config, '(?m)^\s+profile:\s*(?<p>[A-Za-z0-9_\-]+)')
     if (-not $m.Success) { return @{ Min = $min; MinDomain = $minDomain } }
 
-    $schemaPath = Join-Path $repoRoot ("openspec/schemas/{0}.yaml" -f $m.Groups['p'].Value)
+    # Схема профиля лежит в наборе (`sdd/openspec/schemas/`), а не в корне проекта:
+    # до переноса в `sdd/` здесь стоял `$repoRoot`, и гейт молча брал хардкод 80/90,
+    # печатая при этом «источник: схема активного профиля» (находка аудита M-3).
+    $schemaPath = Join-Path $sddRoot ("openspec/schemas/{0}.yaml" -f $m.Groups['p'].Value)
     if (-not (Test-Path -LiteralPath $schemaPath)) { return @{ Min = $min; MinDomain = $minDomain } }
 
     $schema = Get-Content -LiteralPath $schemaPath -Raw -Encoding UTF8
@@ -170,6 +173,42 @@ if ($Probe) {
         Run-Case 'домен ниже порога (85% общий, 70% домен)' (New-CoberturaXml -Rate 0.85 -DomainRate 0.70) 80 90 1
         Run-Case 'домен выше порога (95% домен)' (New-CoberturaXml -Rate 0.85 -DomainRate 0.95) 80 90 0
         Run-Case 'нет домена — только предупреждение' (New-CoberturaXml -Rate 0.85) 80 90 0
+
+        # --- Регресс M-3: пороги обязаны приходить из СХЕМЫ активного профиля -----------------
+        # После переноса в `sdd/` здесь стоял `$repoRoot`, схема не находилась, и гейт молча брал
+        # хардкод 80/90, печатая «источник: схема активного профиля». Самотест этого не видел,
+        # потому что вызывает Test-Coverage напрямую. Теперь сверяем Get-CoverageThresholds
+        # с тем, что реально написано в файле схемы: расхождение = схема не прочитана.
+        $tres = Get-CoverageThresholds
+        $cfg  = Join-Path $sddRoot 'openspec/config.yaml'
+        $declared = $false
+        if (Test-Path -LiteralPath $cfg) {
+            $cfgText = Get-Content -LiteralPath $cfg -Raw -Encoding UTF8
+            $pm = [regex]::Match($cfgText, '(?m)^\s+profile:\s*(?<p>[A-Za-z0-9_\-]+)')
+            if ($pm.Success) {
+                $sch = Join-Path $sddRoot ("openspec/schemas/{0}.yaml" -f $pm.Groups['p'].Value)
+                if (Test-Path -LiteralPath $sch) {
+                    $declared = $true
+                    $schText = Get-Content -LiteralPath $sch -Raw -Encoding UTF8
+                    $sm = [regex]::Match($schText, '(?m)^\s+coverage_min_percent:\s*(?<v>[\d.]+)')
+                    $sd = [regex]::Match($schText, '(?m)^\s+coverage_min_percent_domain:\s*(?<v>[\d.]+)')
+                    if ($sm.Success -and [double]$sm.Groups['v'].Value -ne $tres.Min) {
+                        Write-Host ("BAD  порог из схемы ({0}) не совпал с прочитанным ({1}) — схема не читается" -f $sm.Groups['v'].Value, $tres.Min)
+                        $script:failCount++
+                    }
+                    elseif ($sd.Success -and [double]$sd.Groups['v'].Value -ne $tres.MinDomain) {
+                        Write-Host ("BAD  порог домена из схемы ({0}) не совпал с прочитанным ({1}) — схема не читается" -f $sd.Groups['v'].Value, $tres.MinDomain)
+                        $script:failCount++
+                    }
+                    else {
+                        Write-Host ("OK   пороги взяты из схемы профиля (общий {0:N0}%, домен {1:N0}%)" -f $tres.Min, $tres.MinDomain)
+                    }
+                }
+            }
+        }
+        if (-not $declared) {
+            Write-Host 'WARN probe : схема активного профиля не найдена — пороги не сверены'
+        }
     }
     finally {
         Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue

@@ -351,6 +351,8 @@ function Get-ActiveSchema {
 
     $schema.RequiredSections = $req
     $schema.OptionalSections = @($doc['optional_sections'] | Where-Object { $_ -ne '' })
+    # N-D: `required_files:` объявлен в обеих схемах, но не исполнялся — V8 держал хардкод.
+    $schema | Add-Member -NotePropertyName RequiredFiles -NotePropertyValue (@($doc['required_files'] | Where-Object { $_ -ne '' })) -Force
     $schema.Found = $true
     $schema.Source = "openspec/schemas/$profile.yaml"
 
@@ -447,6 +449,55 @@ function Test-ProposalSections {
         }
     }
 
+    # V12: пороги маршрута lite проверяются машиной (находка N-C / N-9).
+    # Раньше `config.yaml → schemas.lite_thresholds` (`max_files: 2`, `max_changed_lines: 50`)
+    # не читал никто: предложение на 160 строк с заявленными 40 файлами проходило с exit 0,
+    # а схема `lite.yaml` утверждала, будто порог «проверяется валидатором как предупреждение».
+    # Правило держалось на честности. Теперь считается то, что объявлено в самом предложении.
+    if ($isLite) {
+        $liteThresholds = $null
+        try {
+            $cfgText = Read-Text (Join-Path $sddRoot 'openspec/config.yaml')
+            if ($null -ne $cfgText) {
+                $maxFilesM = [regex]::Match($cfgText, '(?m)^\s+max_files:\s*(?<v>\d+)')
+                $maxLinesM = [regex]::Match($cfgText, '(?m)^\s+max_changed_lines:\s*(?<v>\d+)')
+                if ($maxFilesM.Success -or $maxLinesM.Success) {
+                    $liteThresholds = [pscustomobject]@{
+                        MaxFiles = if ($maxFilesM.Success) { [int]$maxFilesM.Groups['v'].Value } else { 2 }
+                        MaxLines = if ($maxLinesM.Success) { [int]$maxLinesM.Groups['v'].Value } else { 50 }
+                        Declared = $false
+                    }
+                }
+            }
+        }
+        catch { $liteThresholds = $null }
+
+        if ($null -eq $liteThresholds) {
+            Add-Warning $Where 'V12: пороги lite не найдены в config.yaml → schemas.lite_thresholds — применимость маршрута не проверена'
+        }
+        else {
+            # Явное объявление объёма: `Changed files: N` / `Changed lines: N` (регистр и оформление свободны).
+            $cfM = [regex]::Match($text, '(?im)^\s*[-*]?\s*\**\s*(?:changed[_ ]files|файлов)\s*:?\**\s*(?<v>\d+)')
+            $clM = [regex]::Match($text, '(?im)^\s*[-*]?\s*\**\s*(?:changed[_ ]lines|строк)\s*:?\**\s*(?<v>\d+)')
+
+            if ($cfM.Success) {
+                $cf = [int]$cfM.Groups['v'].Value
+                if ($cf -gt $liteThresholds.MaxFiles) {
+                    Add-Warning $Where ("V12: lite заявлен на {0} файлов при пороге {1} — маршрут неприменим (AGENTS.md §2, D-020)" -f $cf, $liteThresholds.MaxFiles)
+                }
+            }
+            if ($clM.Success) {
+                $cl = [int]$clM.Groups['v'].Value
+                if ($cl -gt $liteThresholds.MaxLines) {
+                    Add-Warning $Where ("V12: lite заявлен на {0} строк при пороге {1} — маршрут неприменим (AGENTS.md §2, D-020)" -f $cl, $liteThresholds.MaxLines)
+                }
+            }
+            if (-not $cfM.Success -and -not $clM.Success) {
+                Add-Warning $Where 'V12: lite без объявленного объёма ("Changed files:" / "Changed lines:") — применимость проверить нечем'
+            }
+        }
+    }
+
     # В lite требований и сценариев нет по определению — V2/V3/V4 не применяются.
     if ($isLite) { return }
 
@@ -459,16 +510,34 @@ function Test-ProposalSections {
     # V3/V4: сценарии внутри требований
     Test-RequirementScenarios -Text $text -Where $Where
 
-    # V10: [NEEDS CLARIFICATION] должен иметь парный OQ-N
+    # V10: [NEEDS CLARIFICATION] должен иметь парный OQ-N, и этот OQ-N должен СУЩЕСТВОВАТЬ.
+    # Раньше `$oqBlock` читался и тут же выбрасывался (`if ($null -eq $oqBlock) { continue }` —
+    # единственное использование переменной), поэтому проверялось лишь наличие подстроки `OQ-N`
+    # рядом с маркером. Вопрос, на который нет записи в реестре, для процесса не существует
+    # (конституция §1 п. 5), а гейт это пропускал (находка N-E).
     $clarifications = [regex]::Matches($text, '\[NEEDS CLARIFICATION[^\]]*\]')
     if ($clarifications.Count -gt 0) {
         $oqBlock = Read-Text (Join-Path $sddRoot 'OPEN_QUESTIONS.md')
+        $knownOq = @()
+        if ($null -ne $oqBlock) {
+            $knownOq = @([regex]::Matches($oqBlock, '(?m)^\s*\|\s*(?<id>OQ-\d+)\s*\|') |
+                ForEach-Object { $_.Groups['id'].Value })
+        }
+
         foreach ($m in $clarifications) {
             $context = Get-SurroundingText -Text $text -Index $m.Index -Radius 200
             if ($context -notmatch 'OQ-\d+') {
                 Add-Error $Where "V10: '[NEEDS CLARIFICATION]' без OQ-N рядом: '$($m.Value)'"
+                continue
             }
-            if ($null -eq $oqBlock) { continue }
+
+            # Каждый упомянутый рядом OQ-N обязан быть в реестре.
+            foreach ($oq in [regex]::Matches($context, 'OQ-\d+')) {
+                $id = $oq.Value
+                if ($knownOq -notcontains $id) {
+                    Add-Error $Where "V10: '$id' упомянут рядом с '[NEEDS CLARIFICATION]', но отсутствует в OPEN_QUESTIONS.md"
+                }
+            }
         }
     }
 }
@@ -655,6 +724,15 @@ function Test-RequirementParity {
 function Test-RelativeLinks {
     param([string]$File, [string]$BaseDir, [string]$Where)
 
+    # N-F: архивные предложения (`proposals/archive/`) по guardrail не редактируются, поэтому их
+    # устаревшие ссылки — ожидаемое состояние, а не дефект. Общий скан это учитывает
+    # (Test-LinkScopeExcluded), но `-Path <архивное>` шёл сюда напрямую и давал 7 ложных V6.
+    # Проверка на архив должна быть одна и та же во всех режимах.
+    if ((($File -replace '\\', '/') -match '/openspec/proposals/archive/')) {
+        Write-Verbose "V6: $File — архив, ссылки не проверяются (guardrail)"
+        return
+    }
+
     $text = Read-Text $File
     if ($null -eq $text) { return }
 
@@ -679,9 +757,20 @@ function Test-RelativeLinks {
 
 # --- V8/V9: обязательные файлы и performance.md -------------------------------------------
 function Test-RequiredFiles {
-    param([string]$ProposalDir, [string]$Where)
+    param([string]$ProposalDir, [string]$Where, $Schema)
 
-    foreach ($required in @('proposal.md', 'tasks.md', 'acceptance.md')) {
+    # N-D: список обязательных файлов берётся из СХЕМЫ активного профиля (`required_files:`),
+    # если он там объявлен. Раньше здесь стоял хардкод трёх файлов, и ключ `required_files`
+    # в обеих схемах был объявлен, но не исполнялся: допишите в схему `design.md` — гейт
+    # этого не заметит, схема останется декоративной. Дефолт сохраняется на случай схемы
+    # без ключа (обратная совместимость со старыми профилями).
+    $requiredFiles = @('proposal.md', 'tasks.md', 'acceptance.md')
+    if ($null -ne $Schema -and $null -ne $Schema.PSObject.Properties['RequiredFiles'] -and
+        $null -ne $Schema.RequiredFiles -and @($Schema.RequiredFiles).Count -gt 0) {
+        $requiredFiles = @($Schema.RequiredFiles)
+    }
+
+    foreach ($required in $requiredFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $ProposalDir $required))) {
             Add-Error $Where "V8: отсутствует обязательный файл '$required'"
         }
@@ -727,7 +816,7 @@ function Test-Proposal {
     # (дельта specs/) обязаны смотреть на один и тот же профиль — иначе проверки расходятся.
     $schema = Get-ActiveSchema -Where $where
 
-    Test-RequiredFiles -ProposalDir $ProposalDir -Where $where
+    Test-RequiredFiles -ProposalDir $ProposalDir -Where $where -Schema $schema
     Test-ProposalSections -ProposalPath (Join-Path $ProposalDir 'proposal.md') -Where $where
     Test-TasksFormat -TasksPath (Join-Path $ProposalDir 'tasks.md') -Where $where -Schema $schema
     Test-RequirementParity -ProposalDir $ProposalDir -Where $where
@@ -777,16 +866,75 @@ function Test-ArchivedProposal {
             }
         }
     }
+
+    # --- V-архив: Review gate оставил артефакт ------------------------------------------------
+    # Конституция §3 п. 4 и §7 требуют для фазы Review АРТЕФАКТ — вердикт ревью с `VERDICT: Pass`.
+    # На реальном кейсе (DeliveryServisePilot, 2026-11-16) ревью прошло десять проходов, находки
+    # были закрыты, но файла вердикта не осталось: STATUS.md утверждал "Review Pass", acceptance.md —
+    # "вердикт не выносился", а гейт этого не видел, потому что проверял только чекбоксы, статус
+    # и дельту. Доказательство фазы — файл, а не упоминание в CHANGELOG.
+    #
+    # Форма: любой `*.md` в каталоге предложения (обычно `review.md`), содержащий первую строку
+    # вида `VERDICT: Pass` — контракт из скилла `code-review`. Ищем по всему тексту, но требуем,
+    # чтобы Pass не был частью меню вариантов (`Pass / Fail`) — так же, как в проверке приёмки.
+    $reviewFile = $null
+    $reviewVerdict = $null
+    foreach ($md in @(Get-ChildItem -LiteralPath $ProposalDir -Filter '*.md' -File)) {
+        if ($md.Name -in @('proposal.md', 'tasks.md', 'acceptance.md', 'performance.md')) { continue }
+        $mdText = Read-Text $md.FullName
+        if ($null -eq $mdText) { continue }
+        $vm = [regex]::Match($mdText, '(?im)^\s*\**\s*VERDICT:\s*(?<v>Pass|Fail)\b')
+        if ($vm.Success) {
+            $reviewFile = $md.Name
+            $reviewVerdict = $vm.Groups['v'].Value
+            break
+        }
+    }
+
+    if ($null -eq $reviewVerdict) {
+        # Обратная совместимость: старые предложения набора (до введения гейта) вердикта не имели.
+        # Их история заморожена (D-010), поэтому для них — предупреждение; для любых НОВЫХ
+        # архивных предложений это ошибка: гейт вводится с этого момента.
+        if ($name -match '^(2026-11-09|2026-11-10)-') {
+            Add-Warning $where 'V-архив: артефакт вердикта ревью (VERDICT: Pass|Fail) не найден — для замороженной истории допустимо, для новых предложений это блокер'
+        }
+        else {
+            Add-Error $where 'V-архив: нет артефакта вердикта ревью — нужен `*.md` с первой строкой `VERDICT: Pass|Fail` (конституция §3 п. 4, §7 фаза Review)'
+        }
+    }
+    elseif ($reviewVerdict -ne 'Pass') {
+        Add-Error $where "V-архив: вердикт ревью '$reviewVerdict' в $reviewFile — в архив уходит только 'Pass'"
+    }
+    else {
+        Write-Verbose "$where : вердикт ревью Pass найден в $reviewFile"
+    }
 }
 
 # --- Проверка ссылок по всему репозиторию -------------------------------------------------
 function Test-RepositoryLinks {
+    # Область сканирования: `*.md` плюс файлы правил без расширения `.md`, которые агентные
+    # инструменты читают как разметку. Раньше здесь стоял только `-Filter '*.md'`, поэтому
+    # `.clinerules` (зеркало правил в корне) был СТРУКТУРНО невидим для гейта ссылок: после
+    # переноса в `sdd/` в нём осталось 10 мёртвых ссылок, а гейт рапортовал успех (находка N-A).
+    # `check-canon-parity` ссылки не резолвит, так что этот файл не проверял никто.
+    $extraRuleFiles = @(
+        (Join-Path $repoRoot '.clinerules')
+    )
+
     $mdFiles = @(Get-ChildItem -LiteralPath $repoRoot -Recurse -Filter '*.md' -File |
         Where-Object { -not (Test-LinkScopeExcluded -FullName $_.FullName) })
 
+    $ruleFiles = @($extraRuleFiles | Where-Object {
+        $p = $_ -replace '\\', '/'
+        (Test-Path -LiteralPath $_) -and
+        -not ($p -match '/docs/legacy/' -or $p -match '/proposals/archive/' -or $p -match '/docs/session/')
+    } | ForEach-Object { Get-Item -LiteralPath $_ })
+
+    $filesToScan = @($mdFiles) + @($ruleFiles)
+
     $checked = 0
     $links = 0
-    foreach ($file in $mdFiles) {
+    foreach ($file in $filesToScan) {
         $text = Read-Text $file.FullName
         if ($null -eq $text) { continue }
         $checked++
@@ -803,7 +951,7 @@ function Test-RepositoryLinks {
                 continue
             }
             if (-not (Test-Path -LiteralPath $resolved)) {
-                $rel = $file.FullName.Substring($repoRoot.Length + 1)
+                $rel = $file.FullName.Substring($repoRoot.Length + 1) -replace '\\', '/'
                 Add-Error "$rel" "V6: битая ссылка '$link'"
             }
         }

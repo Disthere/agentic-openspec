@@ -292,30 +292,38 @@ W ''
 W ("- Открытых вопросов: **{0}** (всего в реестре: {1})" -f $q.openQuestions, $q.totalQuestions)
 W ("- Зафиксированных решений: **{0}**" -f $q.decisions)
 W ''
-if ($items.Count -gt 0) {
+if ($true) {
     W '## 3. Время по предложениям (по коммитам)'
     W ''
-    W '| Предложение | Коммитов | Первый | Последний |'
-    W '| - | - | - | - |'
-    foreach ($i in $items) {
-        $f = if ($i.firstCommit) { ([datetime]$i.firstCommit).ToString('yyyy-MM-dd HH:mm') } else { '—' }
-        $l = if ($i.lastCommit) { ([datetime]$i.lastCommit).ToString('yyyy-MM-dd HH:mm') } else { '—' }
-        W ("| {0} | {1} | {2} | {3} |" -f $i.id, $i.commits, $f, $l)
+    if ($items.Count -eq 0) {
+        W '_Нет активных предложений._'
+    }
+    else {
+        W '| Предложение | Коммитов | Первый | Последний |'
+        W '| - | - | - | - |'
+        foreach ($i in $items) {
+            $f = if ($i.firstCommit) { ([datetime]$i.firstCommit).ToString('yyyy-MM-dd HH:mm') } else { '—' }
+            $l = if ($i.lastCommit) { ([datetime]$i.lastCommit).ToString('yyyy-MM-dd HH:mm') } else { '—' }
+            W ("| {0} | {1} | {2} | {3} |" -f $i.id, $i.commits, $f, $l)
+        }
     }
     W ''
-}
-W '## 4. Архив завершённых'
-W ''
-if ($archived.Count -eq 0) {
-    W '_Архив пуст._'
-}
-else {
-    W '| Предложение | Требований | Задачи | Приёмка | Вердикт |'
-    W '| - | - | - | - | - |'
-    foreach ($a in $archived) {
-        $acc = if ($a.acceptanceRows -gt 0) { "$($a.acceptanceFilled)/$($a.acceptanceRows)" } else { '—' }
-        W ("| {0} | {1} | {2}/{3} | {4} | {5} |" -f $a.id, $a.requirements, $a.tasksDone, $a.tasksTotal, $acc, $(if ($a.verdict) { $a.verdict } else { '—' }))
+
+    W '## 4. Архив завершённых'
+    W ''
+    if ($archived.Count -eq 0) {
+        W '_Архив пуст._'
     }
+    else {
+        W '| Предложение | Требований | Задачи | Приёмка | Трассировка | Вердикт |'
+        W '| - | - | - | - | - | - |'
+        foreach ($a in $archived) {
+            $acc = if ($a.acceptanceRows -gt 0) { "$($a.acceptanceFilled)/$($a.acceptanceRows)" } else { '—' }
+            $tr = if ($a.requirements -gt 0) { '{0:N0}%' -f (100.0 * $a.acceptanceFilled / $a.requirements) } else { '—' }
+            W ("| {0} | {1} | {2}/{3} | {4} | {5} | {6} |" -f $a.id, $a.requirements, $a.tasksDone, $a.tasksTotal, $acc, $tr, $(if ($a.verdict) { $a.verdict } else { '—' }))
+        }
+    }
+    W ''
 }
 W ''
 

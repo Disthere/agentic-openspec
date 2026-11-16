@@ -27,7 +27,11 @@
 [CmdletBinding()]
 param(
     [int]$MinPlugins = 8,
-    [string]$DshPath
+    [string]$DshPath,
+    # Строгий режим: отсутствие DSH — это FAIL, а не SKIP. Нужен там, где проверка обязана
+    # состояться (CI с установленным DSH, приёмка гейта), чтобы «SKIP, exit 0» нельзя было
+    # зачесть как пройденную проверку.
+    [switch]$RequireDsh
 )
 
 Set-StrictMode -Version Latest
@@ -66,7 +70,18 @@ $requiredPlugins = @('tool-fs', 'tool-pwsh', 'skill-filesystem', 'agent-instruct
 if (-not $DshPath) {
     $candidate = Join-Path $env:LOCALAPPDATA 'Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd'
     if (-not (Test-Path -LiteralPath $candidate)) {
-        Write-Host "SKIP: dsh.cmd не найден ($candidate) — проверка композиции невозможна" -ForegroundColor Yellow
+        # SKIP не должен выглядеть как пройденная проверка: на реальном кейсе
+        # (DeliveryServisePilot, 2026-11-16) гейт печатал SKIP и возвращал 0, а STATUS ссылался
+        # на него как на «✅ пройдено». Формулировка и код возврата разведены:
+        #   * по умолчанию — SKIP + exit 0 (набор остаётся переносимым: без DSH проверить нельзя),
+        #     но текст ЯВНО говорит, что композиция НЕ проверена;
+        #   * `-RequireDsh` — SKIP превращается в FAIL (для CI/приёмки, где DSH обязан быть).
+        if ($RequireDsh) {
+            Write-Host "FAIL: dsh.cmd не найден ($candidate) — композиция пресета НЕ проверена, а запуск требует проверки (-RequireDsh)" -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "SKIP: композиция пресета НЕ проверена — dsh.cmd не найден ($candidate)" -ForegroundColor Yellow
+        Write-Host "      Это не «пройдено»: никакой проверки не выполнялось. Для строгого режима: -RequireDsh" -ForegroundColor Yellow
         exit 0
     }
     $DshPath = $candidate

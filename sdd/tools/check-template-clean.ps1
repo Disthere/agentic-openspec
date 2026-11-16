@@ -6,16 +6,16 @@
 .DESCRIPTION
     Ловит историю разработки самого набора, которая не должна уезжать в проект-получатель:
       * `PLAN.md` / `ASSESSMENT.md` в корне (журнал работы над набором);
-      * `docs/baseline/` с отчётами батчей;
+      * `sdd/docs/legacy/set-history/baseline/` с отчётами батчей;
       * активные предложения `00[1-6]-*` (примеры должны быть в archive/);
       * живые спецификации набора (`independent-review`, `delivery-roles`, `product-lifecycle`);
       * реестры, не приведённые к шаблонам (эвристика: наличие `D-0NN`, `OQ-N` про сам набор).
 
     Скрипт осознанно НЕ требует удаления `src/Smoke` и `tests/Smoke.Tests`: они доказывают, что
-    шаблон собирается (см. docs/CLEANUP.md §4).
+    шаблон собирается (см. sdd/docs/CLEANUP.md §4).
 
 .PARAMETER SkipBaseline
-    Не считать `docs/baseline/` нарушением (полезно при работе над самим набором).
+    Не считать `sdd/docs/legacy/set-history/baseline/` нарушением (полезно при работе над самим набором).
 
 .EXAMPLE
     ./tools/check-template-clean.ps1
@@ -59,16 +59,28 @@ function Add-Warning { param([string]$m) $warnings.Add($m) }
 foreach ($f in @('PLAN.md', 'ASSESSMENT.md')) {
     $p = Join-Path $repoRoot $f
     if (Test-Path -LiteralPath $p) {
-        Add-Error "$f остался в корне — это журнал работы над набором, удалите его (docs/CLEANUP.md §5)"
+        Add-Error "$f остался в корне — это журнал работы над набором, удалите его (sdd/docs/CLEANUP.md §5)"
     }
 }
 
 # --- 2. Baseline с отчётами батчей ---------------------------------------------------------
-$baseline = Join-Path $sddRoot 'docs/baseline'
-if ((Test-Path -LiteralPath $baseline) -and -not $SkipBaseline) {
+# После переноса в `sdd/` эти файлы живут в замороженной истории набора, а не в `docs/baseline/`
+# (этот путь больше не существует — находка M-8: проверка била в пустоту и никогда не срабатывала).
+#
+# В репозитории САМОГО набора история обязана присутствовать: конституция §1 п. 7 требует хранить
+# её в `docs/legacy/set-history/`. Нарушением она становится только в РАЗДАВАЕМОЙ копии, где
+# `docs/legacy/set-history/` по чек-листу CLEANUP удаляется. Поэтому здесь — ошибка только при
+# явном запросе строгого режима, иначе предупреждение с точным путём и командой очистки.
+$baseline = Join-Path $sddRoot 'docs/legacy/set-history/baseline'
+if (Test-Path -LiteralPath $baseline) {
     $files = @(Get-ChildItem -LiteralPath $baseline -File -ErrorAction SilentlyContinue)
     if ($files.Count -gt 0) {
-        Add-Error "docs/baseline/ содержит $($files.Count) файл(ов) — отчёты работы над набором (docs/CLEANUP.md §5). Используйте -SkipBaseline, если это осознанно"
+        if ($SkipBaseline) {
+            Write-Verbose "docs/legacy/set-history/baseline/: $($files.Count) файл(ов) — история набора, осознанно оставлена (-SkipBaseline)"
+        }
+        else {
+            Add-Warning "sdd/docs/legacy/set-history/baseline/ содержит $($files.Count) файл(ов) — это история НАБОРА, а не вашего продукта; в раздаваемой копии удалите каталог sdd/docs/legacy/set-history/ (docs/CLEANUP.md §5)"
+        }
     }
 }
 
@@ -77,7 +89,7 @@ $proposals = Join-Path $sddRoot 'openspec/proposals'
 if (Test-Path -LiteralPath $proposals) {
     foreach ($dir in @(Get-ChildItem -LiteralPath $proposals -Directory -ErrorAction SilentlyContinue)) {
         if ($dir.Name -match '^00[1-6]-' -and $dir.Name -ne 'archive') {
-            Add-Error "активное предложение-пример '$($dir.Name)' — перенесите в archive/ или удалите (docs/CLEANUP.md §3)"
+            Add-Error "активное предложение-пример '$($dir.Name)' — перенесите в archive/ или удалите (sdd/docs/CLEANUP.md §3)"
         }
     }
 }
@@ -88,7 +100,7 @@ $setOwnSpecs = @('independent-review', 'delivery-roles', 'product-lifecycle')
 foreach ($cap in $setOwnSpecs) {
     $p = Join-Path $specs $cap
     if (Test-Path -LiteralPath $p) {
-        Add-Error "спецификация набора 'openspec/specs/$cap/' осталась — это не спецификация вашего продукта (docs/CLEANUP.md §3)"
+        Add-Error "спецификация набора 'sdd/openspec/specs/$cap/' осталась — это не спецификация вашего продукта (sdd/docs/CLEANUP.md §3)"
     }
 }
 
@@ -104,7 +116,7 @@ if (Test-Path -LiteralPath $decisionsPath) {
             Where-Object { $_.Value -notmatch '<[^>]*>' -and $_.Value -notmatch 'YYYY-MM-DD' }
     )
     if ($setDecisions.Count -gt 0) {
-        Add-Error "DECISIONS.md содержит $($setDecisions.Count) реальных записей D-0NN набора — замените на docs/DECISIONS-TEMPLATE.md (docs/CLEANUP.md §2)"
+        Add-Error "DECISIONS.md содержит $($setDecisions.Count) реальных записей D-0NN набора — замените на sdd/docs/DECISIONS-TEMPLATE.md (sdd/docs/CLEANUP.md §2)"
     }
 }
 
@@ -116,7 +128,7 @@ if (Test-Path -LiteralPath $oqPath) {
             Where-Object { $_.Value -notmatch '<[^>]*>' }
     )
     if ($setOq.Count -gt 0) {
-        Add-Warning "OPEN_QUESTIONS.md содержит $($setOq.Count) записей OQ-N — проверьте, что они про ваш проект, а не про набор (docs/CLEANUP.md §2)"
+        Add-Warning "OPEN_QUESTIONS.md содержит $($setOq.Count) записей OQ-N — проверьте, что они про ваш проект, а не про набор (sdd/docs/CLEANUP.md §2)"
     }
 }
 
@@ -164,7 +176,7 @@ $validator = Join-Path $PSScriptRoot 'validate-proposals.ps1'
 if (Test-Path -LiteralPath $validator) {
     $linkCheck = Invoke-PwshScript -ScriptPath $validator -Arguments @('-CheckLinks') 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0) {
-        Add-Error 'битые относительные ссылки в репозитории — запустите tools/validate-proposals.ps1 -CheckLinks для деталей'
+        Add-Error 'битые относительные ссылки в репозитории — запустите sdd/tools/validate-proposals.ps1 -CheckLinks для деталей'
     }
 }
 
@@ -175,7 +187,56 @@ $registrar = Join-Path $PSScriptRoot 'register-inputs.ps1'
 if (Test-Path -LiteralPath $registrar) {
     $regCheck = Invoke-PwshScript -ScriptPath $registrar -Arguments @('-Check') 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0) {
-        Add-Error 'в inputs/ есть незарегистрированные материалы — запустите tools/register-inputs.ps1 -Apply'
+        Add-Error 'в sdd/inputs/ есть незарегистрированные материалы — запустите sdd/tools/register-inputs.ps1 -Apply'
+    }
+}
+
+# --- 9. METRICS.md не протух --------------------------------------------------------------
+# На реальном кейсе (DeliveryServisePilot, 2026-11-16) `METRICS.md` был собран 2026-11-12
+# и утверждал «Архив пуст», хотя архив уже содержал завершённое предложение. Гейты этого
+# не видели: метрики — генерируемый файл, и никто не сверял дату сборки с фактом.
+# Дату сравниваем с самым свежим артефактом, из которого метрики считаются.
+$metricsPath = Join-Path $sddRoot 'METRICS.md'
+if (Test-Path -LiteralPath $metricsPath) {
+    $metricsText = Get-Content -LiteralPath $metricsPath -Raw -Encoding UTF8
+    $builtM = [regex]::Match($metricsText, '(?i)Собрано автоматически\s+(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})')
+    if ($builtM.Success) {
+        $builtAt = [datetime]::ParseExact(
+            ($builtM.Groups[1].Value + ' ' + $builtM.Groups[2].Value),
+            'yyyy-MM-dd HH:mm',
+            [System.Globalization.CultureInfo]::InvariantCulture)
+
+        # Самый свежий источник метрик: реестры и архив предложений.
+        $sources = @(
+            (Join-Path $sddRoot 'DECISIONS.md'),
+            (Join-Path $sddRoot 'OPEN_QUESTIONS.md'),
+            (Join-Path $sddRoot 'STATUS.md')
+        )
+        $archiveRoot = Join-Path $sddRoot 'openspec/proposals/archive'
+        if (Test-Path -LiteralPath $archiveRoot) {
+            $sources += @(Get-ChildItem -LiteralPath $archiveRoot -Directory -ErrorAction SilentlyContinue |
+                ForEach-Object { Get-ChildItem -LiteralPath $_.FullName -File -Filter '*.md' -ErrorAction SilentlyContinue } |
+                ForEach-Object { $_.FullName })
+        }
+
+        $newest = $builtAt
+        $newestName = ''
+        foreach ($src in $sources) {
+            if (-not (Test-Path -LiteralPath $src)) { continue }
+            $t = (Get-Item -LiteralPath $src).LastWriteTime
+            if ($t -gt $newest) { $newest = $t; $newestName = (Split-Path -Leaf $src) }
+        }
+
+        if ($newest -gt $builtAt) {
+            $msg = "sdd/METRICS.md устарел: собран {0:yyyy-MM-dd HH:mm}, а '{1}' изменён позже ({2:yyyy-MM-dd HH:mm}) — выполните sdd/tools/collect-metrics.ps1 -WithGates -OutFile sdd/METRICS.md" -f $builtAt, $newestName, $newest
+            Add-Warning $msg
+        }
+        else {
+            Write-Verbose ("METRICS.md актуален ({0:yyyy-MM-dd HH:mm})" -f $builtAt)
+        }
+    }
+    else {
+        Add-Warning 'sdd/METRICS.md не содержит шапки «Собрано автоматически <дата>» — свежесть не проверить'
     }
 }
 
@@ -186,7 +247,7 @@ foreach ($e in $errors) { Write-Host "FAIL  $e" -ForegroundColor Red }
 Write-Host ''
 if ($errors.Count -gt 0) {
     Write-Host "ИТОГ: ПРОВАЛ — шаблон не чист, нарушений: $($errors.Count)" -ForegroundColor Red
-    Write-Host 'Прогоните docs/CLEANUP.md и запустите снова.'
+    Write-Host 'Прогоните sdd/docs/CLEANUP.md и запустите снова.'
     exit 1
 }
 
