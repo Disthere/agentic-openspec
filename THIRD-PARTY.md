@@ -13,7 +13,7 @@
 | Материал | Где в наборе | Лицензия | Что сделано |
 | - | - | - | - |
 | **OpenSpec** (спецификационный формат: `proposal`/`specs`, `ADDED/MODIFIED Requirements`, `WHEN/THEN`) | структура `openspec/`, схемы, шаблоны предложений | **MIT** | Идея формата и конвенции ключевых слов; текст лицензии — ниже |
-| ~~Wikipedia:Signs of AI writing~~ | — | — | **Удалено** вместе со скиллом `ai-writing-tells` (D-06). Обязательств по CC BY-SA больше нет |
+| ~~Wikipedia:Signs of AI writing~~ | — | — | **Удалено** вместе со скиллом `ai-writing-tells` (решение набора, [`DECISIONS-FROZEN.md`](./docs/legacy/DECISIONS-FROZEN.md)). Обязательств по CC BY-SA больше нет |
 
 > **Важно:** материалы из Wikipedia — производная работа под **CC BY-SA 4.0**. Если вы распространяете
 > набор, условие «share-alike» относится к этим файлам. Источник и авторы указаны в самих файлах

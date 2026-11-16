@@ -27,7 +27,7 @@
 - [`skills/code-review/SKILL.md`](./skills/code-review/SKILL.md) — двухосевое независимое ревью (Standards / Spec);
   каталоги — в `skills/code-review/references/`.
 
-> `ai-writing-tells` из набора **удалён** (решение D-06): он не обслуживает ни один гейт набора.
+> `ai-writing-tells` из набора **удалён** (решение набора, [`DECISIONS-FROZEN.md`](../docs/legacy/DECISIONS-FROZEN.md)): он не обслуживает ни один гейт набора.
 > Если он нужен — это глобальный бандл скиллов DSH, а не часть шаблона.
 
 ## Протокол делегирования
