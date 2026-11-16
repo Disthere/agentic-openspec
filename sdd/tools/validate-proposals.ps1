@@ -924,11 +924,15 @@ function Test-RepositoryLinks {
     $mdFiles = @(Get-ChildItem -LiteralPath $repoRoot -Recurse -Filter '*.md' -File |
         Where-Object { -not (Test-LinkScopeExcluded -FullName $_.FullName) })
 
+    # `-Force` обязателен: на Linux имена, начинающиеся с точки, считаются скрытыми, и
+    # `Get-Item -LiteralPath` без `-Force` их не находит — `Could not find item .../.clinerules`.
+    # На Windows этого не видно (там скрытость задаётся атрибутом, а не именем), поэтому регресс
+    # поймал только CI на ubuntu.
     $ruleFiles = @($extraRuleFiles | Where-Object {
         $p = $_ -replace '\\', '/'
         (Test-Path -LiteralPath $_) -and
         -not ($p -match '/docs/legacy/' -or $p -match '/proposals/archive/' -or $p -match '/docs/session/')
-    } | ForEach-Object { Get-Item -LiteralPath $_ })
+    } | ForEach-Object { Get-Item -LiteralPath $_ -Force })
 
     $filesToScan = @($mdFiles) + @($ruleFiles)
 

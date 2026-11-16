@@ -275,4 +275,4 @@ jobs:
 
       - name: Check preset composition (>= 8 plugins per role preset)
         shell: pwsh
-        run: ./sdd/docs/ci/check-dsh-profile.ps1 -RequireDsh   # в CI отсутствие DSH = FAIL, не SKIP
+        run: ./sdd/docs/ci/check-dsh-profile.ps1   # на чистом раннере DSH нет -> SKIP; строгий режим (-RequireDsh) — для self-hosted

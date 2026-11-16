@@ -68,19 +68,31 @@ $legacyRolePresets = @(
 $requiredPlugins = @('tool-fs', 'tool-pwsh', 'skill-filesystem', 'agent-instructions')
 
 if (-not $DshPath) {
-    $candidate = Join-Path $env:LOCALAPPDATA 'Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd'
-    if (-not (Test-Path -LiteralPath $candidate)) {
+    # `$env:LOCALAPPDATA` существует только на Windows: на Linux/раннере он пуст, и
+    # `Join-Path $null ...` падает с "Cannot bind argument to parameter 'Path' because it is null".
+    # Поэтому путь строится только когда переменная есть, иначе кандидат не задаётся вовсе.
+    $candidate = $null
+    if ($env:LOCALAPPDATA) {
+        $candidate = Join-Path $env:LOCALAPPDATA 'Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd'
+    }
+
+    if (-not $candidate -or -not (Test-Path -LiteralPath $candidate)) {
         # SKIP не должен выглядеть как пройденная проверка: на реальном кейсе
         # (DeliveryServisePilot, 2026-11-16) гейт печатал SKIP и возвращал 0, а STATUS ссылался
         # на него как на «✅ пройдено». Формулировка и код возврата разведены:
         #   * по умолчанию — SKIP + exit 0 (набор остаётся переносимым: без DSH проверить нельзя),
         #     но текст ЯВНО говорит, что композиция НЕ проверена;
-        #   * `-RequireDsh` — SKIP превращается в FAIL (для CI/приёмки, где DSH обязан быть).
+        #   * `-RequireDsh` — SKIP превращается в FAIL (для приёмки/self-hosted, где DSH обязан быть).
+        #
+        # В облачном CI на чистом раннере DSH НЕТ и появиться не может: там запускать с
+        # `-RequireDsh` бессмысленно — это гарантированный красный джоб по причине, не относящейся
+        # к качеству набора. Поэтому CI вызывает гейт БЕЗ строгого режима и получает SKIP.
+        $where = if ($candidate) { $candidate } else { 'LOCALAPPDATA не задан (не Windows)' }
         if ($RequireDsh) {
-            Write-Host "FAIL: dsh.cmd не найден ($candidate) — композиция пресета НЕ проверена, а запуск требует проверки (-RequireDsh)" -ForegroundColor Red
+            Write-Host "FAIL: dsh.cmd не найден ($where) — композиция пресета НЕ проверена, а запуск требует проверки (-RequireDsh)" -ForegroundColor Red
             exit 1
         }
-        Write-Host "SKIP: композиция пресета НЕ проверена — dsh.cmd не найден ($candidate)" -ForegroundColor Yellow
+        Write-Host "SKIP: композиция пресета НЕ проверена — dsh.cmd не найден ($where)" -ForegroundColor Yellow
         Write-Host "      Это не «пройдено»: никакой проверки не выполнялось. Для строгого режима: -RequireDsh" -ForegroundColor Yellow
         exit 0
     }
