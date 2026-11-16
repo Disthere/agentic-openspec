@@ -18,7 +18,7 @@ ops/release) and every change is specified before it is implemented.
 - **Cache:** Redis (распределённый), `IMemoryCache` (локальный).
 - **Resilience:** Polly (таймауты, retry с jitter, circuit breaker, bulkhead).
 - **Observability:** OpenTelemetry (traces/metrics/logs), health-checks.
-- **Tests:** xUnit + FluentAssertions (+ NSubstitute/Moq), Testcontainers для интеграции.
+- **Tests:** xUnit + FluentAssertions (≤ 7.2.2) + NSubstitute (Moq не используется), Testcontainers для интеграции.
 - **Tooling:** `dotnet` CLI for everything.
 
 ## Project profile
@@ -61,7 +61,7 @@ C4Context
 | Constitution (highest priority) | `sdd/openspec/constitution.md` |
 | Engineering standards | `sdd/openspec/standards/` |
 | Architecture & operations docs | `docs/` |
-| Legacy documentation registry | `docs/legacy/` (registry `LEG-NNN`, correspondence map, frozen changelog) |
+| Legacy documentation registry | `sdd/docs/legacy/` (registry `LEG-NNN`, correspondence map, frozen changelog) |
 | Customer input materials | `sdd/inputs/` (registry: `sdd/inputs/INDEX.md`) |
 | Config / profile | `sdd/openspec/config.yaml` |
 
