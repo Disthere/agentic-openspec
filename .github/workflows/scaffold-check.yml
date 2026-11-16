@@ -1,7 +1,7 @@
 name: scaffold-check
 
 # CI-гейт шаблона (PLAN.md, батч 2, задачи 2.1-2.6).
-# Заменяет черновик docs/ci/scaffold-check.yml и переводит проверки из «на глаз» в машинные.
+# Заменяет черновик sdd/docs/ci/scaffold-check.yml и переводит проверки из «на глаз» в машинные.
 # Список проверяемых файлов НЕ хардкодится вручную там, где его можно вывести из openspec/config.yaml:
 # стандарты берутся из каталога, схемы — из config.yaml, роли — из списка пресетов.
 
@@ -265,10 +265,14 @@ jobs:
     runs-on: ubuntu-latest
     # Проверка требует установленного DeepSeek Harness; на раннере его нет.
     # Шаг остаётся в workflow как исполняемая документация и запускается вручную/в self-hosted.
-    if: vars.DSH_PROFILE_CHECK == 'true'
+    # N-17: джоб был выключен по умолчанию (`vars.DSH_PROFILE_CHECK`), то есть «зелёный CI»
+    # ничего не говорил о композиции пресета. Теперь он запускается всегда; сам скрипт
+    # корректно выходит с 0 и печатает SKIP, если DSH на раннере не установлен, — поэтому
+    # включение не делает сборку красной на чистом раннере и не выдаёт SKIP за проверку.
+    if: vars.DSH_PROFILE_CHECK != 'false'
     steps:
       - uses: actions/checkout@v4
 
       - name: Check preset composition (>= 8 plugins per role preset)
         shell: pwsh
-        run: ./sdd/docs/ci/check-dsh-profile.ps1
+        run: ./sdd/docs/ci/check-dsh-profile.ps1 -RequireDsh   # в CI отсутствие DSH = FAIL, не SKIP

@@ -12,12 +12,9 @@
 
 ## Команды проверки
 
-```powershell
-dotnet restore
-dotnet build --configuration Release --no-restore
-dotnet test  --configuration Release --no-build
-dotnet format --verify-no-changes
-```
+Единственный источник команд — [`sdd/openspec/config.yaml`](../sdd/openspec/config.yaml) → `commands:`
+(`restore`, `build`, `test`, `format_check`). Не переписывай команды здесь: копия разъезжается
+с источником (канон [`AGENTS.md`](../AGENTS.md) §1).
 
 ## Запреты
 

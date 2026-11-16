@@ -31,7 +31,7 @@
   Desktop (`12-desktop.md` — профиль `csharp-desktop`).
 - **SDD-процесс** — [`sdd/openspec/`](./sdd/openspec): конфиг, схемы валидации, шаблоны предложений.
 - **Документация эксплуатации** — [`docs/`](./docs): границы сервисов, ADR, SLO, capacity, runbooks.
-- **Документация до SDD** — `docs/legacy/` (шаблон набора): реестр документов `LEG-NNN`, карта соответствий
+- **Документация до SDD** — `sdd/docs/legacy/` (шаблон набора): реестр документов `LEG-NNN`, карта соответствий
   «их документ → наш артефакт», замороженная история изменений; для проектов, у которых документация уже
   есть и устроена иначе. Правила — [`sdd/openspec/standards/04-documentation.md` §4.10](./sdd/openspec/standards/04-documentation.md),
   промпты — [`docs/ADOPTION.md`](./sdd/docs/ADOPTION.md) §3 (B1a, B5) и §7 (B6).
@@ -51,40 +51,55 @@
 
 ```text
 agentic-openspec/
-├── .clinerules                 # совместимое зеркало правил (C#, SDD, делегирование)
-├── AGENTS.md                   # кросс-инструментальное зеркало правил
-├── CHANGELOG.md                # история изменений (Keep a Changelog + SemVer)
-├── OPEN_QUESTIONS.md           # открытые пункты (OQ-N) + ответы пользователя
-├── DECISIONS.md                # журнал решений (D-NNN)
-├── inputs/                     # материалы заказчика: briefs/ concepts/ graphics/ samples/ (+INDEX.md)
-├── .editorconfig               # стиль C# (Allman, отступы, именование, анализаторы)
-├── global.json                 # фиксация версии .NET SDK
-├── Directory.Build.props       # общие настройки сборки всех проектов
-├── Directory.Packages.props    # централизованные версии NuGet-пакетов
+├── AGENTS.md                   # канон правил для агентов (DSH читает этот файл) — ОБЯЗАН быть в корне
+├── .clinerules                 # совместимое зеркало правил (C#, SDD, делегирование) — ОБЯЗАНО быть в корне
+├── .agents/                    # роли и скиллы — DSH ищет строго в <корень>/.agents/skills
+│   ├── analyst.md              # Продуктовый аналитик (Discovery, inputs/, IN-NNN)
+│   ├── architect.md            # Архитектор (спеки, C4/Mermaid, без кода)
+│   ├── csharp-dev.md           # Разработчик (реализация + dotnet build/test)
+│   ├── qa-engineer.md          # Инженер верификации (acceptance.md, улики)
+│   ├── reviewer.md             # Ревьюер (двухосевой вердикт Pass / нарушения)
+│   ├── ops-release.md          # Ops / Release (changelog, откат, SLO, runbook)
+│   └── skills/<name>/SKILL.md  # переиспользуемые скиллы
 ├── .github/
 │   ├── copilot-instructions.md # короткая точка входа для GitHub Copilot
 │   ├── instructions/*.md       # тематические указатели (csharp, aspnetcore, ...)
 │   └── workflows/              # проверка целостности шаблона
-├── .agents/                    # роли и скиллы субагентов
-│   ├── architect.md            # Архитектор (спеки, C4/Mermaid, без кода)
-│   ├── csharp-dev.md           # Разработчик (реализация + dotnet build/test)
-│   ├── reviewer.md             # Ревьюер (вердикт Pass / нарушения)
-│   └── skills/<name>/SKILL.md  # переиспользуемые скиллы
-├── docs/
+├── .editorconfig               # стиль C# (Allman, отступы, именование, анализаторы)
+├── global.json                 # фиксация версии .NET SDK
+├── Directory.Build.props       # общие настройки сборки всех проектов
+├── Directory.Packages.props    # централизованные версии NuGet-пакетов
+├── agentic-openspec.slnx       # решение (переименуйте под проект)
+├── LICENSE / THIRD-PARTY.md / README.md
+├── docs/                       # документация ПРОДУКТА
 │   ├── architecture/{service-boundaries.md, adr/}
-│   ├── operations/{slo.md, capacity.md, runbooks/}
-│   └── legacy/                 # документация до SDD: реестр LEG-NNN, карта соответствий, замороженный changelog
-├── openspec/                   # артефакты SDD
-│   ├── constitution.md         # конституция проекта (высший приоритет)
-│   ├── config.yaml             # профиль (csharp-api), активные схемы, гейты
-│   ├── project.md              # контекст проекта для агентов
-│   ├── proposals/              # предложения фич + шаблоны (proposal/tasks/performance/acceptance/contracts)
-│   ├── schemas/                # машиночитаемые схемы валидации
-│   ├── standards/              # инженерные стандарты 01..11
-│   └── specs/                  # живые спецификации (после архивации предложений)
-├── src/                        # исходники решений (заглушка — удалите/замените)
-└── tests/                      # тесты (заглушка — удалите/замените)
+│   └── operations/{slo.md, capacity.md, runbooks/}
+├── src/                        # исходники продукта (заглушка — удалите/замените)
+├── tests/                      # тесты продукта (заглушка — удалите/замените)
+└── sdd/                        # ★ ВСЁ SDD — ОДНОЙ ПАПКОЙ, переносится целиком
+    ├── openspec/               # конституция, стандарты 01–12, предложения, схемы, specs
+    │   ├── constitution.md     # конституция проекта (высший приоритет)
+    │   ├── config.yaml         # профиль (csharp-api), активные схемы, гейты, commands
+    │   ├── project.md          # контекст проекта для агентов
+    │   ├── proposals/          # предложения фич + шаблоны (proposal/tasks/performance/acceptance/contracts)
+    │   ├── schemas/            # машиночитаемые схемы валидации
+    │   ├── standards/          # инженерные стандарты 01..12
+    │   └── specs/              # живые спецификации (после архивации предложений)
+    ├── tools/                  # машинные гейты (validate-proposals, check-coverage, ...)
+    ├── dsh/                    # пресет `sdd` для DeepSeek Harness + install.ps1
+    ├── inputs/                 # материалы заказчика: briefs/ concepts/ graphics/ samples/ (+INDEX.md)
+    ├── docs/                   # ADOPTION, SDD-OVERVIEW, SET-AUDIT, CLEANUP, шаблоны, legacy
+    ├── STATUS.md               # где мы сейчас: активные предложения, фазы, блокеры
+    ├── DECISIONS.md            # журнал решений (D-NNN)
+    ├── OPEN_QUESTIONS.md       # открытые пункты (OQ-N)
+    ├── CHANGELOG.md            # история изменений (Keep a Changelog + SemVer)
+    └── METRICS.md              # метрики процесса (генерируется, в git не хранится)
 ```
+
+> **Почему часть файлов остаётся в корне.** Это не небрежность: `.agents/skills` DSH ищет строго
+> в корне проекта (ближайший предок с `.git`), `AGENTS.md` и `.clinerules` — точки входа агентных
+> инструментов, `global.json`/`Directory.*.props`/`.editorconfig` MSBuild и редакторы читают только
+> от корня. Обоснование — [`AGENTS.md`](./AGENTS.md) §4.
 
 ---
 
@@ -150,7 +165,7 @@ agentic-openspec/
 | Путь | Копировать | Если файл уже есть |
 | - | - | - |
 | `.agents/` | ✅ обязательно | объедините со своими агентами |
-| `sdd/openspec/` (без `proposals/archive`) | ✅ обязательно | перенесите; свои спеки положите рядом |
+| `sdd/` целиком (без `proposals/archive` и `docs/legacy/set-history/`) | ✅ обязательно | одна папка со всем SDD; свои спеки положите рядом |
 | `.clinerules`, `AGENTS.md` | ✅ обязательно | **влейте** правила, не перезаписывайте целиком |
 | `.github/copilot-instructions.md`, `instructions/` | ⚪ по желанию | проверьте, нет ли уже похожих |
 | `docs/` | ⚪ по желанию | объедините с вашей документацией |
@@ -167,18 +182,25 @@ $template = "C:\path\to\agentic-openspec"     # локальная копия ш
 $target   = "C:\path\to\your-existing-repo"   # ваш существующий репозиторий
 
 # Инструментальная часть — копируется целиком
-Copy-Item "$template\.agents"  $target -Recurse -Force
-Copy-Item "$template\openspec" $target -Recurse -Force
-Copy-Item "$template\docs"     $target -Recurse -Force
-Copy-Item "$template\.clinerules" $target -Force
-Copy-Item "$template\AGENTS.md"   $target -Force
+Copy-Item "$template\.agents"                   $target -Recurse -Force
+Copy-Item "$template\sdd"                       $target -Recurse -Force
+Copy-Item "$template\.clinerules"               $target -Force
+Copy-Item "$template\AGENTS.md"                 $target -Force
 New-Item -ItemType Directory -Force -Path "$target\.github\instructions" | Out-Null
 Copy-Item "$template\.github\instructions\*"          "$target\.github\instructions" -Force
 Copy-Item "$template\.github\copilot-instructions.md" "$target\.github" -Force
 
+# Документация ПРОДУКТА (architecture/, operations/) — по желанию, объедините со своей
+# Copy-Item "$template\docs" $target -Recurse -Force
+
 # ВАЖНО: .editorconfig, Directory.Build.props, Directory.Packages.props, global.json —
 # смёржите вручную (не перезаписывайте), сохранив свои настройки и версии пакетов.
 ```
+
+> `sdd/` копируется **целиком** — вместе с `openspec/`, `tools/`, `dsh/`, `inputs/`, `docs/` и
+> реестрами. Отдельно копировать `sdd/openspec` не нужно: скрипты гейтов находят свои корни от
+> собственного расположения. Если примеры предложений не нужны — удалите
+> `sdd/openspec/proposals/archive/` по чек-листу [`sdd/docs/CLEANUP.md`](./sdd/docs/CLEANUP.md).
 
 ### Что ещё адаптировать под существующий проект
 
@@ -219,7 +241,12 @@ Explore → Propose → (человек утверждает) → Apply → Revi
 
 ### Гейт проверки
 
+Единственный источник команд гейта — [`sdd/openspec/config.yaml`](./sdd/openspec/config.yaml) → `commands:`
+(`restore`, `build`, `test`, `format_check`). Другие документы ссылаются туда, а не переписывают команды
+(канон [`AGENTS.md`](./AGENTS.md) §1, находка P1-5).
+
 ```powershell
+# значения команд — из config.yaml → commands:
 dotnet restore
 dotnet build --configuration Release --no-restore
 dotnet test  --configuration Release --no-build

@@ -105,11 +105,8 @@ description: Независимый контролёр качества. Вып�
 
 Прогони гейт сам и зафиксируй вывод:
 
-```powershell
-dotnet build --configuration Release
-dotnet test  --configuration Release
-dotnet format --verify-no-changes
-```
+Команды берутся из [`sdd/openspec/config.yaml`](../sdd/openspec/config.yaml) → `commands:` (`build`, `test`,
+`format_check`) — не переписывай их здесь. Прогони и зафиксируй фактический вывод.
 
 Для изменений без C#-кода (например, документарных) гейт не применяется — это указывается явно, а не
 выдаётся за успех.
@@ -122,7 +119,13 @@ dotnet format --verify-no-changes
 
 ### Шаг 6. Вердикт
 
-Первой строкой — ровно одно из двух:
+**Вердикт сохраняется файлом** — `review.md` в каталоге предложения (шаблон:
+[`000-review.md`](../sdd/openspec/proposals/000-review.md)). Вердикт в переписке сессии артефактом
+не является: архивный гейт ищет файл и валит предложение без него
+(`validate-proposals.ps1 -Archived`). Причина — реальный кейс 2026-11-16, где ревью прошло, а файла
+не осталось, и `STATUS.md` с `acceptance.md` разошлись в показаниях.
+
+Первой строкой файла — ровно одно из двух:
 
 ```text
 VERDICT: Pass

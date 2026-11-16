@@ -23,12 +23,8 @@ description: Пошагово реализует утверждённое пре
 5. Отмечай `- [x]` в `tasks.md` по каждой выполненной задаче.
 6. Прогони гейт верификации и зафиксируй вывод:
 
-   ```powershell
-   dotnet restore
-   dotnet build --configuration Release --no-restore
-   dotnet test  --configuration Release --no-build
-   dotnet format --verify-no-changes
-   ```
+   Команды берутся из [`sdd/openspec/config.yaml`](../../../sdd/openspec/config.yaml) → `commands:`
+   (единственный источник, канон [`AGENTS.md`](../../../AGENTS.md) §1). Не переписывай их здесь.
 
 7. Доложи Оркестратору: `DONE`/`BLOCKED`, затронутые файлы, команды + счётчики pass/fail, отклонения.
 
